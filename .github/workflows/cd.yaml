@@ -1,0 +1,55 @@
+name: Continuous Deployment
+on:
+  push:
+    branches:
+      - master
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      POETRY_HTTP_BASIC_SAGACIFY_USERNAME: ${{ secrets.POETRY_HTTP_BASIC_SAGACIFY_USERNAME }}
+      POETRY_HTTP_BASIC_SAGACIFY_PASSWORD: ${{ secrets.POETRY_HTTP_BASIC_SAGACIFY_PASSWORD }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: cache poetry install
+        uses: actions/cache@v2
+        with:
+          path: ~/.local
+          key: poetry-1.3.2-0
+
+      - uses: snok/install-poetry@v1
+        with:
+          version: 1.3.2
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      # Need till this issue is resolved: https://github.com/relekang/python-semantic-release/issues/401
+      - name: Capture current version
+        id: current_version
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: echo "::set-output name=version::$(poetry version -s)"
+
+      - name: Python Semantic Release
+        id: semantic_release
+        uses: relekang/python-semantic-release@v7.34.4
+        with:
+          github_token: ${{ secrets.SAGA_GITHUB_TOKEN }}
+
+      - name: Capture new version
+        id: new_version
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: echo "::set-output name=version::$(poetry version -s)"
+
+      - name: Build package
+        if: ${{ steps.new_version.outputs.version != steps.current_version.outputs.version }}
+        run: poetry build
+
+      - name: Push to private PyPI registry
+        if: ${{ steps.new_version.outputs.version != steps.current_version.outputs.version }}
+        run: poetry publish --repository sagacify
