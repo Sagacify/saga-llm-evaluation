@@ -29,7 +29,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.semantic_release]
 version_variable = "saga_llm_evaluation_ml/__init__.py:__version__"
-branch = "main"
+branch = "master"
 version_toml = "pyproject.toml:tool.poetry.version"
 commit_subject = 'chore(release): Release v{version} [skip ci]'
 upload_to_pypi = false
