@@ -4,7 +4,7 @@ from evaluate import load
 
 
 class BERTScore:
-    def __init__(self, model_type="roberta-large"):
+    def __init__(self, model_type="distilbert-base-uncased"):
         """
         BERTScore computes a similarity score for each token in the candidate sentence with each token in the reference sentence.
         The final score is the average of the similarity scores of all tokens in the candidate sentence.
@@ -56,5 +56,5 @@ class MAUVE:
             list: List of MAUVE scores for each candidate sentence.
         """
         return self.metric.compute(
-            predictions=predictions, references=references, **kwargs
+            predictions=predictions, references=references, featurize_model_name="gpt2", **kwargs
         )
