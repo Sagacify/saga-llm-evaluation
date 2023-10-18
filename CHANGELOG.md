@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.0 (2023-10-18)
+
+### Feature
+
+* **bleurt:** Add bleurt metric support ([`5a315c6`](https://github.com/Sagacify/saga-llm-evaluation/commit/5a315c6d907ffc5590b8929d89df9fcc84579865))
+
+### Fix
+
+* **tensorflow-macos:** Attempt to fix poetry install for ci ([`9e1cfb6`](https://github.com/Sagacify/saga-llm-evaluation/commit/9e1cfb603b9746b459efc9db68049fcc99d1d645))
+
 ## v0.1.0 (2023-10-18)
 
 ### Feature
