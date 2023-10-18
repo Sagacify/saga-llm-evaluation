@@ -1,5 +1,5 @@
 import json
-from elemeta.nlp.runners.metafeature_extractors_runner import (
+from elemeta.nlp.metafeature_extractors_runner import (
     MetafeatureExtractorsRunner,
 )
 from elemeta.nlp.extractors.high_level.word_regex_matches_count import (
