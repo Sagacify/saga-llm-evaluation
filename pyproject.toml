@@ -16,7 +16,7 @@ bert-score = "^0.3.13"
 torch = ">=2.0.0, !=2.0.1, !=2.1.0"
 tensorflow = "^2.14.0"
 bleurt = {git = "https://github.com/google-research/bleurt.git"}
-tensorflow-macos = "^2.14.0"
+tensorflow-macos = {version = "2.14.0", platform = "darwin"}
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.13"
