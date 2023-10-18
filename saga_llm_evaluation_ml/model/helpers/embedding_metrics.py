@@ -39,13 +39,13 @@ class BERTScore:
 
 
 class MAUVE:
-    def __init__(self):
+    def __init__(self, featurize_model_name="gpt2"):
         """
         MAUVE score computes the difference between the candidate sentence distribution and the reference sentence distribution.
         The bigger the MAUVE score, the better.
         """
         self.metric = load("mauve")
-        self.featurize_model_name = "gpt2"
+        self.featurize_model_name = featurize_model_name
 
     def compute(self, references, predictions, **kwargs):
         """
