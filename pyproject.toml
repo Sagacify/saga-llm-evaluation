@@ -12,8 +12,8 @@ spacy = "^3.1.3"
 evaluate = "^0.4.1"
 scikit-learn = "^1.3.1"
 mauve-text = "^0.3.0"
-pytest = "^7.4.2"
 bert-score = "^0.3.13"
+torch = ">=2.0.0, !=2.0.1, !=2.1.0"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.13"
@@ -27,6 +27,10 @@ name = "sagacify"
 url = "https://pypiserver.sagacify.com/"
 default = false
 secondary = true
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

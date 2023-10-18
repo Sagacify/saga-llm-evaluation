@@ -45,6 +45,7 @@ class MAUVE:
         The bigger the MAUVE score, the better.
         """
         self.metric = load("mauve")
+        self.featurize_model_name = "gpt2"
 
     def compute(self, references, predictions, **kwargs):
         """
@@ -56,5 +57,8 @@ class MAUVE:
             list: List of MAUVE scores for each candidate sentence.
         """
         return self.metric.compute(
-            predictions=predictions, references=references, featurize_model_name="gpt2", **kwargs
+            predictions=predictions,
+            references=references,
+            featurize_model_name=self.featurize_model_name,
+            **kwargs
         )
