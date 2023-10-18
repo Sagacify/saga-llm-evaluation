@@ -9,8 +9,8 @@ class TestBERTScore(unittest.TestCase):
         references = ["The cat sat on the mat.", "The dog sat on the log."]
         predictions = ["The cat sat on the mat.", "The dog sat on the log."]
         bertscore = BERTScore()
+
         scores = bertscore.compute(references, predictions)
-        print(scores)
         self.assertEqual(len(scores["precision"]), len(references))
         self.assertEqual(len(scores["recall"]), len(references))
         self.assertEqual(len(scores["f1"]), len(references))

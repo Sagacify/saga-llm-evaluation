@@ -1,5 +1,3 @@
-# TODO: Implement BERTScore
-# TODO: Implement MAUVE
 from evaluate import load
 
 
