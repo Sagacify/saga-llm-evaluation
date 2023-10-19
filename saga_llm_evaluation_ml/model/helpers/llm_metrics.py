@@ -16,30 +16,34 @@ class GPTScore:
         and theta are model parameters.
         GPTScore does not require any reference text.
         """
-        self.huggingface_models = ["meta-llama/Llama-2-7b-chat-hf", "gpt2", "mistralai/Mistral-7B-v0.1"]
+        self.huggingface_models = [
+            "meta-llama/Llama-2-7b-chat-hf",
+            "gpt2",
+            "mistralai/Mistral-7B-v0.1",
+        ]
         self.aspects = [
-                "COV",
-                "FAC",
-                "FLU",
-                "CON",
-                "INF",
-                "COH",
-                "REL",
-                "ACC",
-                "MQM",
-                "INT",
-                "ENG",
-                "SPE",
-                "COR",
-                "SEM",
-                "UND",
-                "ERR",
-                "DIV",
-                "DEP",
-                "LIK",
-                "FLE",
-                "INQ",
-            ]
+            "COV",
+            "FAC",
+            "FLU",
+            "CON",
+            "INF",
+            "COH",
+            "REL",
+            "ACC",
+            "MQM",
+            "INT",
+            "ENG",
+            "SPE",
+            "COR",
+            "SEM",
+            "UND",
+            "ERR",
+            "DIV",
+            "DEP",
+            "LIK",
+            "FLE",
+            "INQ",
+        ]
         self.models = ["meta-llama/Llama-2-7b-chat-hf", "gpt-3.5-turbo", "gpt2"]
         self.tasks = ["summ", "MT", "D2T", "diag"]
 
@@ -54,7 +58,7 @@ class GPTScore:
         Returns:
             str: Prompt template.
         """
-        
+
         templates = {
             "summ": {
                 "FAC": f"Generate a summary with consistent facts for the following text: {src}\n\nTl;dr{pred}",
@@ -95,7 +99,6 @@ class GPTScore:
         assert templates[d][
             a
         ], f"Prompt template for aspect {a} and task {d} is non-existent. Please specify a prompt template."
-
 
         return templates[d][a]
 
@@ -145,15 +148,21 @@ class GPTScore:
         Returns:
             list: List of scores for each candidate sentence.
         """
-        assert isinstance(sources, list) and isinstance(sources[0], str), "Source must be a list of strings."
-        assert isinstance(preds, list) and isinstance(preds[0], str), "Prediction must be a list of strings."
+        assert isinstance(sources, list) and isinstance(
+            sources[0], str
+        ), "Source must be a list of strings."
+        assert isinstance(preds, list) and isinstance(
+            preds[0], str
+        ), "Prediction must be a list of strings."
 
         assert isinstance(model, str), "Model must be a string."
         assert model in self.models, f"Model must be one of {self.models}."
 
         # If prompt is given, check that it is a list of string
         if prompts:
-            assert isinstance(prompts, list) and isinstance(prompts[0], str), "Prompts must be a list of strings."
+            assert isinstance(prompts, list) and isinstance(
+                prompts[0], str
+            ), "Prompts must be a list of strings."
             assert not a, "Aspect must not be given if prompt is given."
             assert not d, "Task must not be given if prompt is given."
         else:
@@ -172,7 +181,13 @@ class GPTScore:
             assert d in self.tasks, f"Task must be one of {self.tasks}."
 
         # Generative LLM is given a prompt template and some context information
-        prompts = prompts if prompts else [self.get_prompt(a, d, src, pred) for (src, pred) in zip(sources, preds)]
+        prompts = (
+            prompts
+            if prompts
+            else [
+                self.get_prompt(a, d, src, pred) for (src, pred) in zip(sources, preds)
+            ]
+        )
 
         # Model predicts log-likelihood of the next token given the previous tokens and the prompt template
         if model in self.huggingface_models:
