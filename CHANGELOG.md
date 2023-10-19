@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.0 (2023-10-19)
+
+### Feature
+
+* **metadata:** Add support for computing simple metadata ([`1f12800`](https://github.com/Sagacify/saga-llm-evaluation/commit/1f128005fd755a8d3ff7eeaaebe6113b76ba721c))
+
+### Fix
+
+* **ci:** Downgraded elemeta to 1.0.7 ([`c8c872c`](https://github.com/Sagacify/saga-llm-evaluation/commit/c8c872cebf918062af03e7929988e6a086541229))
+* **ci:** Attempt for fixing ci ([`74b2078`](https://github.com/Sagacify/saga-llm-evaluation/commit/74b2078d0bd306880271a2045d75215eb8e1973d))
+
 ## v0.2.0 (2023-10-18)
 
 ### Feature
