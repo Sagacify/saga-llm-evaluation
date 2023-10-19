@@ -16,54 +16,46 @@ class GPTScore:
         and theta are model parameters.
         GPTScore does not require any reference text.
         """
+        self.huggingface_models = ["meta-llama/Llama-2-7b-chat-hf", "gpt2", "mistralai/Mistral-7B-v0.1"]
+        self.aspects = [
+                "COV",
+                "FAC",
+                "FLU",
+                "CON",
+                "INF",
+                "COH",
+                "REL",
+                "ACC",
+                "MQM",
+                "INT",
+                "ENG",
+                "SPE",
+                "COR",
+                "SEM",
+                "UND",
+                "ERR",
+                "DIV",
+                "DEP",
+                "LIK",
+                "FLE",
+                "INQ",
+            ]
+        self.models = ["meta-llama/Llama-2-7b-chat-hf", "gpt-3.5-turbo", "gpt2"]
+        self.tasks = ["summ", "MT", "D2T", "diag"]
 
-    def compute(
-        self, src, pred, model="gpt2", prompt=None, a=None, d=None, api_key=None
-    ):
+    def get_prompt(self, a, d, src, pred):
         """
-        This method computes GPTScore for a list of candidate sentences given a task description, an aspect to evaluate and context information.
-        The possible values for aspect are:
-        - (COV): Semantic coverage. How many semantic content units from the reference text are covered by the generated text?
-        - (FAC): Factuality. Does the generated text preserve the factual statements of the source text?)
-        - (FLU): Fluency. Is the generated text well-written and grammatical?
-        - (CON): Consistency. Is the generated text consistent in the information it provides?
-        - (INF): Informativeness. How well does the generated text capture the key ideas of its source text?
-        - (COH): Coherence. How much does the generated text make sense?
-        - (REL): Relevance. How well is the generated text relevant to its source text?
-        - (ACC): Accuracy. Are there inaccuracies, missing, or unfactual content in the generated text?
-        - (MQM): Multidimensional MT How is the overall quality of the generated text?
-        - (INT): Interest. Is the generated text interesting?
-        - (ENG): Engagement. Is the generated text engaging?
-        - (SPE): Specific. Is the generated text generic or specific to the source text?
-        - (COR): Correctness. Is the generated text correct or was there a misunderstanding of the source text?
-        - (SEM): Semantically appropriate. Is the generated text semantically appropriate?
-        - (UND): Understandability. Is the generated text understandable?
-        - (ERR): Error Recovery. Is the system able to recover from errors that it makes?
-        - (DIV): Diversity. Is there diversity in the system responses?
-        - (DEP): Depth. Does the system discuss topics in depth?
-        - (LIK): Likeability. Does the system display a likeable personality?
-        - (FLE): Flexibility. Is the system flexible and adaptable to the user and their interests?
-        - (INQ): Inquisitiveness. Is the system inquisitive throughout the conversation?
-
-        Possible tasks are for pre-made prompts are:
-        - (summ): Summarization. Generating an informative and fluent summary for a given long text.
-        - (MT): Machine Translation. Translate a sentence from one language to another.
-        - (D2T): Data to Text. Automatically generate a fluent and factual description for a given table.
-        - (diag): Dialogue. Generate an engaging and informative response based on the dialogue history.
-
+        This method returns a prompt template given a task description, and an aspect to evaluate.
         Args:
+            a (str): Aspect to evaluate.
+            d (str): Task description.
             src (str): Source text.
             pred (str): Candidate sentence.
-            model (str): Model name. If None, a default model is used.
-            prompt (str): Prompt template. If None, a default prompt template is used.
-            a (list): List of aspects to evaluate.
-            d (str): Task description.
-            api_key (str): OpenAI API key.
-
         Returns:
-            list: List of scores for each candidate sentence.
+            str: Prompt template.
         """
-        prompts = {
+        
+        templates = {
             "summ": {
                 "FAC": f"Generate a summary with consistent facts for the following text: {src}\n\nTl;dr{pred}",
                 "COV": f"Generate a summary with as much semantic coverage as possible for the following text: {src}\n\nTl;dr{pred}",
@@ -97,16 +89,71 @@ class GPTScore:
             },
         }
 
-        assert isinstance(src, str), "Source must be a string."
-        assert isinstance(pred, str), "Prediction must be a string."
-        assert isinstance(model, str), "Model must be a string."
-        # If model is not in the list of models, raise an error
-        models = ["meta-llama/Llama-2-7b-chat-hf", "gpt-3.5-turbo", "gpt2"]
-        assert model in models, f"Model must be one of {models}."
+        # Check that the corresponding entry exists in the prompt template
+        assert a in templates[d], f"Aspect {a} is not available for task {d}."
+        # Check that the prompt template is not empty
+        assert templates[d][
+            a
+        ], f"Prompt template for aspect {a} and task {d} is non-existent. Please specify a prompt template."
 
-        # If prompt is given, check that it is a string
-        if prompt:
-            assert isinstance(prompt, str), "Prompt must be a string."
+
+        return templates[d][a]
+
+    def compute(
+        self, sources, preds, model="gpt2", prompts=None, a=None, d=None, api_key=None
+    ):
+        """
+        This method computes GPTScore for a list of candidate sentences given a task description, an aspect to evaluate and context information.
+        The possible values for aspect are:
+        - (COV): Semantic coverage. How many semantic content units from the reference text are covered by the generated text?
+        - (FAC): Factuality. Does the generated text preserve the factual statements of the source text?)
+        - (FLU): Fluency. Is the generated text well-written and grammatical?
+        - (CON): Consistency. Is the generated text consistent in the information it provides?
+        - (INF): Informativeness. How well does the generated text capture the key ideas of its source text?
+        - (COH): Coherence. How much does the generated text make sense?
+        - (REL): Relevance. How well is the generated text relevant to its source text?
+        - (ACC): Accuracy. Are there inaccuracies, missing, or unfactual content in the generated text?
+        - (MQM): Multidimensional MT How is the overall quality of the generated text?
+        - (INT): Interest. Is the generated text interesting?
+        - (ENG): Engagement. Is the generated text engaging?
+        - (SPE): Specific. Is the generated text generic or specific to the source text?
+        - (COR): Correctness. Is the generated text correct or was there a misunderstanding of the source text?
+        - (SEM): Semantically appropriate. Is the generated text semantically appropriate?
+        - (UND): Understandability. Is the generated text understandable?
+        - (ERR): Error Recovery. Is the system able to recover from errors that it makes?
+        - (DIV): Diversity. Is there diversity in the system responses?
+        - (DEP): Depth. Does the system discuss topics in depth?
+        - (LIK): Likeability. Does the system display a likeable personality?
+        - (FLE): Flexibility. Is the system flexible and adaptable to the user and their interests?
+        - (INQ): Inquisitiveness. Is the system inquisitive throughout the conversation?
+
+        Possible tasks are for pre-made prompts are:
+        - (summ): Summarization. Generating an informative and fluent summary for a given long text.
+        - (MT): Machine Translation. Translate a sentence from one language to another.
+        - (D2T): Data to Text. Automatically generate a fluent and factual description for a given table.
+        - (diag): Dialogue. Generate an engaging and informative response based on the dialogue history.
+
+        Args:
+            sources (list of str): Source texts.
+            preds (list of str): Candidate sentences.
+            model (str): Model name. If None, a default model is used.
+            prompt (str): Prompt template. If None, a default prompt template is used.
+            a (list): List of aspects to evaluate.
+            d (str): Task description.
+            api_key (str): OpenAI API key.
+
+        Returns:
+            list: List of scores for each candidate sentence.
+        """
+        assert isinstance(sources, list) and isinstance(sources[0], str), "Source must be a list of strings."
+        assert isinstance(preds, list) and isinstance(preds[0], str), "Prediction must be a list of strings."
+
+        assert isinstance(model, str), "Model must be a string."
+        assert model in self.models, f"Model must be one of {self.models}."
+
+        # If prompt is given, check that it is a list of string
+        if prompts:
+            assert isinstance(prompts, list) and isinstance(prompts[0], str), "Prompts must be a list of strings."
             assert not a, "Aspect must not be given if prompt is given."
             assert not d, "Task must not be given if prompt is given."
         else:
@@ -117,53 +164,21 @@ class GPTScore:
         # If aspect is given, check that it is a string
         if a:
             assert isinstance(a, str), "Aspect must be a string."
-            aspects = [
-                "COV",
-                "FAC",
-                "FLU",
-                "CON",
-                "INF",
-                "COH",
-                "REL",
-                "ACC",
-                "MQM",
-                "INT",
-                "ENG",
-                "SPE",
-                "COR",
-                "SEM",
-                "UND",
-                "ERR",
-                "DIV",
-                "DEP",
-                "LIK",
-                "FLE",
-                "INQ",
-            ]
-            assert a in aspects, f"Aspect must be one of {aspects}."
+            assert a in self.aspects, f"Aspect must be one of {self.aspects}."
 
         # If task is given, check that it is a string
         if d:
             assert isinstance(d, str), "Task must be a string."
-            tasks = ["summ", "MT", "D2T", "diag"]
-            assert d in tasks, f"Task must be one of {tasks}."
-
-        if a and d:
-            # Check that the corresponding entry exists in the prompt template
-            assert a in prompts[d], f"Aspect {a} is not available for task {d}."
-            # Check that the prompt template is not empty
-            assert prompts[d][
-                a
-            ], f"Prompt template for aspect {a} and task {d} is non-existent. Please specify a prompt template."
+            assert d in self.tasks, f"Task must be one of {self.tasks}."
 
         # Generative LLM is given a prompt template and some context information
-        prompt = prompt if prompt else prompts[d][a]
+        prompts = prompts if prompts else [self.get_prompt(a, d, src, pred) for (src, pred) in zip(sources, preds)]
 
         # Model predicts log-likelihood of the next token given the previous tokens and the prompt template
-        if model == "meta-llama/Llama-2-7b-chat-hf" or model == "gpt2":
+        if model in self.huggingface_models:
             tokenizer = AutoTokenizer.from_pretrained(model)
             llm = AutoModelForCausalLM.from_pretrained(model)
-            inputs = tokenizer(prompt, return_tensors="pt")
+            inputs = tokenizer(prompts, return_tensors="pt")
 
             outputs = llm.generate(
                 **inputs,
@@ -176,22 +191,24 @@ class GPTScore:
                 outputs.sequences, outputs.scores, normalize_logits=True
             )
 
-            logprobs = np.array(transition_scores[0].tolist())
-            print(logprobs)
+            logprobs = np.array(transition_scores.tolist())
 
         elif model == "gpt-3.5-turbo":
             openai.api_key = api_key
             response = openai.Completion.create(
                 model=model,
-                prompt=prompt,
+                prompt=prompts,
                 logprobs=5,
             )
 
             logprobs = response["choices"][0]["logprobs"]
 
-        # Compute GPTScore
-        score = 0
-        for i, _ in enumerate(pred.split()):
-            score += logprobs[i]
+        # Compute GPTScores
+        scores = []
+        for i, pred in enumerate(preds):
+            pred_tokens = pred.split()
+            pred_logprobs = logprobs[i][: len(pred_tokens)]
+            score = np.mean(pred_logprobs)
+            scores.append(score)
 
-        return score
+        return scores
