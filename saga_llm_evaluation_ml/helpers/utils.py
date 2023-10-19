@@ -18,7 +18,7 @@ class MetadataExtractor:
     def __init__(self):
         self.metadata_extractor = MetafeatureExtractorsRunner()
 
-    def addWordRegexMatchesCount(self, regex_rule, name=None):
+    def add_word_regex_matches_count(self, regex_rule, name=None):
         """
         Adds a regex rule to the metadata extractor.
         For a given regex return the number of words matching the regex.
@@ -30,7 +30,7 @@ class MetadataExtractor:
             WordRegexMatchesCount(regex=regex_rule, name=name)
         )
 
-    def addRegexMatchCount(self, regex_rule, name=None):
+    def add_regex_match_count(self, regex_rule, name=None):
         """
         Adds a regex rule to the metadata extractor.
         For a given regex return the number of matches it has in the text.

@@ -1,74 +1,78 @@
 import unittest
 
-from saga_llm_evaluation_ml.model.helpers.llm_metrics import GPTScore
+from saga_llm_evaluation_ml.helpers.llm_metrics import GPTScore
 
 
 class TestGPTScore(unittest.TestCase):
+    def test_init(self):
+        with self.assertRaises(AssertionError):
+            GPTScore(model=100)
+            GPTScore(model="notvalid")
+
     def test_bad_arguments(self):
         gptscore = GPTScore()
 
         with self.assertRaises(AssertionError):
             gptscore.compute("The cat sat on the mat.", "The dog sat on the log.")
             gptscore.compute(
-                ["The cat sat on the mat."], ["The dog sat on the log."], model="random"
-            )
-            gptscore.compute(
                 ["The cat sat on the mat."],
                 ["The dog sat on the log."],
-                model="meta-llama/Llama-2-7b-chat-hf",
                 prompts=10,
             )
             gptscore.compute(
                 ["The cat sat on the mat."],
                 ["The dog sat on the log."],
                 prompts="Summarize",
-                a="ERR",
+                aspect="ERR",
             )
             gptscore.compute(
                 ["The cat sat on the mat."],
                 ["The dog sat on the log."],
                 prompts="Summarize",
-                d="summ",
+                task="summ",
             )
             gptscore.compute(
                 ["The cat sat on the mat."],
                 ["The dog sat on the log."],
                 prompts="Summarize",
-                a="ERR",
-                d="summ",
+                aspect="ERR",
+                task="summ",
             )
             gptscore.compute(
                 ["The cat sat on the mat."],
                 ["The dog sat on the log."],
-                a="ERR",
-                d=None,
+                aspect="ERR",
+                task=None,
             )
             gptscore.compute(
                 ["The cat sat on the mat."],
                 ["The dog sat on the log."],
-                a=None,
-                d="summ",
-            )
-            gptscore.compute(
-                ["The cat sat on the mat."], ["The dog sat on the log."], a=2, d="summ"
+                aspect=None,
+                task="summ",
             )
             gptscore.compute(
                 ["The cat sat on the mat."],
                 ["The dog sat on the log."],
-                a="ERR",
-                d=None,
+                aspect=2,
+                task="summ",
             )
             gptscore.compute(
                 ["The cat sat on the mat."],
                 ["The dog sat on the log."],
-                a="notvalid",
-                d="summ",
+                aspect="ERR",
+                task=None,
             )
             gptscore.compute(
                 ["The cat sat on the mat."],
                 ["The dog sat on the log."],
-                a="ERR",
-                d="D2T",
+                aspect="notvalid",
+                task="summ",
+            )
+            gptscore.compute(
+                ["The cat sat on the mat."],
+                ["The dog sat on the log."],
+                aspect="ERR",
+                task="D2T",
             )
 
     def test_compute_gpt2(self):
@@ -79,7 +83,7 @@ class TestGPTScore(unittest.TestCase):
         gptscore = GPTScore()
 
         # gpt2
-        scores = gptscore.compute(sources, preds, a="ERR", d="diag", model="gpt2")
+        scores = gptscore.compute(sources, preds, aspect="ERR", task="diag")
         self.assertGreater(scores[1], scores[0])
 
     # def test_compute_mistral(self):
@@ -94,8 +98,8 @@ class TestGPTScore(unittest.TestCase):
     #     gptscore = GPTScore()
 
     #     # mistralai/Mistral-7B-v0.1
-    #     score = gptscore.compute(source, pred, a="ERR", d="diag", model="mistralai/Mistral-7B-v0.1")
-    #     score_2 = gptscore.compute(source, better_pred, a="ERR", d="diag", model="mistralai/Mistral-7B-v0.1")
+    #     score = gptscore.compute(source, pred, aspect="ERR", task="diag", model="mistralai/Mistral-7B-v0.1")
+    #     score_2 = gptscore.compute(source, better_pred, aspect="ERR", task="diag", model="mistralai/Mistral-7B-v0.1")
     #     self.assertGreater(score_2, score)
 
     # def test_compute_llama(self):
@@ -110,6 +114,7 @@ class TestGPTScore(unittest.TestCase):
     #     gptscore = GPTScore()
 
     #     # meta-llama/Llama-2-7b-chat-hf
-    #     score = gptscore.compute(source, pred, a="ERR", d="diag", model="meta-llama/Llama-2-7b-chat-hf")
-    #     score_2 = gptscore.compute(source, better_pred, a="ERR", d="diag", model="meta-llama/Llama-2-7b-chat-hf")
+    #     score = gptscore.compute(source, pred, aspect="ERR", task="diag", model="meta-llama/Llama-2-7b-chat-hf")
+    #     score_2 = gptscore.compute(source, better_pred, aspect="ERR", task="diag",
+    #       model="meta-llama/Llama-2-7b-chat-hf")
     #     self.assertGreater(score_2, score)

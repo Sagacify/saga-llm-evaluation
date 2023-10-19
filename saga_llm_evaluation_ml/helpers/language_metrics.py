@@ -4,7 +4,8 @@ from evaluate import load
 class BLEURTScore:
     def __init__(self, checkpoint="BLEURT-tiny"):
         """
-        BLEURT is a learnt metric that uses BERT to compute a similarity score for each token in the candidate sentence with each token in the reference sentence.
+        BLEURT is a learnt metric that uses BERT to compute a similarity score for
+        each token in the candidate sentence with each token in the reference sentence.
 
         Args:
             checkpoint (str, optional): Checkpoint to use. Defaults to BLEURT-tiny if not specified.

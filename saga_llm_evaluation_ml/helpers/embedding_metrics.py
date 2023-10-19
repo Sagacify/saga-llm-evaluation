@@ -4,7 +4,8 @@ from evaluate import load
 class BERTScore:
     def __init__(self, model_type="distilbert-base-uncased"):
         """
-        BERTScore computes a similarity score for each token in the candidate sentence with each token in the reference sentence.
+        BERTScore computes a similarity score for each token in the candidate sentence with each
+        token in the reference sentence.
         The final score is the average of the similarity scores of all tokens in the candidate sentence.
 
         Args:
@@ -20,7 +21,8 @@ class BERTScore:
             predictions (list): List of candidate sentences.
 
         Returns:
-            list: List of scores for each candidate sentence. Contains a list of scores for precisions, recalls, and F1 scores.
+            list: List of scores for each candidate sentence. Contains a list of scores
+            for precisions, recalls, and F1 scores.
         """
         assert len(references) == len(
             predictions
@@ -39,7 +41,8 @@ class BERTScore:
 class MAUVE:
     def __init__(self, featurize_model_name="gpt2"):
         """
-        MAUVE score computes the difference between the candidate sentence distribution and the reference sentence distribution.
+        MAUVE score computes the difference between the candidate sentence distribution
+        and the reference sentence distribution.
         The bigger the MAUVE score, the better.
         """
         self.metric = load("mauve")
