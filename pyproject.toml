@@ -18,6 +18,7 @@ bleurt = {git = "https://github.com/google-research/bleurt.git"}
 tensorflow-macos = {version = "2.14.0", platform = "darwin"}
 elemeta = "1.0.7"
 torch = ">=2.0.0, !=2.0.1, !=2.1.0"
+openai = "^0.28.1"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.13"
