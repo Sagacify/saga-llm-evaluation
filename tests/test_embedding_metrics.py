@@ -38,8 +38,8 @@ class TestMAUVE(unittest.TestCase):
     def test_compute(self):
         """Tests that the MAUVE class computes the same scores when the same inputs are given."""
         mauve = MAUVE()
-        references = ["The cat sat on the mat."]  # , "The dog sat on the log."]
-        predictions = ["The cat sat on the mat."]  # , "The dog sat on the log."]
+        references = ["The cat sat on the mat.", "The dog sat on the log."]
+        predictions = ["The cat sat on the mat.", "The dog sat on the log."]
         scores = mauve.compute(references, predictions)
         scores_2 = mauve.compute(references, predictions)
         self.assertEqual(scores.mauve, scores_2.mauve)
