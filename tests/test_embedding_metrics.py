@@ -1,6 +1,6 @@
 import unittest
 
-from saga_llm_evaluation_ml.model.helpers.embedding_metrics import BERTScore, MAUVE
+from saga_llm_evaluation_ml.model.helpers.embedding_metrics import MAUVE, BERTScore
 
 
 class TestBERTScore(unittest.TestCase):

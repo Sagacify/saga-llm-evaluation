@@ -188,7 +188,8 @@ contextmanager-decorators=contextlib.contextmanager
 # expressions are accepted.
 generated-members=REQUEST,
                   acl_users,
-                  aq_parent
+                  aq_parent,
+                  torch.argmax
 
 # Tells whether missing members accessed in mixin class should be ignored. A
 # class is considered mixin if its name matches the mixin-class-rgx option.
