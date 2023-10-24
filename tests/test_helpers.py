@@ -52,3 +52,5 @@ class TestMetadataExtractor(unittest.TestCase):
         metadata = extractor.compute(text)
 
         self.assertGreater(len(metadata), len_metadata)
+        self.assertEqual(metadata["word_regex_matches_count_cat"], 1)
+        self.assertEqual(metadata["regex_match_count_cat"], 1)

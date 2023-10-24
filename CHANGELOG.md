@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.0 (2023-10-23)
+
+### Feature
+
+* **language_metrics:** Add q squared ([`329b7bd`](https://github.com/Sagacify/saga-llm-evaluation/commit/329b7bd4631500dc3a24538268ac79afb6ee2b1b))
+
+### Fix
+
+* **versions:** Update versions of tensorflow back ([`a25acd7`](https://github.com/Sagacify/saga-llm-evaluation/commit/a25acd7f6c70c99b35ee95512402cd4aebc4ec8f))
+
 ## v0.3.0 (2023-10-19)
 
 ### Feature

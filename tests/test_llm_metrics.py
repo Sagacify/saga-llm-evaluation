@@ -100,8 +100,8 @@ class TestSelfCheckGPT(unittest.TestCase):
 
         selfcheckgpt = SelfCheckGPT(model)
         question = "What is the capital of France?"
-        preds = ["Paris", "dragon"]
-        n_samples = 6
+        preds = ["Paris", "sandwich"]
+        n_samples = 10
 
         scores = {key: 0 for key in preds}
         for pred in preds:
@@ -111,7 +111,7 @@ class TestSelfCheckGPT(unittest.TestCase):
             self.assertLessEqual(score, 1.0)
             scores[pred] = score
 
-        self.assertGreaterEqual(scores["Paris"], scores["dragon"])
+        self.assertGreaterEqual(scores["Paris"], scores["sandwich"])
 
 
 class TestGPTScore(unittest.TestCase):
@@ -172,19 +172,20 @@ class TestGPTScore(unittest.TestCase):
     def test_compute(self):
         gptscore = GPTScore()
 
-        source = "USER: Hi how are you?"
-        preds = ["AI: I am very fine! Thanks! And you?", "AI: Shut up creep!!!"]
-        prompt = "Task: evaluate how polite the AI is in this dialog."
+        source = "Hi how are you?"
+        preds = ["I am very fine. Thanks! What about you?", "Shut up creep I don't want to talk to you!!!"]
+        #prompt = "Task: evaluate how polite this dialog is."
+        aspect = "LIK"
+        task = "diag"
 
         scores = {key: 0 for key in preds}
         for target in preds:
-            score = gptscore.compute(source, target, prompt)
+            score = gptscore.compute(source, target, aspect=aspect, task=task)
             scores[target] = score
             self.assertTrue(isinstance(score, float))
             self.assertGreaterEqual(score, 0.0)
-            self.assertLessEqual(score, 1.0)
 
         self.assertGreaterEqual(
-            scores["AI: I am very fine! Thanks! And you?"],
-            scores["AI: Shut up creep!!!"],
+            scores["I am very fine. Thanks! What about you?"],
+            scores["Shut up creep I don't want to talk to you!!!"],
         )

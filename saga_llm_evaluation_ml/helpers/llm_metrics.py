@@ -329,6 +329,7 @@ class GEval:
         return self.get_score(prompt)
 
 
+
 class GPTScore:
     def __init__(
         self,
@@ -347,30 +348,42 @@ class GPTScore:
         ), "model_name_or_path must be a string."
         assert isinstance(model_basename, str), "model_basename must be a string."
 
-        self.tasks = ["summ", "MT", "D2T", "diag"]
-        self.aspects = [
-            "COV",
-            "FAC",
-            "FLU",
-            "CON",
-            "INF",
-            "COH",
-            "REL",
-            "ACC",
-            "MQM",
-            "INT",
-            "ENG",
-            "SPE",
-            "COR",
-            "SEM",
-            "UND",
-            "ERR",
-            "DIV",
-            "DEP",
-            "LIK",
-            "FLE",
-            "INQ",
-        ]
+        self.templates = {
+            "summ": {
+                "FAC": f"Generate a summary with consistent facts for the following text: {{src}}\n\nTl;dr{{pred}}",
+                "COV": f"Generate a summary with as much semantic coverage as possible for the following text: {{src}}\n\nTl;dr{{pred}}",
+                "CON": f"Generate factually consistent summary for the following text: {{src}}\n\nTl;dr{{pred}}",
+                "INF": f"Generate an informative summary that captures the key points of the following text:{{src}}\n\nTl;dr{{pred}}",
+                "COH": f"Generate a coherent summary for the following text: {{src}}\n\nTl;dr{{pred}}",
+                "REL": f"Generate a relevant summary with consistent details for the following text: {{src}}\n\nTl;dr{{pred}}",
+                "FLU": f"Generate a fluent and grammatical summary for the following text: {{src}}\n\nTl;dr{{pred}}",
+            },
+            "MT": {
+                "ACC": f"Rewrite the following text with its core information and consistent facts:{{src}} In other words, {{pred}}",
+                "FLU": f"Rewrite the following text to make it more grammatical and well-written:{{src}} In other words,{{pred}}",
+                "MQM": f"Rewrite the following text into high-quality text with its core information:{{src}} In other words,{{pred}}",
+            },
+            "D2T": {
+                "INF": f"Convert the following text to another expression that preserves key information:\n\n{{src}} In other words, {{pred}}",
+                "NAT": f"Convert the following text into another expression that is human-like and natural:\n\n{{src}} In other words, {{pred}}",
+                "FLU": f"Convert the following text into another expression that preserves key information and is human-like and natural:\n\n{{src}} In other words, {{pred}}",
+            },
+            "diag": {
+                "COH": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
+                "DIV": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is there diversity in the AI responses? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
+                "FLE": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI flexible and adaptable to human and their interests? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
+                "UND": f"Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI seem to understand the human? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
+                "INQ": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI inquisitive throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
+                "CON": f"Answer the question based on the conversation between a human and AI.\nQuestion: Are the responses of AI consistent in the information it provides throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
+                "INF": f"Answer the question based on the conversation between a human and AI.\nQuestion: Are the responses of AI informative throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
+                "LIK": f"Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI display a likeable personality? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
+                "DEP": f"Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI discuss topics in depth? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
+                "ERR": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI able to recover from errors that it makes? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
+            },
+        }
+
+        self.tasks = self.templates.keys()
+        self.aspects = list({aspect for task in self.tasks for aspect in self.templates[task]})
 
         self.model_path = hf_hub_download(
             repo_id=model_name_or_path, filename=model_basename
@@ -409,51 +422,22 @@ class GPTScore:
         Returns:
             str: Prompt template.
         """
-
-        templates = {
-            "summ": {
-                "FAC": f"Generate a summary with consistent facts for the following text: {src}\n\nTl;dr{pred}",
-                "COV": f"Generate a summary with as much semantic coverage as possible for the following text: {src}\n\nTl;dr{pred}",
-                "CON": f"Generate factually consistent summary for the following text: {src}\n\nTl;dr{pred}",
-                "INF": f"Generate an informative summary that captures the key points of the following text:{src}\n\nTl;dr{pred}",
-                "COH": f"Generate a coherent summary for the following text: {src}\n\nTl;dr{pred}",
-                "REL": f"Generate a relevant summary with consistent details for the following text: {src}\n\nTl;dr{pred}",
-                "FLU": f"Generate a fluent and grammatical summary for the following text: {src}\n\nTl;dr{pred}",
-            },
-            "MT": {
-                "ACC": f"Rewrite the following text with its core information and consistent facts:{src} In other words, {pred}",
-                "FLU": f"Rewrite the following text to make it more grammatical and well-written:{src} In other words,{pred}",
-                "MQM": f"Rewrite the following text into high-quality text with its core information:{src} In other words,{pred}",
-            },
-            "D2T": {
-                "INF": f"Convert the following text to another expression that preserves key information:\n\n{src} In other words, {pred}",
-                "NAT": f"Convert the following text into another expression that is human-like and natural:\n\n{src} In other words, {pred}",
-                "FLU": f"Convert the following text into another expression that preserves key information and is human-like and natural:\n\n{src} In other words, {pred}",
-            },
-            "diag": {
-                "COH": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation? (a) Yes. (b) No.\nConversation: {src + pred}\nAnswer: Yes.",
-                "DIV": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is there diversity in the AI responses? (a) Yes. (b) No.\nConversation: {src + pred}\nAnswer: Yes.",
-                "FLE": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI flexible and adaptable to human and their interests? (a) Yes. (b) No.\nConversation: {src + pred}\nAnswer: Yes.",
-                "UND": f"Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI seem to understand the human? (a) Yes. (b) No.\nConversation: {src + pred}\nAnswer: Yes.",
-                "INQ": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI inquisitive throughout the conversation? (a) Yes. (b) No.\nConversation: {src + pred}\nAnswer: Yes.",
-                "CON": f"Answer the question based on the conversation between a human and AI.\nQuestion:  Are the responses of AI consistent in the information it provides throughout the conversation? (a) Yes. (b) No.\nConversation: {src + pred}\nAnswer: Yes.",
-                "INF": f"Answer the question based on the conversation between a human and AI.\nQuestion: Are the responses of AI informative throughout the conversation? (a) Yes. (b) No.\nConversation: {src + pred}\nAnswer: Yes.",
-                "LIK": f"Answer the question based on the conversation between a human and AI.\nQuestion:  Does the AI display a likeable personality? (a) Yes. (b) No.\nConversation: {src + pred}\nAnswer: Yes.",
-                "DEP": f"Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI discuss topics in depth? (a) Yes. (b) No.\nConversation: {src + pred}\nAnswer: Yes.",
-                "ERR": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI able to recover from errors that it makes? (a) Yes. (b) No.\nConversation: {src + pred}\nAnswer: Yes.",
-            },
-        }
-
         # Check that the corresponding entry exists in the prompt template
         assert (
-            aspect in templates[task]
+            aspect in self.templates[task]
         ), f"Aspect {aspect} is not available for task {task}."
         # Check that the prompt template is not empty
-        assert templates[task][
+        assert self.templates[task][
             aspect
         ], f"Prompt template for aspect {aspect} and task {task} is non-existent. Please specify a prompt template."
 
-        return templates[task][aspect]
+        template = self.templates[task][aspect]
+
+        # Replace placeholders with source and candidate sentence
+        template = template.replace("{src}", src)
+        template = template.replace("{pred}", pred)
+
+        return template
 
     def compute(self, source, pred, prompt=None, aspect=None, task=None):
         """
@@ -492,16 +476,8 @@ class GPTScore:
             assert task in self.tasks, f"Task must be one of {self.tasks}."
 
         # Generative LLM is given a prompt template and some context information
-        prompt = (
-            prompt
-            + "\nQuestion:"
-            + source
-            + "\nAnswer:"
-            + pred
-            + "\n"
-            + "\nEvaluation: "
-            or self.get_prompt(aspect, task, source, pred)
-        )
+        if not prompt:
+            prompt = self.get_prompt(aspect, task, source, pred)
 
         response = self.lcpp_llm.create_completion(
             prompt=prompt,
@@ -517,7 +493,7 @@ class GPTScore:
         # Compute logprobs
         # Find the end position of the input...
         print(response["choices"][0]["logprobs"]["text_offset"])
-        i = response["choices"][0]["logprobs"]["text_offset"].index(len(prompt) - 1)
+        i = response["choices"][0]["logprobs"]["text_offset"].index(len(prompt))
         if i == 0:
             i = i + 1
 
