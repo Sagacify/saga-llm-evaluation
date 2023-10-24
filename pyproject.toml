@@ -19,6 +19,8 @@ tensorflow-macos = {version = "2.14.0", platform = "darwin"}
 elemeta = "1.0.7"
 torch = ">=2.0.0, !=2.0.1, !=2.1.0"
 openai = "^0.28.1"
+huggingface-hub = "^0.18.0"
+llama-cpp-python = "^0.2.11"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.13"

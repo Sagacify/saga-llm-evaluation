@@ -1,120 +1,190 @@
 import unittest
 
-from saga_llm_evaluation_ml.helpers.llm_metrics import GPTScore
+from llama_cpp import Llama
+from huggingface_hub import hf_hub_download
+from saga_llm_evaluation_ml.helpers.llm_metrics import GPTScore, GEval, SelfCheckGPT
+
+
+class TestGEval(unittest.TestCase):
+    def test_init(self):
+        with self.assertRaises(AssertionError):
+            GEval(1, 1)
+            GEval("1", 1)
+            GEval(1, "1")
+
+    def test_bad_arguments(self):
+        geval = GEval()
+
+        source = "Hi how are you"
+        pred = "Im ok"
+        task = "diag"
+        aspect = "ENG"
+
+        with self.assertRaises(AssertionError):
+            geval.compute([source], pred, task, aspect)
+            geval.compute(source, [pred], task, aspect)
+            geval.compute(source, pred, 1, aspect)
+            geval.compute(source, pred, task, 1)
+            geval.compute(source, pred, task, "notvalid")
+            geval.compute(source, pred, "notvalid", aspect)
+            geval.compute(source, pred, task, criterion=None)
+            geval.compute(source, pred, definition=None, criterion=aspect)
+
+    def test_compute(self):
+        geval = GEval()
+
+        source = "Hi how are you?"
+        preds = ["Shut up creep!!!", "I am very good, thank you! And you?"]
+        task = "diag"
+        aspect = "POL"
+
+        scores = {key: 0 for key in preds}
+        for pred in preds:
+            score = geval.compute(source, pred, task, aspect)
+            self.assertTrue(isinstance(score, float))
+            self.assertGreaterEqual(score, 0.0)
+            scores[pred] = score
+
+        self.assertGreaterEqual(
+            scores["I am very good, thank you! And you?"], scores["Shut up creep!!!"]
+        )
+
+
+class TestSelfCheckGPT(unittest.TestCase):
+    def test_init(self):
+        model_name_or_path = "TheBloke/Llama-2-7b-Chat-GGUF"
+        model_basename = "llama-2-7b-chat.Q4_K_M.gguf"  # the model is in bin format
+
+        model_path = hf_hub_download(
+            repo_id=model_name_or_path, filename=model_basename
+        )
+        model = Llama(model_path=model_path, n_threads=2, verbose=False)  # CPU cores
+
+        with self.assertRaises(AssertionError):
+            SelfCheckGPT(model, eval_model_name_or_path=1, eval_model_basename=1)
+            SelfCheckGPT(model, eval_model_name_or_path=1, eval_model_basename="1")
+            SelfCheckGPT(model, eval_model_name_or_path="1", eval_model_basename=1)
+
+    def test_bad_arguments(self):
+
+        model_name_or_path = "TheBloke/Llama-2-7b-Chat-GGUF"
+        model_basename = "llama-2-7b-chat.Q4_K_M.gguf"  # the model is in bin format
+
+        model_path = hf_hub_download(
+            repo_id=model_name_or_path, filename=model_basename
+        )
+        model = Llama(model_path=model_path, n_threads=2, verbose=False)  # CPU cores
+
+        selfcheckgpt = SelfCheckGPT(model)
+        question = "What is the capital of France?"
+        pred = "Paris"
+        n_samples = 1
+
+        with self.assertRaises(AssertionError):
+            selfcheckgpt.compute([question], pred, n_samples)
+            selfcheckgpt.compute(question, [pred], n_samples)
+            selfcheckgpt.compute(question, pred, "1")
+            selfcheckgpt.compute(question, pred, 1.0)
+            selfcheckgpt.compute(question, pred, -1)
+            selfcheckgpt.compute(question=question, pred=None, n_samples=5)
+            selfcheckgpt.compute(question=None, pred=pred, n_samples=5)
+
+    def test_compute(self):
+        model_name_or_path = "TheBloke/Llama-2-7b-Chat-GGUF"
+        model_basename = "llama-2-7b-chat.Q4_K_M.gguf"
+
+        model_path = hf_hub_download(
+            repo_id=model_name_or_path, filename=model_basename
+        )
+        model = Llama(model_path=model_path, n_threads=2, verbose=False)  # CPU cores
+
+        selfcheckgpt = SelfCheckGPT(model)
+        question = "What is the capital of France?"
+        preds = ["Paris", "dragon"]
+        n_samples = 6
+
+        scores = {key: 0 for key in preds}
+        for pred in preds:
+            score = selfcheckgpt.compute(question, pred, n_samples)
+            self.assertTrue(isinstance(score, float))
+            self.assertGreaterEqual(score, 0.0)
+            self.assertLessEqual(score, 1.0)
+            scores[pred] = score
+
+        self.assertGreaterEqual(scores["Paris"], scores["dragon"])
 
 
 class TestGPTScore(unittest.TestCase):
     def test_init(self):
         with self.assertRaises(AssertionError):
-            GPTScore(model=100)
-            GPTScore(model="notvalid")
+            GPTScore(model_basename=1, model_name_or_path=1)
+            GPTScore(model_basename="1", model_name_or_path=1)
+            GPTScore(model_basename=1, model_name_or_path="1")
 
     def test_bad_arguments(self):
         gptscore = GPTScore()
 
         with self.assertRaises(AssertionError):
+            gptscore.compute(["The cat sat on the mat."], ["The dog sat on the log."])
+            gptscore.compute("The cat sat on the mat.", ["The dog sat on the log."])
             gptscore.compute("The cat sat on the mat.", "The dog sat on the log.")
             gptscore.compute(
-                ["The cat sat on the mat."],
-                ["The dog sat on the log."],
-                prompts=10,
+                "The cat sat on the mat.", "The dog sat on the log.", prompt=2
             )
             gptscore.compute(
-                ["The cat sat on the mat."],
-                ["The dog sat on the log."],
-                prompts="Summarize",
-                aspect="ERR",
+                "The cat sat on the mat.",
+                "The dog sat on the log.",
+                prompt="2",
+                aspect="COV",
+                task="diag",
             )
             gptscore.compute(
-                ["The cat sat on the mat."],
-                ["The dog sat on the log."],
-                prompts="Summarize",
-                task="summ",
-            )
-            gptscore.compute(
-                ["The cat sat on the mat."],
-                ["The dog sat on the log."],
-                prompts="Summarize",
-                aspect="ERR",
-                task="summ",
-            )
-            gptscore.compute(
-                ["The cat sat on the mat."],
-                ["The dog sat on the log."],
-                aspect="ERR",
-                task=None,
-            )
-            gptscore.compute(
-                ["The cat sat on the mat."],
-                ["The dog sat on the log."],
-                aspect=None,
-                task="summ",
-            )
-            gptscore.compute(
-                ["The cat sat on the mat."],
-                ["The dog sat on the log."],
+                "The cat sat on the mat.",
+                "The dog sat on the log.",
                 aspect=2,
-                task="summ",
+                task="diag",
             )
             gptscore.compute(
-                ["The cat sat on the mat."],
-                ["The dog sat on the log."],
-                aspect="ERR",
-                task=None,
+                "The cat sat on the mat.",
+                "The dog sat on the log.",
+                aspect="COV",
+                task=2,
             )
             gptscore.compute(
-                ["The cat sat on the mat."],
-                ["The dog sat on the log."],
+                "The cat sat on the mat.",
+                "The dog sat on the log.",
+                aspect="COV",
+                task="notvalid",
+            )
+            gptscore.compute(
+                "The cat sat on the mat.",
+                "The dog sat on the log.",
                 aspect="notvalid",
-                task="summ",
+                task="diag",
             )
             gptscore.compute(
-                ["The cat sat on the mat."],
-                ["The dog sat on the log."],
-                aspect="ERR",
-                task="D2T",
+                "The cat sat on the mat.", "The dog sat on the log.", aspect="COV"
+            )
+            gptscore.compute(
+                "The cat sat on the mat.", "The dog sat on the log.", task="diag"
             )
 
-    def test_compute_gpt2(self):
-        """Tests that the GPTScore computes a higher score for a better prediction with gpt2."""
-        sources = ["State something true.", "State something true."]
-        preds = ["The cat eats elephants.", "The cat eats mice."]
-
+    def test_compute(self):
         gptscore = GPTScore()
 
-        # gpt2
-        scores = gptscore.compute(sources, preds, aspect="ERR", task="diag")
-        self.assertGreater(scores[1], scores[0])
+        source = "USER: Hi how are you?"
+        preds = ["AI: I am very fine! Thanks! And you?", "AI: Shut up creep!!!"]
+        prompt = "Task: evaluate how polite the AI is in this dialog."
 
-    # def test_compute_mistral(self):
-    #     """
-    #     Tests that the GPTScore computes a higher score for a better prediction
-    #     with mistralai/Mistral-7B-v0.1.
-    #     """
-    #     source = "State something true."
-    #     pred = "The cat eats elephants."
-    #     better_pred = "The cat eats mice."
+        scores = {key: 0 for key in preds}
+        for target in preds:
+            score = gptscore.compute(source, target, prompt)
+            scores[target] = score
+            self.assertTrue(isinstance(score, float))
+            self.assertGreaterEqual(score, 0.0)
+            self.assertLessEqual(score, 1.0)
 
-    #     gptscore = GPTScore()
-
-    #     # mistralai/Mistral-7B-v0.1
-    #     score = gptscore.compute(source, pred, aspect="ERR", task="diag", model="mistralai/Mistral-7B-v0.1")
-    #     score_2 = gptscore.compute(source, better_pred, aspect="ERR", task="diag", model="mistralai/Mistral-7B-v0.1")
-    #     self.assertGreater(score_2, score)
-
-    # def test_compute_llama(self):
-    #     """
-    #     Tests that the GPTScore computes a higher score for a better prediction
-    #     with meta-llama/Llama-2-7b-chat-hf.
-    #     """
-    #     source = "State something true."
-    #     pred = "The cat eats elephants."
-    #     better_pred = "The cat eats mice."
-
-    #     gptscore = GPTScore()
-
-    #     # meta-llama/Llama-2-7b-chat-hf
-    #     score = gptscore.compute(source, pred, aspect="ERR", task="diag", model="meta-llama/Llama-2-7b-chat-hf")
-    #     score_2 = gptscore.compute(source, better_pred, aspect="ERR", task="diag",
-    #       model="meta-llama/Llama-2-7b-chat-hf")
-    #     self.assertGreater(score_2, score)
+        self.assertGreaterEqual(
+            scores["AI: I am very fine! Thanks! And you?"],
+            scores["AI: Shut up creep!!!"],
+        )
