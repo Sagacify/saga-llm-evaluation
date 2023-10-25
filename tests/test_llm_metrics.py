@@ -173,8 +173,11 @@ class TestGPTScore(unittest.TestCase):
         gptscore = GPTScore()
 
         source = "Hi how are you?"
-        preds = ["I am very fine. Thanks! What about you?", "Shut up creep I don't want to talk to you!!!"]
-        #prompt = "Task: evaluate how polite this dialog is."
+        preds = [
+            "I am very fine. Thanks! What about you?",
+            "Shut up creep I don't want to talk to you!!!",
+        ]
+        # prompt = "Task: evaluate how polite this dialog is."
         aspect = "LIK"
         task = "diag"
 

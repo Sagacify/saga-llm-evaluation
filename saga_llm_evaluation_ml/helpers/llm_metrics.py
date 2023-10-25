@@ -329,8 +329,8 @@ class GEval:
         return self.get_score(prompt)
 
 
-
 class GPTScore:
+    # pylint: disable=f-string-without-interpolation
     def __init__(
         self,
         model_name_or_path="TheBloke/Llama-2-7b-Chat-GGUF",
@@ -383,7 +383,9 @@ class GPTScore:
         }
 
         self.tasks = self.templates.keys()
-        self.aspects = list({aspect for task in self.tasks for aspect in self.templates[task]})
+        self.aspects = list(
+            {aspect for task in self.tasks for aspect in self.templates[task]}
+        )
 
         self.model_path = hf_hub_download(
             repo_id=model_name_or_path, filename=model_basename
