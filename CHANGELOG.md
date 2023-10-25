@@ -2,6 +2,19 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.0 (2023-10-25)
+
+### Feature
+
+* **llm_metrics:** Refactor gptscore and add support for geval and selfcheck ([`980acdb`](https://github.com/Sagacify/saga-llm-evaluation/commit/980acdb0014d9b8c6291a5449f4ae61e3a6b9ee4))
+* **gptscore:** Revamp to make multiple predictions at once ([`ce999f8`](https://github.com/Sagacify/saga-llm-evaluation/commit/ce999f88f6a0230a00547fd092f951700b93b044))
+* **gptscore:** Add gptscore support ([`09d2cba`](https://github.com/Sagacify/saga-llm-evaluation/commit/09d2cbaf6354cb7d728fd7758bc7fba7c51c58fb))
+
+### Fix
+
+* **format:** Run pylint and black ([`7986b7f`](https://github.com/Sagacify/saga-llm-evaluation/commit/7986b7f580e93ef20cdb57d132144f880bb077aa))
+* **pylint:** Format code ([`4f44004`](https://github.com/Sagacify/saga-llm-evaluation/commit/4f44004ea6b7a21a0ee2c86de1883e969942bc9a))
+
 ## v0.4.0 (2023-10-23)
 
 ### Feature
