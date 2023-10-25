@@ -5,8 +5,8 @@ class BERTScore:
     def __init__(self, lan="en", model_type=None):
         """
         BERTScore computes a similarity score for each token in the candidate sentence with each
-        token in the reference sentence. The final score is the average of the similarity scores of
-        all tokens in the candidate sentence.
+        token in the reference sentence.
+        The final score is the average of the similarity scores of all tokens in the candidate sentence.
 
         Args:
             lan (str, optional): language to use. Defaults to "en", It may also be "fr". Depending
@@ -51,8 +51,9 @@ class BERTScore:
 class MAUVE:
     def __init__(self, featurize_model_name="gpt2"):
         """
-        MAUVE score computes the difference between the candidate sentence distribution and the
-        reference sentence distribution. The bigger the MAUVE score, the better.
+        MAUVE score computes the difference between the candidate sentence distribution
+        and the reference sentence distribution.
+        The bigger the MAUVE score, the better.
         """
         self.metric = load("mauve")
         self.featurize_model_name = featurize_model_name

@@ -7,8 +7,8 @@ from transformers import (
     AutoTokenizer,
 )
 
-from saga_llm_evaluation_ml.model.helpers.embedding_metrics import BERTScore
-from saga_llm_evaluation_ml.model.helpers.utils import (
+from saga_llm_evaluation_ml.helpers.embedding_metrics import BERTScore
+from saga_llm_evaluation_ml.helpers.utils import (
     INVALID_QUESTION,
     NO_ANS,
     filter_questions,

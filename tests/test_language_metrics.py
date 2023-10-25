@@ -1,6 +1,6 @@
 import unittest
 
-from saga_llm_evaluation_ml.model.helpers.language_metrics import BLEURTScore, QSquared
+from saga_llm_evaluation_ml.helpers.language_metrics import BLEURTScore, QSquared
 
 
 class TestBLEURTScore(unittest.TestCase):

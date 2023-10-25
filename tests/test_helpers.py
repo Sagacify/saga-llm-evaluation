@@ -1,6 +1,6 @@
 import unittest
 
-from saga_llm_evaluation_ml.model.helpers.utils import MetadataExtractor
+from saga_llm_evaluation_ml.helpers.utils import MetadataExtractor
 
 
 class TestMetadataExtractor(unittest.TestCase):
@@ -25,8 +25,8 @@ class TestMetadataExtractor(unittest.TestCase):
         """Tests that the MetadataExtractor class extracts the correct metadata when regex rules are added."""
         text = "The cat sat on the mat."
         extractor = MetadataExtractor()
-        extractor.addWordRegexMatchesCount("the")
-        extractor.addRegexMatchCount("the")
+        extractor.add_word_regex_matches_count("the")
+        extractor.add_regex_match_count("the")
         metadata = extractor.compute(text)
 
         # Test a few metadata values
@@ -45,8 +45,10 @@ class TestMetadataExtractor(unittest.TestCase):
         len_metadata = len(metadata)
 
         # Check that the metadata is longer when multiple regex rules are added
-        extractor.addWordRegexMatchesCount("cat", name="word_regex_matches_count_cat")
-        extractor.addRegexMatchCount("cat", name="regex_match_count_cat")
+        extractor.add_word_regex_matches_count(
+            "cat", name="word_regex_matches_count_cat"
+        )
+        extractor.add_regex_match_count("cat", name="regex_match_count_cat")
         metadata = extractor.compute(text)
 
         self.assertGreater(len(metadata), len_metadata)

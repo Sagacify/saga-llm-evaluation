@@ -18,6 +18,9 @@ tensorflow = {version = "^2.14.0", platform = "linux"}
 tensorflow-macos = {version = "^2.14.0", platform = "darwin"}
 elemeta = "1.0.7"
 torch = ">=2.0.0, !=2.0.1, !=2.1.0"
+openai = "^0.28.1"
+huggingface-hub = "^0.18.0"
+llama-cpp-python = "^0.2.11"
 en-core-web-sm = {url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.0/en_core_web_sm-3.7.0-py3-none-any.whl"}
 fr-core-news-sm = {url = "https://github.com/explosion/spacy-models/releases/download/fr_core_news_sm-3.7.0/fr_core_news_sm-3.7.0-py3-none-any.whl"}
 
