@@ -27,8 +27,8 @@ class TestGEval(unittest.TestCase):
             geval.compute(source, pred, task, 1)
             geval.compute(source, pred, task, "notvalid")
             geval.compute(source, pred, "notvalid", aspect)
-            geval.compute(source, pred, task, criterion=None)
-            geval.compute(source, pred, definition=None, criterion=aspect)
+            geval.compute(source, pred, task, aspect=None)
+            geval.compute(source, pred, task=None, aspect=aspect)
 
     def test_compute(self):
         geval = GEval()

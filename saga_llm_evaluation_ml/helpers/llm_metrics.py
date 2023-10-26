@@ -68,7 +68,6 @@ class SelfCheckGPT:
         Returns:
             list: List of prompt templates.
         """
-        print(samples)
         return [self.get_prompt(pred, sample, question) for sample in samples]
 
     def compute(self, question, pred, n_samples):
@@ -89,7 +88,6 @@ class SelfCheckGPT:
 
         # Generate n_samples samples from the model
         samples = []
-        print("Samples:\n")
         for _ in range(n_samples):
             system_prompt = "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible."
             prompt_template = f"""SYSTEM: {system_prompt}
@@ -98,20 +96,14 @@ class SelfCheckGPT:
 
             response = self.model(prompt_template, max_tokens=200)
             sample = response["choices"][0]["text"]
-            print(sample, "\n")
             samples.append(sample)
-        print("\n")
 
         # For each sample, ask evaluator model to evaluate the sample
         prompts = self.get_prompts(pred, samples, question)
         scores = []
-        print("Prompts:\n")
         for prompt in prompts:
-            print(prompt, "\n")
             answer = self.eval_model(prompt, max_tokens=200)["choices"][0]["text"]
-            print(answer, "\n")
             scores.append(answer)
-        print("\n")
 
         # Compute the score: how often the sentence if supported by the sample
         score = np.mean([1 if "yes" in score.lower() else 0 for score in scores])
@@ -152,7 +144,7 @@ class GEval:
             "summ": "You will be given one summary written for a news article. Your task is to rate the summary on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.",
             "diag": "You will be given a conversation between two individuals. You will then be given one potential response for the next turn in the conversation. The response concerns an interesting fact, which will be provided as well. Your task is to rate the responses on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.",
         }
-        self.criteria = {
+        self.aspects = {
             "COH": {
                 "name": "Coherence",
                 "prompt": "Coherence (1-5) - the collective quality of all sentences. We align this dimension with the DUC quality question of structure and coherence whereby ”the summary should be well-structured and well-organized. The summary should not just be a heap of related information, but should build from sentence to sentence to a coherent body of information about a topic.”",
@@ -214,28 +206,30 @@ class GEval:
         return cot
 
     # pylint: disable=consider-iterating-dictionary
-    def get_prompt(self, src, pred, definition, criterion, criterion_name):
+    def get_prompt(self, src, pred, task, aspect, custom_prompt):
         """
         Args:
             src (str): Source text.
             pred (str): Candidate sentence to evaluate.
-            definition (str): Definition of the task.
-            crit_code (str): Evaluation criterion code.
+            task (str): Definition of the task.
+            aspect (str): Evaluation criterion code.
+            custom_prompt (dict): Custom prompt template.
+                Must contain the following keys: "task", "aspect", "name".
         """
         definition = (
-            "\n Task definition:\n" + self.tasks[definition]
-            if definition in self.tasks.keys()
-            else definition
+            "\n Task definition:\n" + self.tasks[task]
+            if task in self.tasks.keys()
+            else custom_prompt["task"]
         )
         crit = (
-            "\n Evaluation criteria:\n" + self.criteria[criterion]["prompt"]
-            if criterion in self.criteria.keys()
-            else criterion
+            "\n Evaluation criteria:\n" + self.aspects[aspect]["prompt"]
+            if aspect in self.aspects.keys()
+            else custom_prompt["aspect"]
         )
-        crit_name = (
-            self.criteria[criterion]["name"]
-            if criterion in self.criteria.keys()
-            else criterion_name
+        name = (
+            self.aspects[aspect]["name"]
+            if aspect in self.aspects.keys()
+            else custom_prompt["name"]
         )
 
         prompt = f"{definition} {crit}"
@@ -251,7 +245,7 @@ class GEval:
             + "\n Generated text:\n"
             + pred
             + "\n Evaluation Form (scores ONLY):\n"
-            + crit_name
+            + name
             + ": "
         )
 
@@ -300,32 +294,43 @@ class GEval:
 
         return score
 
-    def compute(self, source, pred, definition, criterion, criterion_name=None):
+    def compute(self, source, pred, task=None, aspect=None, custom_prompt=None):
         """
         This method computes the GEval score for a candidate sentence given a source text,
         a prompt template, an aspect to evaluate, and a task description.
         Args:
             source (str): Source text.
             pred (str): Candidate sentence to evaluate.
-            definition (str): Definition of the task.
-            criterion (str): Evaluation criterion code.
-            criterion_name (str, optional): Evaluation criterion name. Defaults to None.
+            task (str, optional): Definition of the task.
+            aspect (str, optional): Evaluation criterion code.
+            custom_prompt (dict, optional): Custom prompt template. Defaults to None.
 
         Returns:
             score (float): Score for the candidate sentence.
         """
-        assert isinstance(source, str), "Source must be a string."
-        assert isinstance(pred, str), "Pred must be a string."
-        assert isinstance(definition, str), "Definition must be a string."
-        assert isinstance(criterion, str), "Criterion must be a string."
-        assert criterion_name is None or isinstance(
-            criterion_name, str
-        ), "Criterion name must be a string."
+        assert isinstance(source, str), "source must be a string."
+        assert isinstance(pred, str), "pred must be a string."
+        assert isinstance(task, str) or task is None, "task must be a string or None."
         assert (
-            criterion in self.criteria.keys() or criterion_name is not None
-        ), "Criterion name must be given if criterion is not in the list of criteria."
+            isinstance(aspect, str) or aspect is None
+        ), "aspect must be a string or None."
+        assert custom_prompt is None or isinstance(
+            custom_prompt, dict
+        ), "custom_prompt must be a dict."
+        if aspect:
+            assert (
+                aspect in self.aspects.keys()
+            ), "aspect is not in the list of criteria."
+        if not custom_prompt:
+            assert (
+                task and aspect
+            ), "task and aspect must be given if no custom_prompt is given."
+        if not (task and aspect):
+            assert (
+                custom_prompt
+            ), "custom_prompt must be given if task and aspect are not given."
 
-        prompt = self.get_prompt(source, pred, definition, criterion, criterion_name)
+        prompt = self.get_prompt(source, pred, task, aspect, custom_prompt)
         return self.get_score(prompt)
 
 
@@ -397,43 +402,35 @@ class GPTScore:
             logits_all=True,
         )
 
-    def get_prompts(self, aspect, task, sources, preds):
-        """
-        This method returns a list of prompt templates given a task description, and an aspect to evaluate.
-        Args:
-            aspect (str): Aspect to evaluate.
-            task (str): Task description.
-            sources (list of str): Source texts.
-            preds (list of str): Candidate sentences.
-        Returns:
-            list: List of prompt templates.
-        """
-        return [
-            self.get_prompt(aspect, task, src, pred)
-            for (src, pred) in zip(sources, preds)
-        ]
-
-    def get_prompt(self, aspect, task, src, pred):
+    def get_prompt(self, aspect, task, src, pred, custom_prompt):
         """
         This method returns a prompt template given a task description, and an aspect to evaluate.
         Args:
-            aspect (str): Aspect to evaluate.
-            task (str): Task description.
             src (str): Source text.
             pred (str): Candidate sentence.
+            aspect (str): Aspect to evaluate.
+            task (str): Task description.
+            custom_prompt (dict): Custom prompt template. Defaults to None.
+                Must contain the following keys: "task", "aspect".
         Returns:
             str: Prompt template.
         """
-        # Check that the corresponding entry exists in the prompt template
-        assert (
-            aspect in self.templates[task]
-        ), f"Aspect {aspect} is not available for task {task}."
-        # Check that the prompt template is not empty
-        assert self.templates[task][
-            aspect
-        ], f"Prompt template for aspect {aspect} and task {task} is non-existent. Please specify a prompt template."
+        if aspect and task:
+            assert (
+                aspect in self.templates[task]
+            ), f"Aspect {aspect} is not available for task {task}."
+            assert self.templates[task][
+                aspect
+            ], f"Prompt template for aspect {aspect} and task {task} is non-existent. Please specify a prompt template."
 
-        template = self.templates[task][aspect]
+        template = (
+            self.templates[task][aspect]
+            if (aspect and task)
+            else str(custom_prompt["task"])
+            + "\nQuestion: "
+            + str(custom_prompt["aspect"])
+            + "(a) Yes. (b) No.\nConversation:\nUser: {src}\nAI: {pred}\nAnswer:"
+        )
 
         # Replace placeholders with source and candidate sentence
         template = template.replace("{src}", src)
@@ -448,7 +445,8 @@ class GPTScore:
         Args:
             source (str): Source text.
             pred (str): Candidate sentence.
-            prompt (str, optional): Prompt template. Defaults to None.
+            prompt (dict, optional): Custom prompt template. Defaults to None.
+                Must contain the following keys: "task", "aspect", "name".
             aspect (str, optional): Aspect to evaluate. Defaults to None.
             task (str, optional): Task description. Defaults to None.
         Returns:
@@ -457,11 +455,14 @@ class GPTScore:
         assert isinstance(source, str), "Source must be a string."
         assert isinstance(pred, str), "Pred must be a string."
 
-        # If prompt is given, check that it is a list of string
+        # If prompt is given, check that it is a string
         if prompt:
-            assert isinstance(prompt, str), "Prompt must be a string."
-            assert not aspect, "Aspect must not be given if prompt is given."
-            assert not task, "Task must not be given if prompt is given."
+            assert isinstance(prompt, dict), "prompt must be a dict."
+            assert not aspect, "aspect must not be given if prompt is given."
+            assert not task, "aspect must not be given if prompt is given."
+            assert (
+                "task" in prompt.keys() and "aspect" in prompt.keys()
+            ), "prompt must contain the following keys: 'task', 'aspect'"
         else:
             # If prompt is not given, check that task and aspect are given
             assert aspect, "Aspect must be given if prompt is not given."
@@ -478,8 +479,7 @@ class GPTScore:
             assert task in self.tasks, f"Task must be one of {self.tasks}."
 
         # Generative LLM is given a prompt template and some context information
-        if not prompt:
-            prompt = self.get_prompt(aspect, task, source, pred)
+        prompt = self.get_prompt(aspect, task, source, pred, prompt)
 
         response = self.lcpp_llm.create_completion(
             prompt=prompt,
@@ -494,7 +494,6 @@ class GPTScore:
 
         # Compute logprobs
         # Find the end position of the input...
-        print(response["choices"][0]["logprobs"]["text_offset"])
         i = response["choices"][0]["logprobs"]["text_offset"].index(len(prompt))
         if i == 0:
             i = i + 1
