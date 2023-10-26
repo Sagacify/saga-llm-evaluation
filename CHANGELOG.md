@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.0 (2023-10-26)
+
+### Feature
+
+* **add_aspects:** Add aspects to geval and gptscore small changes in arguments ([`d76676d`](https://github.com/Sagacify/saga-llm-evaluation/commit/d76676d7fb296e1306e879f01716c76515ef0125))
+* **scorer:** Add scorer class support ([`c457d31`](https://github.com/Sagacify/saga-llm-evaluation/commit/c457d3131ddf4d61af1b94a8902b44763353e9db))
+
 ## v0.5.0 (2023-10-25)
 
 ### Feature

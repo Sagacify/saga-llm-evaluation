@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "saga_llm_evaluation_ml"
-version = "0.5.0"
+version = "0.6.0"
 description = ""
 authors = ["Leonardo Remondini <leonardo.remondini@sagacify.com>"]
 
