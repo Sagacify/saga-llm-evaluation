@@ -14,10 +14,12 @@ class TestLLMScorer(unittest.TestCase):
             LLMScorer(model=model, lan=false)
             LLMScorer(model=model, bleurt_model=false)
             LLMScorer(model=model, mauve_model=false)
-            LLMScorer(model=model, eval_model_name_or_path=false)
-            LLMScorer(model=model, eval_model_basename=false)
-            LLMScorer(model=model, model_name_or_path=false)
-            LLMScorer(model=model, model_basename=false)
+            LLMScorer(model=model, selfcheckgpt_eval_model_name_or_path=false)
+            LLMScorer(model=model, selfcheckgpt_eval_model_basename=false)
+            LLMScorer(model=model, geval_model_name_or_path=false)
+            LLMScorer(model=model, geval_model_basename=false)
+            LLMScorer(model=model, gptscore_model_name_or_path=false)
+            LLMScorer(model=model, gptscore_model_basename=false)
 
     def test_score_bad_arguments(self):
         model = "TheBloke/Llama-2-7b-Chat-GGUF"
@@ -60,10 +62,12 @@ class TestLLMScorer(unittest.TestCase):
 
         scorer = LLMScorer(
             model=model,
-            eval_model_name_or_path=model_name_or_path,
-            eval_model_basename=model_basename,
-            model_name_or_path=model_name_or_path,
-            model_basename=model_basename,
+            selfcheckgpt_eval_model_name_or_path=model_name_or_path,
+            selfcheckgpt_eval_model_basename=model_basename,
+            geval_model_name_or_path=model_name_or_path,
+            geval_model_basename=model_basename,
+            gptscore_model_name_or_path=model_name_or_path,
+            gptscore_model_basename=model_basename,
         )
 
         llm_input = "I am a dog."

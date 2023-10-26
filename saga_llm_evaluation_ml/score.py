@@ -5,50 +5,141 @@ from saga_llm_evaluation_ml.helpers.utils import MetadataExtractor
 
 
 class LLMScorer:
+    # pylint: disable=invalid-name
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
-        model,
+        model=None,
         lan="en",
         bleurt_model="BLEURT-tiny",
         mauve_model="gpt2",
-        eval_model_name_or_path="TheBloke/Llama-2-7b-Chat-GGUF",
-        eval_model_basename="llama-2-7b-chat.Q4_K_M.gguf",
-        model_name_or_path="TheBloke/Llama-2-7b-Chat-GGUF",
-        model_basename="llama-2-7b-chat.Q4_K_M.gguf",
+        selfcheckgpt_eval_model_name_or_path="TheBloke/Llama-2-7b-Chat-GGUF",
+        selfcheckgpt_eval_model_basename="llama-2-7b-chat.Q4_K_M.gguf",
+        geval_model_name_or_path="TheBloke/Llama-2-7b-Chat-GGUF",
+        geval_model_basename="llama-2-7b-chat.Q4_K_M.gguf",
+        gptscore_model_name_or_path="TheBloke/Llama-2-7b-Chat-GGUF",
+        gptscore_model_basename="llama-2-7b-chat.Q4_K_M.gguf",
     ) -> None:
         assert isinstance(lan, str), "lan must be a string."
         assert isinstance(bleurt_model, str), "bleurt_model must be a string."
         assert isinstance(mauve_model, str), "mauve_model must be a string."
         assert isinstance(
-            eval_model_name_or_path, str
-        ), "eval_model_name_or_path must be a string."
+            selfcheckgpt_eval_model_name_or_path, str
+        ), "selfcheckgpt_eval_model_name_or_path must be a string."
         assert isinstance(
-            eval_model_basename, str
-        ), "eval_model_basename must be a string."
+            selfcheckgpt_eval_model_basename, str
+        ), "selfcheckgpt_eval_model_basename must be a string."
         assert isinstance(
-            model_name_or_path, str
-        ), "model_name_or_path must be a string."
-        assert isinstance(model_basename, str), "model_basename must be a string."
+            geval_model_name_or_path, str
+        ), "geval_model_name_or_path must be a string."
+        assert isinstance(
+            geval_model_basename, str
+        ), "geval_model_basename must be a string."
+        assert isinstance(
+            gptscore_model_name_or_path, str
+        ), "gptscore_model_name_or_path must be a string."
+        assert isinstance(
+            gptscore_model_basename, str
+        ), "gptscore_model_basename must be a string."
 
         # Metrics
         self.bert_score = BERTScore(lan=lan)
         self.mauve = MAUVE(featurize_model_name=mauve_model)
         self.bleurt_score = BLEURTScore(checkpoint=bleurt_model)
         self.q_squared = QSquared(lan=lan)
-        self.selfcheckgpt = SelfCheckGPT(
-            model,
-            eval_model_name_or_path=eval_model_name_or_path,
-            eval_model_basename=eval_model_basename,
+        self.selfcheckgpt = (
+            None
+            if model is None
+            else SelfCheckGPT(
+                model,
+                eval_model_name_or_path=selfcheckgpt_eval_model_name_or_path,
+                eval_model_basename=selfcheckgpt_eval_model_basename,
+            )
         )
         self.geval = GEval(
-            model_name_or_path=model_name_or_path, model_basename=model_basename
+            model_name_or_path=geval_model_name_or_path,
+            model_basename=geval_model_basename,
         )
         self.gptscore = GPTScore(
-            model_name_or_path=model_name_or_path, model_basename=model_basename
+            model_name_or_path=gptscore_model_name_or_path,
+            model_basename=gptscore_model_basename,
         )
 
         # Metadata
         self.metadata_extractor = MetadataExtractor()
+
+    def add_geval_task(self, name, definition):
+        """
+        This function adds a task to the GEval metric.
+        Please try to follow the following example pattern to ensure consistency.
+        Example:
+        "summ": "You will be given one summary written for a news article.
+            Your task is to rate the summary on one metric.
+            Please make sure you read and understand these instructions carefully.
+            Please keep this document open while reviewing, and refer to it as needed.",
+        Args:
+            name (str): Name of the task.
+            definition (str): Definition of the task.
+        """
+        assert isinstance(name, str), "name must be a string."
+        assert isinstance(definition, str), "definition must be a string."
+
+        if self.geval is not None:
+            self.geval.add_task(name, definition)
+        else:
+            raise TypeError("GEval metric is not defined.")
+
+    def add_geval_aspect(self, code, name, prompt):
+        """
+        This function adds an aspect to the GEval metric.
+        Please try to follow the following example pattern to ensure consistency.
+        Example:
+        "COH": {
+            "name": "Coherence",
+            "prompt": "Coherence (1-5) - the collective quality of all sentences.
+                We align this dimension with the DUC quality question of structure and coherence
+                whereby ”the summary should be well-structured and well-organized.
+                The summary should not just be a heap of related information,
+                but should build from sentence to sentence to a coherent body of information about a topic.”",
+        },
+
+        Args:
+            code (str): Code of the aspect.
+            name (str): Name of the aspect.
+            prompt (str): Prompt of the aspect.
+        """
+        assert isinstance(code, str), "code must be a string."
+        assert isinstance(name, str), "name must be a string."
+        assert isinstance(prompt, str), "prompt must be a string."
+
+        if self.geval is not None:
+            self.geval.add_aspect(code, name, prompt)
+        else:
+            raise TypeError("GEval metric is not defined.")
+
+    def add_gptscore_template(self, task, code, prompt):
+        """
+        This function adds a template to the GPTScore metric.
+        Please try to follow the following example pattern to ensure consistency.
+        Example:
+        "diag": {
+            "COH": f"Answer the question based on the conversation between a human and AI.
+            \nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation?
+            (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
+        }
+        Args:
+            task (str): Task of the template.
+            code (str): Code of the aspect.
+            prompt (str): Prompt of the aspect.
+        """
+        assert isinstance(task, str), "task must be a string."
+        assert isinstance(code, str), "code must be a string."
+        assert isinstance(prompt, str), "prompt must be a string."
+
+        if self.gptscore is not None:
+            self.gptscore.add_template(task, code, prompt)
+        else:
+            raise TypeError("GPTScore metric is not defined.")
 
     def score(
         self,
@@ -130,7 +221,9 @@ class LLMScorer:
             if reference
             else None,
             "q_squared": self.q_squared.compute(prediction, context),
-            "selfcheck_gpt": self.selfcheckgpt.compute(prompt, prediction, n_samples),
+            "selfcheck_gpt": None
+            if self.selfcheckgpt is None
+            else self.selfcheckgpt.compute(llm_input, prediction, n_samples),
             "g_eval": self.geval.compute(
                 prompt, prediction, custom_prompt=custom_prompt
             )

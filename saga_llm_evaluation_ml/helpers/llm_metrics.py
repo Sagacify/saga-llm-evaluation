@@ -171,6 +171,43 @@ class GEval:
             },
         }
 
+    def add_task(self, name, definition):
+        """
+        This method adds a task to the list of pre-defined tasks.
+        Please try to follow the following example pattern to ensure consistency.
+        Example:
+        "summ": "You will be given one summary written for a news article. Your task is to rate the summary on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.",
+
+        Args:
+            name (str): Task name.
+            definition (str): Task description.
+        """
+        assert isinstance(name, str), "name must be a string."
+        assert isinstance(definition, str), "definition must be a string."
+
+        self.tasks[name] = definition
+
+    def add_aspect(self, code, name, prompt):
+        """
+        This method adds an aspect to the list of pre-defined aspects.
+        Please try to follow the following example pattern to ensure consistency.
+        Example:
+        "COH": {
+            "name": "Coherence",
+            "prompt": "Coherence (1-5) - the collective quality of all sentences. We align this dimension with the DUC quality question of structure and coherence whereby ”the summary should be well-structured and well-organized. The summary should not just be a heap of related information, but should build from sentence to sentence to a coherent body of information about a topic.”",
+        },
+
+        Args:
+            code (str): Aspect code.
+            name (str): Aspect name.
+            prompt (str): Aspect prompt.
+        """
+        assert isinstance(code, str), "code must be a string."
+        assert isinstance(name, str), "name must be a string."
+        assert isinstance(prompt, str), "prompt must be a string."
+
+        self.aspects[code] = {"name": name, "prompt": prompt}
+
     def get_prediction(self, prompt):
         """
         This method returns a prediction given a prompt template.
@@ -401,6 +438,28 @@ class GPTScore:
             n_threads=2,  # CPU cores
             logits_all=True,
         )
+
+    def add_template(self, task, code, prompt):
+        """
+        This method adds a template to the list of pre-defined template.
+        Please try to follow the following example pattern to ensure consistency.
+        Example:
+        "diag": {
+            "COH": f"Answer the question based on the conversation between a human and AI.
+            \nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation?
+            (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
+        }
+
+        Args:
+            task (str): Task name.
+            code (str): Aspect code.
+            prompt (str): Aspect prompt.
+        """
+        assert isinstance(task, str), "task must be a string."
+        assert isinstance(code, str), "code must be a string."
+        assert isinstance(prompt, str), "prompt must be a string."
+
+        self.templates[task][code] = prompt
 
     def get_prompt(self, aspect, task, src, pred, custom_prompt):
         """
