@@ -1,6 +1,6 @@
 from saga_llm_evaluation_ml.helpers.embedding_metrics import MAUVE, BERTScore
 from saga_llm_evaluation_ml.helpers.language_metrics import BLEURTScore, QSquared
-from saga_llm_evaluation_ml.helpers.llm_metrics import SelfCheckGPT, GEval, GPTScore
+from saga_llm_evaluation_ml.helpers.llm_metrics import GEval, GPTScore, SelfCheckGPT
 from saga_llm_evaluation_ml.helpers.utils import MetadataExtractor
 
 

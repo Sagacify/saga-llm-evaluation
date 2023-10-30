@@ -1,30 +1,29 @@
 import unittest
-from llama_cpp import Llama
-from huggingface_hub import hf_hub_download
 
 from saga_llm_evaluation_ml.score import LLMScorer
 
 
 class TestLLMScorer(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model = "TheBloke/Llama-2-7b-Chat-GGUF"
+        self.scorer = LLMScorer(model=self.model)
+
     def test_init(self):
-        model = "TheBloke/Llama-2-7b-Chat-GGUF"
         false = False
         with self.assertRaises(AssertionError):
 
-            LLMScorer(model=model, lan=false)
-            LLMScorer(model=model, bleurt_model=false)
-            LLMScorer(model=model, mauve_model=false)
-            LLMScorer(model=model, selfcheckgpt_eval_model_name_or_path=false)
-            LLMScorer(model=model, selfcheckgpt_eval_model_basename=false)
-            LLMScorer(model=model, geval_model_name_or_path=false)
-            LLMScorer(model=model, geval_model_basename=false)
-            LLMScorer(model=model, gptscore_model_name_or_path=false)
-            LLMScorer(model=model, gptscore_model_basename=false)
+            LLMScorer(model=self.model, lan=false)
+            LLMScorer(model=self.model, bleurt_model=false)
+            LLMScorer(model=self.model, mauve_model=false)
+            LLMScorer(model=self.model, selfcheckgpt_eval_model_name_or_path=false)
+            LLMScorer(model=self.model, selfcheckgpt_eval_model_basename=false)
+            LLMScorer(model=self.model, geval_model_name_or_path=false)
+            LLMScorer(model=self.model, geval_model_basename=false)
+            LLMScorer(model=self.model, gptscore_model_name_or_path=false)
+            LLMScorer(model=self.model, gptscore_model_basename=false)
 
     def test_score_bad_arguments(self):
-        model = "TheBloke/Llama-2-7b-Chat-GGUF"
-        scorer = LLMScorer(model=model)
-
         llm_input = "I am a dog."
         prompt = f"System: You are a cat. You don't like dogs. User: {llm_input}"
         context = "System: You are a cat. You don't like dogs."
@@ -32,22 +31,24 @@ class TestLLMScorer(unittest.TestCase):
         reference = "I am a cat, I don't like dogs, miau."
 
         with self.assertRaises(AssertionError):
-            scorer.score(False, prompt, context, prediction, reference)
-            scorer.score(llm_input, False, context, prediction, reference)
-            scorer.score(llm_input, prompt, False, prediction, reference)
-            scorer.score(llm_input, prompt, context, False, reference)
-            scorer.score(llm_input, prompt, context, prediction, False)
-            scorer.score(
+            self.scorer.score(False, prompt, context, prediction, reference)
+            self.scorer.score(llm_input, False, context, prediction, reference)
+            self.scorer.score(llm_input, prompt, False, prediction, reference)
+            self.scorer.score(llm_input, prompt, context, False, reference)
+            self.scorer.score(llm_input, prompt, context, prediction, False)
+            self.scorer.score(
                 llm_input, prompt, context, prediction, reference, n_samples=False
             )
-            scorer.score(llm_input, prompt, context, prediction, reference, task=False)
-            scorer.score(
+            self.scorer.score(
+                llm_input, prompt, context, prediction, reference, task=False
+            )
+            self.scorer.score(
                 llm_input, prompt, context, prediction, reference, aspects=False
             )
-            scorer.score(
+            self.scorer.score(
                 llm_input, prompt, context, prediction, reference, custom_prompt=False
             )
-            scorer.score(
+            self.scorer.score(
                 llm_input, prompt, context, prediction, reference, custom_prompt=False
             )
 
@@ -55,13 +56,8 @@ class TestLLMScorer(unittest.TestCase):
         model_name_or_path = "TheBloke/Llama-2-7b-Chat-GGUF"
         model_basename = "llama-2-7b-chat.Q2_K.gguf"  # the model is in bin format
 
-        model_path = hf_hub_download(
-            repo_id=model_name_or_path, filename=model_basename
-        )
-        model = Llama(model_path=model_path, n_threads=2, verbose=False)  # CPU cores
-
         scorer = LLMScorer(
-            model=model,
+            model=self.model,
             selfcheckgpt_eval_model_name_or_path=model_name_or_path,
             selfcheckgpt_eval_model_basename=model_basename,
             geval_model_name_or_path=model_name_or_path,
