@@ -8,6 +8,8 @@ from elemeta.nlp.extractors.high_level.word_regex_matches_count import (
     WordRegexMatchesCount,
 )
 from elemeta.nlp.metafeature_extractors_runner import MetafeatureExtractorsRunner
+from huggingface_hub import hf_hub_download
+from llama_cpp import Llama
 
 NO_ANS = "[CLS]"
 INVALID_QUESTION = -1
@@ -96,6 +98,28 @@ def non_personal(question, nlp):
             ):  # TODO: add support to french language
                 return False
     return True
+
+
+def get_llama_model(
+    repo_id: str = "TheBloke/Llama-2-7b-Chat-GGUF",
+    filename: str = "llama-2-7b-chat.Q4_K_M.gguf",
+):
+    """
+    Download and return a Llama model from HuggingFace Hub.
+    Args:
+        repo_id (str) : HuggingFace Hub repo id
+        filename (str) : model filename
+    """
+    model_path = hf_hub_download(repo_id, filename)
+
+    lcpp_llm = Llama(
+        model_path=model_path,
+        n_threads=4,  # CPU cores # TODO: to increase (?)
+        logits_all=True,
+        n_ctx=1000,
+    )
+
+    return lcpp_llm
 
 
 # pylint:disable=invalid-name

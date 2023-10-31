@@ -1,7 +1,9 @@
 from saga_llm_evaluation_ml.helpers.embedding_metrics import MAUVE, BERTScore
 from saga_llm_evaluation_ml.helpers.language_metrics import BLEURTScore, QSquared
 from saga_llm_evaluation_ml.helpers.llm_metrics import GEval, GPTScore, SelfCheckGPT
-from saga_llm_evaluation_ml.helpers.utils import MetadataExtractor
+from saga_llm_evaluation_ml.helpers.utils import MetadataExtractor, get_llama_model
+
+LLAMA_MODEL = get_llama_model()
 
 
 class LLMScorer:
@@ -52,15 +54,18 @@ class LLMScorer:
             if model is None
             else SelfCheckGPT(
                 model,
+                eval_model=LLAMA_MODEL,
                 eval_model_name_or_path=selfcheckgpt_eval_model_name_or_path,
                 eval_model_basename=selfcheckgpt_eval_model_basename,
             )
         )
         self.geval = GEval(
+            model=LLAMA_MODEL,
             model_name_or_path=geval_model_name_or_path,
             model_basename=geval_model_basename,
         )
         self.gptscore = GPTScore(
+            model=LLAMA_MODEL,
             model_name_or_path=gptscore_model_name_or_path,
             model_basename=gptscore_model_basename,
         )

@@ -1,21 +1,20 @@
 import unittest
 
-from huggingface_hub import hf_hub_download
-from llama_cpp import Llama
-
 from saga_llm_evaluation_ml.helpers.llm_metrics import GEval, GPTScore, SelfCheckGPT
+from saga_llm_evaluation_ml.helpers.utils import get_llama_model
+
+LLAMA_MODEL = get_llama_model()
 
 
 class TestGEval(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.geval = GEval()
+        self.geval = GEval(model=LLAMA_MODEL)
 
     def test_init(self):
         with self.assertRaises(AssertionError):
-            GEval(1, 1)
-            GEval("1", 1)
-            GEval(1, "1")
+            GEval(LLAMA_MODEL, "1", 1)
+            GEval(LLAMA_MODEL, 1, "1")
 
     def test_bad_arguments(self):
         source = "Hi how are you"
@@ -54,18 +53,28 @@ class TestGEval(unittest.TestCase):
 class TestSelfCheckGPT(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model_path = hf_hub_download(
-            repo_id="TheBloke/Llama-2-7b-Chat-GGUF",
-            filename="llama-2-7b-chat.Q4_K_M.gguf",  # the model is in bin format
-        )
-        self.model = Llama(model_path=self.model_path, n_threads=2, verbose=False)
-        self.selfcheckgpt = SelfCheckGPT(self.model)
+        self.selfcheckgpt = SelfCheckGPT(model=LLAMA_MODEL, eval_model=LLAMA_MODEL)
 
     def test_init(self):
         with self.assertRaises(AssertionError):
-            SelfCheckGPT(self.model, eval_model_name_or_path=1, eval_model_basename=1)
-            SelfCheckGPT(self.model, eval_model_name_or_path=1, eval_model_basename="1")
-            SelfCheckGPT(self.model, eval_model_name_or_path="1", eval_model_basename=1)
+            SelfCheckGPT(
+                model=LLAMA_MODEL,
+                eval_model=LLAMA_MODEL,
+                eval_model_name_or_path=1,
+                eval_model_basename=1,
+            )
+            SelfCheckGPT(
+                model=LLAMA_MODEL,
+                eval_model=LLAMA_MODEL,
+                eval_model_name_or_path=1,
+                eval_model_basename="1",
+            )
+            SelfCheckGPT(
+                model=LLAMA_MODEL,
+                eval_model=LLAMA_MODEL,
+                eval_model_name_or_path="1",
+                eval_model_basename=1,
+            )
 
     def test_bad_arguments(self):
         question = "What is the capital of France?"
@@ -100,13 +109,13 @@ class TestSelfCheckGPT(unittest.TestCase):
 class TestGPTScore(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.gptscore = GPTScore()
+        self.gptscore = GPTScore(model=LLAMA_MODEL)
 
     def test_init(self):
         with self.assertRaises(AssertionError):
-            GPTScore(model_basename=1, model_name_or_path=1)
-            GPTScore(model_basename="1", model_name_or_path=1)
-            GPTScore(model_basename=1, model_name_or_path="1")
+            GPTScore(model=LLAMA_MODEL, model_basename=1, model_name_or_path=1)
+            GPTScore(model=LLAMA_MODEL, model_basename="1", model_name_or_path=1)
+            GPTScore(model=LLAMA_MODEL, model_basename=1, model_name_or_path="1")
 
     def test_bad_arguments(self):
 

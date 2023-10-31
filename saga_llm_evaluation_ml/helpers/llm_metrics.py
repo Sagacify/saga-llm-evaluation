@@ -7,6 +7,7 @@ class SelfCheckGPT:
     def __init__(
         self,
         model,
+        eval_model=False,
         eval_model_name_or_path="TheBloke/Llama-2-7b-Chat-GGUF",
         eval_model_basename="llama-2-7b-chat.Q4_K_M.gguf",
     ):
@@ -15,6 +16,8 @@ class SelfCheckGPT:
         It is inspired by the self-check metric proposed in https://arxiv.org/pdf/2303.08896.pdf.
         Args:
             model (transformers.PreTrainedModel): GPT model to evaluate.
+            eval_model (LLama model, optional): Evaluation model. If False, the evaluation model is
+            downloaded from the HuggingFace Hub.
             eval_model_name_or_path (str): Evaluation model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
             eval_model_basename (str): Evaluation model basename. Defaults to "llama-2-7b-chat.Q4_K_M.gguf".
         """
@@ -26,13 +29,16 @@ class SelfCheckGPT:
         ), "eval_model_basename must be a string."
 
         self.model = model
-        self.eval_model_path = hf_hub_download(
-            repo_id=eval_model_name_or_path, filename=eval_model_basename
-        )
+        if not eval_model:
+            self.eval_model_path = hf_hub_download(
+                repo_id=eval_model_name_or_path, filename=eval_model_basename
+            )
 
-        self.eval_model = Llama(
-            model_path=self.eval_model_path, n_threads=2, verbose=False  # CPU cores
-        )
+            self.eval_model = Llama(
+                model_path=self.eval_model_path, n_threads=2, verbose=False  # CPU cores
+            )
+        else:
+            self.eval_model = eval_model
 
     def get_prompt(self, pred, sample, question):
         """
@@ -114,6 +120,7 @@ class SelfCheckGPT:
 class GEval:
     def __init__(
         self,
+        model=None,
         model_name_or_path="TheBloke/Llama-2-7b-Chat-GGUF",
         model_basename="llama-2-7b-chat.Q4_K_M.gguf",
     ):
@@ -121,6 +128,7 @@ class GEval:
         This class implements the GEval evaluation metric for generative language models.
         It is inspired by the GEval metric proposed in https://arxiv.org/pdf/2303.16634.pdf.
         Args:
+            model (Llama model): model used for evaluation. If None, the model is downloaded from the HuggingFace Hub.
             model_name_or_path (str): Model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
             model_basename (str): Model basename. Defaults to "llama-2-7b-chat.Q4_K_M.gguf".
         """
@@ -129,16 +137,19 @@ class GEval:
         ), "model_name_or_path must be a string."
         assert isinstance(model_basename, str), "model_basename must be a string."
 
-        self.model_path = hf_hub_download(
-            repo_id=model_name_or_path, filename=model_basename
-        )
+        if not model:
+            self.model_path = hf_hub_download(
+                repo_id=model_name_or_path, filename=model_basename
+            )
 
-        self.lcpp_llm = Llama(
-            model_path=self.model_path,
-            n_threads=2,  # CPU cores
-            logits_all=True,
-            n_ctx=1000,
-        )
+            self.lcpp_llm = Llama(
+                model_path=self.model_path,
+                n_threads=2,  # CPU cores
+                logits_all=True,
+                n_ctx=1000,
+            )
+        else:
+            self.lcpp_llm = model
 
         self.tasks = {
             "summ": "You will be given one summary written for a news article. Your task is to rate the summary on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.",
@@ -375,6 +386,7 @@ class GPTScore:
     # pylint: disable=f-string-without-interpolation
     def __init__(
         self,
+        model=None,
         model_name_or_path="TheBloke/Llama-2-7b-Chat-GGUF",
         model_basename="llama-2-7b-chat.Q4_K_M.gguf",
     ):
@@ -382,6 +394,7 @@ class GPTScore:
         This class implements the GPTScore evaluation metric for generative language models.
         It is inspired by the GPTScore metric proposed in https://arxiv.org/pdf/2302.04166.pdf.
         Args:
+            model (Llama model): model used for evaluation. If None, the model is downloaded from the HuggingFace Hub.
             model_name_or_path (str): Model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
             model_basename (str): Model basename. Defaults to "llama-2-7b-chat.Q4_K_M.gguf".
         """
@@ -429,15 +442,18 @@ class GPTScore:
             {aspect for task in self.tasks for aspect in self.templates[task]}
         )
 
-        self.model_path = hf_hub_download(
-            repo_id=model_name_or_path, filename=model_basename
-        )
+        if not model:
+            self.model_path = hf_hub_download(
+                repo_id=model_name_or_path, filename=model_basename
+            )
 
-        self.lcpp_llm = Llama(
-            model_path=self.model_path,
-            n_threads=2,  # CPU cores
-            logits_all=True,
-        )
+            self.lcpp_llm = Llama(
+                model_path=self.model_path,
+                n_threads=2,  # CPU cores
+                logits_all=True,
+            )
+        else:
+            self.lcpp_llm = model
 
     def add_template(self, task, code, prompt):
         """

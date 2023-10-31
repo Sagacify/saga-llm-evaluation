@@ -1,27 +1,29 @@
 import unittest
 
+from saga_llm_evaluation_ml.helpers.utils import get_llama_model
 from saga_llm_evaluation_ml.score import LLMScorer
+
+LLAMA_MODEL = get_llama_model()
 
 
 class TestLLMScorer(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model = "TheBloke/Llama-2-7b-Chat-GGUF"
-        self.scorer = LLMScorer(model=self.model)
+        self.scorer = LLMScorer(model=LLAMA_MODEL)
 
     def test_init(self):
         false = False
         with self.assertRaises(AssertionError):
 
-            LLMScorer(model=self.model, lan=false)
-            LLMScorer(model=self.model, bleurt_model=false)
-            LLMScorer(model=self.model, mauve_model=false)
-            LLMScorer(model=self.model, selfcheckgpt_eval_model_name_or_path=false)
-            LLMScorer(model=self.model, selfcheckgpt_eval_model_basename=false)
-            LLMScorer(model=self.model, geval_model_name_or_path=false)
-            LLMScorer(model=self.model, geval_model_basename=false)
-            LLMScorer(model=self.model, gptscore_model_name_or_path=false)
-            LLMScorer(model=self.model, gptscore_model_basename=false)
+            LLMScorer(model=LLAMA_MODEL, lan=false)
+            LLMScorer(model=LLAMA_MODEL, bleurt_model=false)
+            LLMScorer(model=LLAMA_MODEL, mauve_model=false)
+            LLMScorer(model=LLAMA_MODEL, selfcheckgpt_eval_model_name_or_path=false)
+            LLMScorer(model=LLAMA_MODEL, selfcheckgpt_eval_model_basename=false)
+            LLMScorer(model=LLAMA_MODEL, geval_model_name_or_path=false)
+            LLMScorer(model=LLAMA_MODEL, geval_model_basename=false)
+            LLMScorer(model=LLAMA_MODEL, gptscore_model_name_or_path=false)
+            LLMScorer(model=LLAMA_MODEL, gptscore_model_basename=false)
 
     def test_score_bad_arguments(self):
         llm_input = "I am a dog."
@@ -57,7 +59,7 @@ class TestLLMScorer(unittest.TestCase):
         model_basename = "llama-2-7b-chat.Q2_K.gguf"  # the model is in bin format
 
         scorer = LLMScorer(
-            model=self.model,
+            model=LLAMA_MODEL,
             selfcheckgpt_eval_model_name_or_path=model_name_or_path,
             selfcheckgpt_eval_model_basename=model_basename,
             geval_model_name_or_path=model_name_or_path,
