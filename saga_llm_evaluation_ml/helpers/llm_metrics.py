@@ -120,7 +120,7 @@ class SelfCheckGPT:
 class GEval:
     def __init__(
         self,
-        model=None,
+        model=False,
         model_name_or_path="TheBloke/Llama-2-7b-Chat-GGUF",
         model_basename="llama-2-7b-chat.Q4_K_M.gguf",
     ):
@@ -128,7 +128,7 @@ class GEval:
         This class implements the GEval evaluation metric for generative language models.
         It is inspired by the GEval metric proposed in https://arxiv.org/pdf/2303.16634.pdf.
         Args:
-            model (Llama model): model used for evaluation. If None, the model is downloaded from the HuggingFace Hub.
+            model (Llama model): model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.
             model_name_or_path (str): Model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
             model_basename (str): Model basename. Defaults to "llama-2-7b-chat.Q4_K_M.gguf".
         """
@@ -386,7 +386,7 @@ class GPTScore:
     # pylint: disable=f-string-without-interpolation
     def __init__(
         self,
-        model=None,
+        model=False,
         model_name_or_path="TheBloke/Llama-2-7b-Chat-GGUF",
         model_basename="llama-2-7b-chat.Q4_K_M.gguf",
     ):
@@ -394,7 +394,7 @@ class GPTScore:
         This class implements the GPTScore evaluation metric for generative language models.
         It is inspired by the GPTScore metric proposed in https://arxiv.org/pdf/2302.04166.pdf.
         Args:
-            model (Llama model): model used for evaluation. If None, the model is downloaded from the HuggingFace Hub.
+            model (Llama model): model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.
             model_name_or_path (str): Model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
             model_basename (str): Model basename. Defaults to "llama-2-7b-chat.Q4_K_M.gguf".
         """
