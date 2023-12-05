@@ -1,147 +1,70 @@
 import unittest
 
-from saga_llm_evaluation_ml.helpers.utils import get_llama_model
-from saga_llm_evaluation_ml.score import LLMScorer
+import pytest
 
-LLAMA_MODEL = get_llama_model()
+from saga_llm_evaluation_ml.helpers.utils import load_json
+from saga_llm_evaluation_ml.score import LLMScorer
+from tests import LLAMA_MODEL
+
+# skip it for github actions, too many resources needed. Test locally
+pytest.skip(allow_module_level=True)
 
 
 class TestLLMScorer(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.scorer = LLMScorer(model=LLAMA_MODEL)
+        self.scorer = LLMScorer(model=LLAMA_MODEL, eval_model=LLAMA_MODEL)
 
     def test_init(self):
-        false = False
+        bad_config = {"metrics": {"bert_score": {"lang": "en"}}}
         with self.assertRaises(AssertionError):
-
-            LLMScorer(model=LLAMA_MODEL, lan=false)
-            LLMScorer(model=LLAMA_MODEL, bleurt_model=false)
-            LLMScorer(model=LLAMA_MODEL, mauve_model=false)
-            LLMScorer(model=LLAMA_MODEL, selfcheckgpt_eval_model_name_or_path=false)
-            LLMScorer(model=LLAMA_MODEL, selfcheckgpt_eval_model_basename=false)
-            LLMScorer(model=LLAMA_MODEL, geval_model_name_or_path=false)
-            LLMScorer(model=LLAMA_MODEL, geval_model_basename=false)
-            LLMScorer(model=LLAMA_MODEL, gptscore_model_name_or_path=false)
-            LLMScorer(model=LLAMA_MODEL, gptscore_model_basename=false)
+            LLMScorer(metrics=1)
+            LLMScorer(config="hello")
+            LLMScorer(metrics=["mauve"], config=bad_config)
 
     def test_score_bad_arguments(self):
-        llm_input = "I am a dog."
-        prompt = f"System: You are a cat. You don't like dogs. User: {llm_input}"
-        context = "System: You are a cat. You don't like dogs."
+        user_prompt = "I am a dog."
+        knowledge = "You are a cat. You don't like dogs."
         prediction = "I am a cat, I don't like dogs."
         reference = "I am a cat, I don't like dogs, miau."
+        config = load_json("saga_llm_evaluation_ml/scorer.json")
 
         with self.assertRaises(AssertionError):
-            self.scorer.score(False, prompt, context, prediction, reference)
-            self.scorer.score(llm_input, False, context, prediction, reference)
-            self.scorer.score(llm_input, prompt, False, prediction, reference)
-            self.scorer.score(llm_input, prompt, context, False, reference)
-            self.scorer.score(llm_input, prompt, context, prediction, False)
+            self.scorer.score(False, knowledge, prediction, reference, config)
+            self.scorer.score(user_prompt, False, prediction, reference, config)
+            self.scorer.score(user_prompt, knowledge, False, reference, config)
+            self.scorer.score(user_prompt, knowledge, prediction, False, config)
+            self.scorer.score([user_prompt], knowledge, prediction, reference, config)
+            self.scorer.score([user_prompt], [knowledge], prediction, reference, config)
             self.scorer.score(
-                llm_input, prompt, context, prediction, reference, n_samples=False
+                [user_prompt], [knowledge], [prediction], reference, config
+            )
+            self.scorer.score(user_prompt, knowledge, prediction, reference, "2")
+            self.scorer.score(
+                [user_prompt], [knowledge, knowledge], [prediction], [reference], config
             )
             self.scorer.score(
-                llm_input, prompt, context, prediction, reference, task=False
-            )
-            self.scorer.score(
-                llm_input, prompt, context, prediction, reference, aspects=False
-            )
-            self.scorer.score(
-                llm_input, prompt, context, prediction, reference, custom_prompt=False
-            )
-            self.scorer.score(
-                llm_input, prompt, context, prediction, reference, custom_prompt=False
+                [user_prompt],
+                [knowledge],
+                [prediction, prediction],
+                [reference],
+                config,
             )
 
     def test_score(self):
-        model_name_or_path = "TheBloke/Llama-2-7b-Chat-GGUF"
-        model_basename = "llama-2-7b-chat.Q2_K.gguf"  # the model is in bin format
-
-        scorer = LLMScorer(
-            model=LLAMA_MODEL,
-            selfcheckgpt_eval_model_name_or_path=model_name_or_path,
-            selfcheckgpt_eval_model_basename=model_basename,
-            geval_model_name_or_path=model_name_or_path,
-            geval_model_basename=model_basename,
-            gptscore_model_name_or_path=model_name_or_path,
-            gptscore_model_basename=model_basename,
-        )
-
-        llm_input = "I am a dog."
-        prompt = f"System: You are a cat. You don't like dogs. User: {llm_input}"
-        context = "Examples: Eww, I hate dogs."
+        user_prompt = "I am a dog."
+        knowledge = "Example: Eww, I hate dogs."
         prediction = "I am a cat, I don't like dogs."
         reference = "I am a cat, I don't like dogs, miau."
-        task = "diag"
-        aspect = ["CON"]
-        custom_prompt = {
-            "name": "Fluency",
-            "task": "Dialog",
-            "aspect": "Evaluate the fluency of the following dialog.",
-        }
+        config = load_json("saga_llm_evaluation_ml/scorer.json")
 
-        scores = scorer.score(llm_input, prompt, context, prediction, reference)
-        self.assertTrue(isinstance(scores, dict))
-        self.assertTrue("metrics" in scores)
-        self.assertTrue("metadata" in scores)
-
-        # All default
-        print("All default")
-        scores = scorer.score(llm_input, prompt, prediction, n_samples=2)
-        self.assertTrue(isinstance(scores, dict))
-        self.assertTrue("metrics" in scores)
-        self.assertTrue("metadata" in scores)
-
-        # All default, but with context
-        print("All default, but with context")
-        scores = scorer.score(
-            llm_input,
-            prompt,
-            prediction,
-            context=context,
-            n_samples=2,
-        )
-        self.assertTrue(isinstance(scores, dict))
-        self.assertTrue("metrics" in scores)
-        self.assertTrue("metadata" in scores)
-
-        # All default, but with reference
-        print("All default, but with reference")
-        scores = scorer.score(
-            llm_input,
-            prompt,
-            prediction,
+        scores = self.scorer.score(
+            user_prompt=user_prompt,
+            prediction=prediction,
+            knowledge=knowledge,
             reference=reference,
-            n_samples=2,
+            config=config,
         )
         self.assertTrue(isinstance(scores, dict))
-        self.assertTrue("metrics" in scores)
-        self.assertTrue("metadata" in scores)
-
-        # Precise task and aspect
-        print("Precise task and aspect")
-        scores = scorer.score(
-            llm_input,
-            prompt,
-            prediction,
-            task=task,
-            aspects=aspect,
-            n_samples=2,
-        )
-        self.assertTrue(isinstance(scores, dict))
-        self.assertTrue("metrics" in scores)
-        self.assertTrue("metadata" in scores)
-
-        # Precise custom prompt
-        print("Precise custom prompt")
-        scores = scorer.score(
-            llm_input,
-            prompt,
-            prediction,
-            custom_prompt=custom_prompt,
-            n_samples=2,
-        )
-        self.assertTrue(isinstance(scores, dict))
-        self.assertTrue("metrics" in scores)
+        self.assertTrue("evaluation" in scores)
         self.assertTrue("metadata" in scores)

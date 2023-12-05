@@ -42,8 +42,8 @@ class TestQSquared(unittest.TestCase):
         predictions = ["The cat sat on the mat.", "The dog sat on the mat."]
 
         for know, pred in zip(knowledges, predictions):
-            scores = self.q_squared.compute(pred, know, single=True)
-            scores_2 = self.q_squared.compute(pred, know, single=True)
+            scores = self.q_squared.compute([pred], [know], single=True)
+            scores_2 = self.q_squared.compute([pred], [know], single=True)
             self.assertEqual(scores, scores_2)
 
     def test_compute_improved_input(self):
@@ -52,8 +52,8 @@ class TestQSquared(unittest.TestCase):
         prediction = "The cat sat on the mat."
         better_prediction = "Chronic urethral obstruction due to benign prismatic hyperplasia can lead to hyperophy"
 
-        scores = self.q_squared.compute(prediction, knowledge, single=True)
+        scores = self.q_squared.compute([prediction], [knowledge], single=True)
         better_scores = self.q_squared.compute(
-            better_prediction, knowledge, single=True
+            [better_prediction], [knowledge], single=True
         )
-        self.assertGreater(better_scores, scores)
+        self.assertGreater(better_scores["avg_f1"][0], scores["avg_f1"][0])

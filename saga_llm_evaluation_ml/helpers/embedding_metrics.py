@@ -2,26 +2,26 @@ from evaluate import load
 
 
 class BERTScore:
-    def __init__(self, lan="en", model_type=None):
+    def __init__(self, lang="en", model_type=None):
         """
         BERTScore computes a similarity score for each token in the candidate sentence with each
         token in the reference sentence.
         The final score is the average of the similarity scores of all tokens in the candidate sentence.
 
         Args:
-            lan (str, optional): language to use. Defaults to "en", It may also be "fr". Depending
+            lang (str, optional): language to use. Defaults to "en", It may also be "fr". Depending
             on the language, a different model is used by default.
             model_type (sr, optional): Model to use. Defaults to None. If None, a default model is
             used depending on the language (see above).
         """
-        if lan == "fr":
-            self.model_type = (
-                "distilbert-base-multilingual-cased" if not model_type else model_type
-            )  # TODO; find uncased version
-        elif lan == "en":
+        if lang == "en":
             self.model_type = (
                 "distilbert-base-uncased" if not model_type else model_type
             )
+        else:  # multilingual
+            self.model_type = (
+                "distilbert-base-multilingual-cased" if not model_type else model_type
+            )  # TODO; find uncased version
         self.metric = load("bertscore")
 
     def compute(self, references, predictions, **kwargs):
@@ -68,8 +68,5 @@ class MAUVE:
             list: List of MAUVE scores for each candidate sentence.
         """
         return self.metric.compute(
-            predictions=predictions,
-            references=references,
-            featurize_model_name=self.featurize_model_name,
-            **kwargs
+            predictions=predictions, references=references, **kwargs
         )

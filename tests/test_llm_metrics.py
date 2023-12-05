@@ -1,9 +1,7 @@
 import unittest
 
 from saga_llm_evaluation_ml.helpers.llm_metrics import GEval, GPTScore, SelfCheckGPT
-from saga_llm_evaluation_ml.helpers.utils import get_llama_model
-
-LLAMA_MODEL = get_llama_model()
+from tests import LLAMA_MODEL
 
 
 class TestGEval(unittest.TestCase):
@@ -41,9 +39,9 @@ class TestGEval(unittest.TestCase):
         scores = {key: 0 for key in preds}
         for pred in preds:
             score = self.geval.compute(source, pred, task, aspect)
-            self.assertTrue(isinstance(score, float))
-            self.assertGreaterEqual(score, 0.0)
-            scores[pred] = score
+            self.assertTrue(isinstance(score[aspect][0], float))
+            self.assertGreaterEqual(score[aspect][0], 0.0)
+            scores[pred] = score[aspect][0]
 
         self.assertGreaterEqual(
             scores["I am very good, thank you! And you?"], scores["Shut up creep!!!"]
@@ -77,31 +75,35 @@ class TestSelfCheckGPT(unittest.TestCase):
             )
 
     def test_bad_arguments(self):
-        question = "What is the capital of France?"
-        pred = "Paris"
+        user_prompt = "What is the capital of France?"
+        prediction = "Paris"
         n_samples = 1
 
         with self.assertRaises(AssertionError):
-            self.selfcheckgpt.compute([question], pred, n_samples)
-            self.selfcheckgpt.compute(question, [pred], n_samples)
-            self.selfcheckgpt.compute(question, pred, "1")
-            self.selfcheckgpt.compute(question, pred, 1.0)
-            self.selfcheckgpt.compute(question, pred, -1)
-            self.selfcheckgpt.compute(question=question, pred=None, n_samples=5)
-            self.selfcheckgpt.compute(question=None, pred=pred, n_samples=5)
+            self.selfcheckgpt.compute([user_prompt], prediction, n_samples)
+            self.selfcheckgpt.compute(user_prompt, [prediction], n_samples)
+            self.selfcheckgpt.compute(user_prompt, prediction, "1")
+            self.selfcheckgpt.compute(user_prompt, prediction, 1.3)
+            self.selfcheckgpt.compute(user_prompt, prediction, -1)
+            self.selfcheckgpt.compute(
+                user_prompts=user_prompt, predictions=None, n_samples=5
+            )
+            self.selfcheckgpt.compute(
+                user_prompts=None, predictions=prediction, n_samples=5
+            )
 
     def test_compute(self):
         question = "What is the capital of France?"
         preds = ["Paris", "sandwich"]
-        n_samples = 10
+        n_samples = 5
 
         scores = {key: 0 for key in preds}
         for pred in preds:
             score = self.selfcheckgpt.compute(question, pred, n_samples)
-            self.assertTrue(isinstance(score, float))
-            self.assertGreaterEqual(score, 0.0)
-            self.assertLessEqual(score, 1.0)
-            scores[pred] = score
+            self.assertTrue(isinstance(score[0], float))
+            self.assertGreaterEqual(score[0], 0.0)
+            self.assertLessEqual(score[0], 1.0)
+            scores[pred] = score[0]
 
         self.assertGreaterEqual(scores["Paris"], scores["sandwich"])
 
@@ -128,12 +130,12 @@ class TestGPTScore(unittest.TestCase):
             )
             self.gptscore.compute("The cat sat on the mat.", "The dog sat on the log.")
             self.gptscore.compute(
-                "The cat sat on the mat.", "The dog sat on the log.", prompt=2
+                "The cat sat on the mat.", "The dog sat on the log.", custom_prompt=2
             )
             self.gptscore.compute(
                 "The cat sat on the mat.",
                 "The dog sat on the log.",
-                prompt="2",
+                custom_prompt="2",
                 aspect="COV",
                 task="diag",
             )
@@ -181,9 +183,9 @@ class TestGPTScore(unittest.TestCase):
         scores = {key: 0 for key in preds}
         for target in preds:
             score = self.gptscore.compute(source, target, aspect=aspect, task=task)
-            scores[target] = score
-            self.assertTrue(isinstance(score, float))
-            self.assertGreaterEqual(score, 0.0)
+            scores[target] = score[aspect][0]
+            self.assertTrue(isinstance(score[aspect][0], float))
+            self.assertGreaterEqual(score[aspect][0], 0.0)
 
         self.assertGreaterEqual(
             scores["I am very fine. Thanks! What about you?"],

@@ -1,7 +1,5 @@
 # 🔮 Saga LLM Evaluation ML Library
 
-[![ci](https://github.com/sagacify/saga-llm-evaluation-ml/actions/workflows/cd.yaml/badge.svg)](https://github.com/Sagacify/saga-llm-evaluation-ml/actions/workflows/cd.yaml)
-
 Welcome to the Saga LLM Evaluation ML library, a versatile Python tool designed for evaluating the performance of various large language models in Natural Language Processing (NLP) tasks. Whether you're developing language models, chatbots, or other NLP applications, our library provides a comprehensive suite of metrics to help you assess the quality of your language models.
 
 ## Key Metrics

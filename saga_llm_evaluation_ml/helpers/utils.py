@@ -7,6 +7,9 @@ from elemeta.nlp.extractors.high_level.regex_match_count import RegexMatchCount
 from elemeta.nlp.extractors.high_level.word_regex_matches_count import (
     WordRegexMatchesCount,
 )
+from elemeta.nlp.extractors.low_level.abstract_metafeature_extractor import (
+    AbstractMetafeatureExtractor,
+)
 from elemeta.nlp.metafeature_extractors_runner import MetafeatureExtractorsRunner
 from huggingface_hub import hf_hub_download
 from llama_cpp import Llama
@@ -102,7 +105,7 @@ def non_personal(question, nlp):
 
 def get_llama_model(
     repo_id: str = "TheBloke/Llama-2-7b-Chat-GGUF",
-    filename: str = "llama-2-7b-chat.Q4_K_M.gguf",
+    filename: str = "llama-2-7b-chat.Q2_K.gguf",
 ):
     """
     Download and return a Llama model from HuggingFace Hub.
@@ -120,6 +123,37 @@ def get_llama_model(
     )
 
     return lcpp_llm
+
+
+def filter_class_input(args, python_function: object, drop=None):
+    """
+    Filters input arguments for a given class.
+    Args:
+        args (dict): dictionary of arguments
+        python_class (object): class to filter arguments for
+        drop (list, optional): list of arguments to drop. Defaults to None.
+    Returns:
+        dict: filtered dictionary of arguments
+    """
+    init_varnames = set(python_function.__code__.co_varnames)
+    if drop:
+        args = {k: v for k, v in args.items() if k not in init_varnames}
+    args = {k: v for k, v in args.items() if k in init_varnames}
+    return args
+
+
+def check_list_type(array: list, list_type: type):
+    """
+    Check if an array is a list of a given type.
+    Args:
+        array (list): array to check
+        list_type (type): type to check
+    Returns:
+        bool: True if the array is a list of the given type, False otherwise
+    """
+    if not isinstance(array, list):
+        return False
+    return all(isinstance(item, list_type) for item in array)
 
 
 # pylint:disable=invalid-name
@@ -150,6 +184,15 @@ class MetadataExtractor:
         self.metadata_extractor.add_metafeature_extractor(
             RegexMatchCount(regex=regex_rule, name=name)
         )
+
+    def add_custom_extractor(self, extractor: AbstractMetafeatureExtractor):
+        """
+        Adds a custom extractor to the metadata extractor.
+
+        Args:
+            extractor (object): extractor to add
+        """
+        self.metadata_extractor.add_metafeature_extractor(extractor)
 
     def compute(self, text):
         """

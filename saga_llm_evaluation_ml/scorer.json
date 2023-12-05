@@ -1,0 +1,37 @@
+{
+    "metrics": {
+        "bert_score": {
+            "lang": "en"
+        },
+        "mauve": {
+            "featurize_model_name": "gpt2"
+        },
+        "bleurt": {
+            "checkpoint": "BLEURT-tiny"
+        },
+        "q_squared": {
+            "qa_model": "ktrapeznikov/albert-xlarge-v2-squad-v2",
+            "qg_model": "mrm8488/t5-base-finetuned-question-generation-ap",
+            "lang": "en",
+            "single": false,
+            "remove_personal": true
+        },
+        "selfcheckgpt": {
+            "model_name_or_path": "TheBloke/Llama-2-7b-Chat-GGUF", 
+            "model_basename": "llama-2-7b-chat.Q2_K.gguf",
+            "n_samples": 5
+        },
+        "geval": {
+            "model_name_or_path": "TheBloke/Llama-2-7b-Chat-GGUF", 
+            "model_basename": "llama-2-7b-chat.Q2_K.gguf",
+            "aspect": "FLU",
+            "task": "diag"
+        },
+        "gptscore": {
+            "eval_model_name_or_path": "TheBloke/Llama-2-7b-Chat-GGUF", 
+            "eval_model_basename": "llama-2-7b-chat.Q2_K.gguf",
+            "aspect": "UND",
+            "task": "diag"
+        }
+    }
+}
