@@ -38,10 +38,6 @@ jobs:
         run: |
           poetry install
 
-      - name: Run tests
-        run: |
-          poetry run pytest
-
       - name: Run formatter
         run: |
           poetry run black --check saga_llm_evaluation_ml tests
@@ -49,3 +45,7 @@ jobs:
       - name: Run linter
         run: |
           poetry run pylint saga_llm_evaluation_ml tests
+
+      - name: Run tests
+        run: |
+          poetry run pytest

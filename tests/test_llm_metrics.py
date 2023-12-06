@@ -1,7 +1,12 @@
 import unittest
 
+import pytest
+
 from saga_llm_evaluation_ml.helpers.llm_metrics import GEval, GPTScore, SelfCheckGPT
 from tests import LLAMA_MODEL
+
+# skip it for github actions, too many resources needed. Test locally
+pytest.skip(allow_module_level=True)
 
 
 class TestGEval(unittest.TestCase):
@@ -46,6 +51,9 @@ class TestGEval(unittest.TestCase):
         self.assertGreaterEqual(
             scores["I am very good, thank you! And you?"], scores["Shut up creep!!!"]
         )
+
+
+pytest.skip(allow_module_level=True)
 
 
 class TestSelfCheckGPT(unittest.TestCase):
@@ -106,6 +114,9 @@ class TestSelfCheckGPT(unittest.TestCase):
             scores[pred] = score[0]
 
         self.assertGreaterEqual(scores["Paris"], scores["sandwich"])
+
+
+pytest.skip(allow_module_level=True)
 
 
 class TestGPTScore(unittest.TestCase):
