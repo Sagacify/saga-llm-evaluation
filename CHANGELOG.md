@@ -2,6 +2,22 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.0 (2023-12-07)
+
+### Feature
+
+* **project:** Llama model can be now load from local, minor fix, improve doc ([`6064ffc`](https://github.com/Sagacify/saga-llm-evaluation/commit/6064ffc5e7d4d767f9316209a7efffdf39548e68))
+* **project:** Redesigned scorer, llm_metrics support lists as input, scorer test skipped ([`99932ea`](https://github.com/Sagacify/saga-llm-evaluation/commit/99932eaf97d95b52eb7458b84f7948a8e1e660cc))
+* **llm_metric:** For each llm_metric, evaluation model can be passed as input ([`d01ca44`](https://github.com/Sagacify/saga-llm-evaluation/commit/d01ca44498615b0c58a59823e603ad39512f256d))
+
+### Fix
+
+* **llm_metrics:** Unify default value for models ([`c467e28`](https://github.com/Sagacify/saga-llm-evaluation/commit/c467e28b58f8e3e2746d069d2bde2e85d961abe3))
+
+### Documentation
+
+* **language_metrics:** Adjust doc for q_squared compute function ([`8fa7e97`](https://github.com/Sagacify/saga-llm-evaluation/commit/8fa7e97ae9d0eff10be31ef9846a8e6100e5cad8))
+
 ## v0.6.0 (2023-10-26)
 
 ### Feature
