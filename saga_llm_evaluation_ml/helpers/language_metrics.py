@@ -235,8 +235,7 @@ class QSquared:
                                      Defaults to True.
         Returns:
             dictionary with the following keys:
-                score (float) : Q² score
-                avg_f1 (float) : average F1-score among all the questions
+                avg_f1 (float) : avg F1-score Q² score among all the questions
         """
         assert check_list_type(
             predictions, str
@@ -260,9 +259,6 @@ class QSquared:
             f1_bert_score = 0
             num_questions = 0
             scores = []
-            # valid_questions = []
-            # valid_cands = []
-            # knowledge_answers = []
             candidates = self.get_answer_candidates(prediction)
             for cand in candidates:
                 questions = self.get_questions_beam(cand, prediction)
@@ -276,10 +272,6 @@ class QSquared:
                         if question_score != INVALID_QUESTION:
                             num_questions += 1
                             f1_bert_score += question_score
-
-                            # valid_questions.append(question)
-                            # valid_cands.append(cand)
-                            # knowledge_answers.append(knowledge_ans)
                             scores.append(question_score)
 
                             if single:
@@ -292,5 +284,5 @@ class QSquared:
             avg_f1s.append(avg_f1)
 
         return {
-            "avg_f1": avg_f1s,  # , valid_questions, valid_cands, knowledge_answers, scores
+            "avg_f1": avg_f1s,
         }
