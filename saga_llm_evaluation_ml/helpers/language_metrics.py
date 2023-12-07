@@ -11,12 +11,15 @@ from saga_llm_evaluation_ml.helpers.embedding_metrics import BERTScore
 from saga_llm_evaluation_ml.helpers.utils import (
     INVALID_QUESTION,
     NO_ANS,
+    check_list_type,
     filter_questions,
     non_personal,
 )
 
-
 # pylint:disable=too-many-locals
+# pylint:disable=too-many-nested-blocks
+
+
 class BLEURTScore:
     def __init__(self, checkpoint="BLEURT-tiny"):
         """
@@ -25,6 +28,7 @@ class BLEURTScore:
 
         Args:
             checkpoint (str, optional): Checkpoint to use. Defaults to BLEURT-tiny if not specified.
+            Check https://huggingface.co/spaces/evaluate-metric/bleurt for more checkpoints.
         """
         self.checkpoint = checkpoint
         self.metric = load("bleurt", module_type="metric", checkpoint=self.checkpoint)
@@ -41,8 +45,10 @@ class BLEURTScore:
         assert len(references) == len(
             predictions
         ), "Number of references and predictions must be equal."
-        assert isinstance(references, list), "References must be a list."
-        assert isinstance(predictions, list), "Predictions must be a list."
+        assert check_list_type(references, str), "References must be a list of strings."
+        assert check_list_type(
+            predictions, str
+        ), "Predictions must be a list of strings."
 
         return self.metric.compute(
             predictions=predictions, references=references, **kwargs
@@ -50,34 +56,37 @@ class BLEURTScore:
 
 
 class QSquared:
-    def __init__(self, lan="en") -> None:
+    def __init__(
+        self,
+        qa_model: str = "ktrapeznikov/albert-xlarge-v2-squad-v2",
+        qg_model: str = "mrm8488/t5-base-finetuned-question-generation-ap",
+        lang="en",
+    ) -> None:
         """
         Q² is a reference-free metric that aims to evaluate the factual consistency of knowledge-grounded
         dialogue systems. The approach is based on automatic question generation and question answering
         Source: https://github.com/orhonovich/q-squared
 
         Args:
+            qa_model (str): Huggingface question answering model to use
+            qg_model (str): Huggingface question generation model to use
             lan (str, optional): Language to use. Defaults to "en", It may also be "fr".
         """
-        self.qa_tokenizer = AutoTokenizer.from_pretrained(
-            "ktrapeznikov/albert-xlarge-v2-squad-v2"
-        )
-        self.qa_model = AutoModelForQuestionAnswering.from_pretrained(
-            "ktrapeznikov/albert-xlarge-v2-squad-v2"
-        )
-        self.qg_tokenizer = AutoTokenizer.from_pretrained(
-            "mrm8488/t5-base-finetuned-question-generation-ap"
-        )
-        self.qg_model = AutoModelWithLMHead.from_pretrained(
-            "mrm8488/t5-base-finetuned-question-generation-ap"
-        )
-        assert lan in ["fr", "en"], "Language must be either fr or en"
-        self.bert_score = BERTScore(lan=lan)
+        self.qa_tokenizer = AutoTokenizer.from_pretrained(qa_model)
+        self.qa_model = AutoModelForQuestionAnswering.from_pretrained(qa_model)
+        self.qg_tokenizer = AutoTokenizer.from_pretrained(qg_model)
+        self.qg_model = AutoModelWithLMHead.from_pretrained(qg_model)
+        assert lang in [
+            "fr",
+            "en",
+        ], "Languages supported are either fr (French) or en (English)"
+        self.bert_score = BERTScore(lang=lang)
 
-        if lan == "fr":
+        if lang == "fr":
             self.nlp = spacy.load("fr_core_news_sm")
-        elif lan == "en":
+        elif lang == "en":
             self.nlp = spacy.load("en_core_web_sm")
+        self.lang = lang
 
     def get_answer(
         self, question: str, text: str
@@ -134,7 +143,12 @@ class QSquared:
         return candidates
 
     def get_questions_beam(
-        self, answer, context, max_length=128, beam_size=5, num_return=5
+        self,
+        answer: str,
+        context: str,
+        max_length: int = 128,
+        beam_size: int = 5,
+        num_return: int = 5,
     ):
         """
         Get the n best questions for a given answer, given the context. "Beam" is the name of the
@@ -171,7 +185,9 @@ class QSquared:
 
         return all_questions
 
-    def single_question_score(self, question, answer, response, knowledge):
+    def single_question_score(
+        self, question: str, answer: str, response: str, knowledge: str
+    ):
         """
         Given a candidate pair of question and answer (generated from the candidate text), get the
         score of the aswer given by taking as a context the knowledge that the LLM was given.
@@ -201,50 +217,72 @@ class QSquared:
             return 0, NO_ANS
         return INVALID_QUESTION, INVALID_QUESTION
 
-    def compute(self, response, knowledge, single=False, remove_personal=True):
+    def compute(
+        self,
+        predictions: list,
+        knowledges: list,
+        single: bool = False,
+        remove_personal: bool = True,
+    ):
         """
         Compute the Q² score for a given response and knowledge.
         Args:
-            response (str) : text generated by the LLM
-            knowledge (str) : knowledge given as a context to the LLM
+            references (list or str) : (list of) candidate text generated by the LLM
+            knowledges (list or str) : (list of) knowledge given as a context to the LLM for each candidate text
             single (bool) : if True, only one question is generated for each candidate answer.
                             Defaults to False.
             remove_personal (bool) : if True, remove questions that contain personal pronouns.
                                      Defaults to True.
         Returns:
-            avg_f1 (float) : average F1-bert-score of the knowledge answers (Q² score)
+            dictionary with the following keys:
+                avg_f1 (float) : avg F1-score Q² score among all the questions
         """
+        assert check_list_type(
+            predictions, str
+        ), "Predictions must be a list of strings."
+        assert check_list_type(knowledges, str), "Knowledges must be a list of strings."
 
-        f1_bert_score = 0
-        num_questions = 0
+        # convert to list if single prediction and/or knowledge
+        if isinstance(predictions, str):
+            predictions = [predictions]
+        if isinstance(knowledges, str):
+            knowledges = [knowledges]
 
-        # valid_questions = []
-        # valid_cands = []
-        # knowledge_answers = []
-        # scores = []
+        assert len(predictions) == len(
+            knowledges
+        ), "Number of predictions and knowledges must be equal."
 
-        candidates = self.get_answer_candidates(response)
-        for cand in candidates:
-            questions = self.get_questions_beam(cand, response)
-            for question in questions:
-                if not remove_personal or non_personal(question, self.nlp):
-                    question_score, _ = self.single_question_score(
-                        question, cand, response, knowledge
-                    )
-                    if question_score != INVALID_QUESTION:
-                        num_questions += 1
-                        f1_bert_score += question_score
+        avg_f1s = []
 
-                        # valid_questions.append(question)
-                        # valid_cands.append(cand)
-                        # knowledge_answers.append(knowledge_ans)
-                        # scores.append(question_score)
+        for prediction, knowledge in zip(predictions, knowledges):
+            # set initial values
+            f1_bert_score = 0
+            num_questions = 0
+            scores = []
+            candidates = self.get_answer_candidates(prediction)
+            for cand in candidates:
+                questions = self.get_questions_beam(cand, prediction)
+                for question in questions:
+                    if not remove_personal or non_personal(
+                        question, self.nlp, self.lang
+                    ):
+                        question_score, _ = self.single_question_score(
+                            question, cand, prediction, knowledge
+                        )
+                        if question_score != INVALID_QUESTION:
+                            num_questions += 1
+                            f1_bert_score += question_score
+                            scores.append(question_score)
 
-                        if single:
-                            break
+                            if single:
+                                break
 
-        if num_questions:
-            avg_f1 = f1_bert_score / num_questions
-        else:
-            avg_f1 = INVALID_QUESTION
-        return avg_f1  # , valid_questions, valid_cands, knowledge_answers, scores
+            if num_questions:
+                avg_f1 = f1_bert_score / num_questions
+            else:
+                avg_f1 = INVALID_QUESTION
+            avg_f1s.append(avg_f1)
+
+        return {
+            "avg_f1": avg_f1s,
+        }

@@ -3,14 +3,22 @@ import re
 import string
 from collections import Counter
 
+import torch
 from elemeta.nlp.extractors.high_level.regex_match_count import RegexMatchCount
 from elemeta.nlp.extractors.high_level.word_regex_matches_count import (
     WordRegexMatchesCount,
 )
+from elemeta.nlp.extractors.low_level.abstract_metafeature_extractor import (
+    AbstractMetafeatureExtractor,
+)
 from elemeta.nlp.metafeature_extractors_runner import MetafeatureExtractorsRunner
+from huggingface_hub import hf_hub_download
+from llama_cpp import Llama
 
 NO_ANS = "[CLS]"
 INVALID_QUESTION = -1
+
+# pylint:disable=too-many-boolean-expressions
 
 
 def load_json(path):
@@ -74,7 +82,7 @@ def raw_f1_score(a_gold, a_pred):
     return f1_score
 
 
-def non_personal(question, nlp):
+def non_personal(question, nlp, lan="en"):
     """
     check if a question contains personal pronouns.
     Args:
@@ -85,17 +93,103 @@ def non_personal(question, nlp):
     """
     question_tok = nlp(question)
     for tok in question_tok:
-        if tok.dep_ == "nsubj":
+        if tok.dep_ == "nsubj" and lan == "en":
             if (
                 tok.text.lower() == "i" or tok.text.lower() == "you"
             ):  # TODO: add support to french language
                 return False
-        elif tok.dep_ == "poss":
+        elif tok.dep_ == "poss" and lan == "en":
             if (
                 tok.text.lower() == "my" or tok.text.lower() == "your"
             ):  # TODO: add support to french language
                 return False
+        # french
+        elif tok.dep_ == "nsubj" and lan == "fr":
+            if (
+                tok.text.lower() == "je"
+                or tok.text.lower() == "tu"
+                or tok.text.lower() == "vous"
+            ):
+                return False
+        elif tok.dep_ == "poss" and lan == "fr":
+            if tok.text.lower() in [
+                "mon",
+                "ton",
+                "votre",
+                "ma",
+                "ta",
+                "vos",
+                "mes",
+                "tes",
+            ]:
+                return False
     return True
+
+
+def get_llama_model(
+    repo_id: str = "TheBloke/Llama-2-7b-Chat-GGUF",
+    filename: str = "llama-2-7b-chat.Q2_K.gguf",
+    model_path=False,
+):
+    """
+    Download and return a Llama model from HuggingFace Hub.
+    Args:
+        repo_id (str) : HuggingFace Hub repo id
+        filename (str) : model filename
+        model_path (str) : path to the model locally
+    """
+    if not model_path:
+        model_path = hf_hub_download(repo_id, filename)
+
+    if torch.cuda.is_available():
+        lcpp_llm = Llama(
+            model_path=model_path,
+            main_gpu=0,
+            n_gpu_layers=40,  # check this
+            n_batch=1024,
+            logits_all=True,
+            n_ctx=1024,
+            device="cuda",
+        )
+    else:
+        lcpp_llm = Llama(
+            model_path=model_path,
+            logits_all=True,
+            n_ctx=1024,
+        )
+
+    return lcpp_llm
+
+
+def filter_class_input(args, python_function: object, drop=None):
+    """
+    Filters input arguments for a given class.
+    Args:
+        args (dict): dictionary of arguments
+        python_class (object): class to filter arguments for
+        drop (list, optional): list of arguments to drop. Defaults to None.
+    Returns:
+        dict: filtered dictionary of arguments
+    """
+    init_varnames = set(python_function.__code__.co_varnames)
+    if drop:
+        args = {k: v for k, v in args.items() if k not in init_varnames}
+    args = {k: v for k, v in args.items() if k in init_varnames}
+    return args
+
+
+def check_list_type(array: list, list_type: type):
+    """
+    Check if an array is a list of a given type.
+    Args:
+        array (list): array to check
+        list_type (type): type to check
+    Returns:
+        bool: True if the array is a list of the given type, False otherwise
+    """
+    if not isinstance(array, list):
+        return False
+    return all(isinstance(item, list_type) for item in array)
 
 
 # pylint:disable=invalid-name
@@ -126,6 +220,15 @@ class MetadataExtractor:
         self.metadata_extractor.add_metafeature_extractor(
             RegexMatchCount(regex=regex_rule, name=name)
         )
+
+    def add_custom_extractor(self, extractor: AbstractMetafeatureExtractor):
+        """
+        Adds a custom extractor to the metadata extractor.
+
+        Args:
+            extractor (object): extractor to add
+        """
+        self.metadata_extractor.add_metafeature_extractor(extractor)
 
     def compute(self, text):
         """

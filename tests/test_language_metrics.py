@@ -4,15 +4,17 @@ from saga_llm_evaluation_ml.helpers.language_metrics import BLEURTScore, QSquare
 
 
 class TestBLEURTScore(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bleurt = BLEURTScore()
+
     def test_compute(self):
         """Tests that the BLEURTScore class computes the correct scores. And that the scores are the same when the same inputs are given."""
         references = ["The cat sat on the mat.", "The dog sat on the log."]
         predictions = ["The cat sat on the mat.", "The dog sat on the log."]
 
-        bleurt = BLEURTScore()
-
-        scores = bleurt.compute(references, predictions)
-        scores_2 = bleurt.compute(references, predictions)
+        scores = self.bleurt.compute(references, predictions)
+        scores_2 = self.bleurt.compute(references, predictions)
         self.assertEqual(scores, scores_2)
 
     def test_compute_improved_input(self):
@@ -21,14 +23,16 @@ class TestBLEURTScore(unittest.TestCase):
         prediction = "The dog sat on the mat."
         better_prediction = "The cat sat on the mat."
 
-        bleurt = BLEURTScore()
-
-        scores = bleurt.compute([reference], [prediction])
-        better_scores = bleurt.compute([reference], [better_prediction])
+        scores = self.bleurt.compute([reference], [prediction])
+        better_scores = self.bleurt.compute([reference], [better_prediction])
         self.assertGreater(better_scores["scores"], scores["scores"])
 
 
 class TestQSquared(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.q_squared = QSquared()
+
     def test_compute(self):
         """Tests that the QSquared class computes the correct scores. And that the scores are the same when the same inputs are given."""
         knowledges = [
@@ -37,11 +41,9 @@ class TestQSquared(unittest.TestCase):
         ]
         predictions = ["The cat sat on the mat.", "The dog sat on the mat."]
 
-        q_squared = QSquared()
-
         for know, pred in zip(knowledges, predictions):
-            scores = q_squared.compute(pred, know, single=True)
-            scores_2 = q_squared.compute(pred, know, single=True)
+            scores = self.q_squared.compute([pred], [know], single=True)
+            scores_2 = self.q_squared.compute([pred], [know], single=True)
             self.assertEqual(scores, scores_2)
 
     def test_compute_improved_input(self):
@@ -50,8 +52,8 @@ class TestQSquared(unittest.TestCase):
         prediction = "The cat sat on the mat."
         better_prediction = "Chronic urethral obstruction due to benign prismatic hyperplasia can lead to hyperophy"
 
-        q_squared = QSquared()
-
-        scores = q_squared.compute(prediction, knowledge, single=True)
-        better_scores = q_squared.compute(better_prediction, knowledge, single=True)
-        self.assertGreater(better_scores, scores)
+        scores = self.q_squared.compute([prediction], [knowledge], single=True)
+        better_scores = self.q_squared.compute(
+            [better_prediction], [knowledge], single=True
+        )
+        self.assertGreater(better_scores["avg_f1"][0], scores["avg_f1"][0])

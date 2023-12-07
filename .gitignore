@@ -145,6 +145,9 @@ sync.sh
 # mkdocs documentation
 /site
 
+# model folder
+model/
+
 # mypy
 .mypy_cache/
 .dmypy.json
@@ -158,6 +161,9 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# Macos
+.DS_store
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

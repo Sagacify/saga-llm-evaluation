@@ -4,11 +4,14 @@ from saga_llm_evaluation_ml.helpers.utils import MetadataExtractor
 
 
 class TestMetadataExtractor(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.extractor = MetadataExtractor()
+
     def test_extract_metadata(self):
         """Tests that the MetadataExtractor class extracts the correct metadata."""
         text = "The cat sat on the mat."
-        extractor = MetadataExtractor()
-        metadata = extractor.compute(text)
+        metadata = self.extractor.compute(text)
 
         # Test a few metadata values
         self.assertEqual(metadata["text_length"], 23)
@@ -24,10 +27,9 @@ class TestMetadataExtractor(unittest.TestCase):
     def test_add_regex(self):
         """Tests that the MetadataExtractor class extracts the correct metadata when regex rules are added."""
         text = "The cat sat on the mat."
-        extractor = MetadataExtractor()
-        extractor.add_word_regex_matches_count("the")
-        extractor.add_regex_match_count("the")
-        metadata = extractor.compute(text)
+        self.extractor.add_word_regex_matches_count("the")
+        self.extractor.add_regex_match_count("the")
+        metadata = self.extractor.compute(text)
 
         # Test a few metadata values
         self.assertEqual(metadata["text_length"], 23)
@@ -45,11 +47,11 @@ class TestMetadataExtractor(unittest.TestCase):
         len_metadata = len(metadata)
 
         # Check that the metadata is longer when multiple regex rules are added
-        extractor.add_word_regex_matches_count(
+        self.extractor.add_word_regex_matches_count(
             "cat", name="word_regex_matches_count_cat"
         )
-        extractor.add_regex_match_count("cat", name="regex_match_count_cat")
-        metadata = extractor.compute(text)
+        self.extractor.add_regex_match_count("cat", name="regex_match_count_cat")
+        metadata = self.extractor.compute(text)
 
         self.assertGreater(len(metadata), len_metadata)
         self.assertEqual(metadata["word_regex_matches_count_cat"], 1)
