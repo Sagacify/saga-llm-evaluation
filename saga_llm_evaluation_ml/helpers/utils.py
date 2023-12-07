@@ -3,6 +3,7 @@ import re
 import string
 from collections import Counter
 
+import torch
 from elemeta.nlp.extractors.high_level.regex_match_count import RegexMatchCount
 from elemeta.nlp.extractors.high_level.word_regex_matches_count import (
     WordRegexMatchesCount,
@@ -16,6 +17,8 @@ from llama_cpp import Llama
 
 NO_ANS = "[CLS]"
 INVALID_QUESTION = -1
+
+# pylint:disable=too-many-boolean-expressions
 
 
 def load_json(path):
@@ -79,7 +82,7 @@ def raw_f1_score(a_gold, a_pred):
     return f1_score
 
 
-def non_personal(question, nlp):
+def non_personal(question, nlp, lan="en"):
     """
     check if a question contains personal pronouns.
     Args:
@@ -90,15 +93,35 @@ def non_personal(question, nlp):
     """
     question_tok = nlp(question)
     for tok in question_tok:
-        if tok.dep_ == "nsubj":
+        if tok.dep_ == "nsubj" and lan == "en":
             if (
                 tok.text.lower() == "i" or tok.text.lower() == "you"
             ):  # TODO: add support to french language
                 return False
-        elif tok.dep_ == "poss":
+        elif tok.dep_ == "poss" and lan == "en":
             if (
                 tok.text.lower() == "my" or tok.text.lower() == "your"
             ):  # TODO: add support to french language
+                return False
+        # french
+        elif tok.dep_ == "nsubj" and lan == "fr":
+            if (
+                tok.text.lower() == "je"
+                or tok.text.lower() == "tu"
+                or tok.text.lower() == "vous"
+            ):
+                return False
+        elif tok.dep_ == "poss" and lan == "fr":
+            if tok.text.lower() in [
+                "mon",
+                "ton",
+                "votre",
+                "ma",
+                "ta",
+                "vos",
+                "mes",
+                "tes",
+            ]:
                 return False
     return True
 
@@ -106,21 +129,34 @@ def non_personal(question, nlp):
 def get_llama_model(
     repo_id: str = "TheBloke/Llama-2-7b-Chat-GGUF",
     filename: str = "llama-2-7b-chat.Q2_K.gguf",
+    model_path=False,
 ):
     """
     Download and return a Llama model from HuggingFace Hub.
     Args:
         repo_id (str) : HuggingFace Hub repo id
         filename (str) : model filename
+        model_path (str) : path to the model locally
     """
-    model_path = hf_hub_download(repo_id, filename)
+    if not model_path:
+        model_path = hf_hub_download(repo_id, filename)
 
-    lcpp_llm = Llama(
-        model_path=model_path,
-        n_threads=4,  # CPU cores # TODO: to increase (?)
-        logits_all=True,
-        n_ctx=1000,
-    )
+    if torch.cuda.is_available():
+        lcpp_llm = Llama(
+            model_path=model_path,
+            main_gpu=0,
+            n_gpu_layers=40,  # check this
+            n_batch=1024,
+            logits_all=True,
+            n_ctx=1024,
+            device="cuda",
+        )
+    else:
+        lcpp_llm = Llama(
+            model_path=model_path,
+            logits_all=True,
+            n_ctx=1024,
+        )
 
     return lcpp_llm
 

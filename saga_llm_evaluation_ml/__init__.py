@@ -7,6 +7,6 @@ from elemeta.nlp.extractors.low_level.abstract_metafeature_extractor import (
 from .helpers.embedding_metrics import MAUVE, BERTScore
 from .helpers.language_metrics import BLEURTScore, QSquared
 from .helpers.llm_metrics import GEval, GPTScore, SelfCheckGPT
-from .helpers.utils import MetadataExtractor
+from .helpers.utils import MetadataExtractor, get_llama_model
 
 __version__ = "0.6.0"

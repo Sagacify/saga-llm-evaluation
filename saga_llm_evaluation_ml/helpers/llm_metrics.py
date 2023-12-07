@@ -21,11 +21,11 @@ class SelfCheckGPT:
         This class implements the self-check GPT evaluation metric for generative language models.
         It is inspired by the self-check metric proposed in https://arxiv.org/pdf/2303.08896.pdf.
         Args:
-            model (transformers.PreTrainedModel): GPT model to evaluate.
+            model (transformers.PreTrainedModel): LLM model to evaluate.
             eval_model (LLama model, optional): Evaluation model. If False, the evaluation model is
             downloaded from the HuggingFace Hub.
             eval_model_name_or_path (str): Evaluation model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
-            eval_model_basename (str): Evaluation model basename. Defaults to "llama-2-7b-chat.Q4_K_M.gguf".
+            eval_model_basename (str): Evaluation model basename. Defaults to "llama-2-7b-chat.Q2_K.gguf".
         """
         assert isinstance(
             eval_model_name_or_path, str
@@ -85,8 +85,8 @@ class SelfCheckGPT:
     def compute(self, user_prompts: list, predictions: list, n_samples=5):
         """
         Args:
-            question (str): Question asked to the model for which it generated $pred.
-            pred (str): Candidate sentence.
+            user_prompts (str): Question asked to the model for which it generated $pred.
+            predictions (str): Candidate sentence.
             n_samples (int): Number of samples to generate.
 
         Returns:
@@ -446,7 +446,7 @@ class GEval:
         # get scores accordingly
         if custom_prompt:
             scores = {
-                custom_prompt["aspect"]: self.get_score(
+                custom_prompt["name"]: self.get_score(
                     prompts=self.get_prompt(
                         user_prompts, predictions, task, aspect, custom_prompt
                     )

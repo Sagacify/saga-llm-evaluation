@@ -10,4 +10,6 @@ PROJ_ROOT = os.path.abspath("/www/app")
 sys.path.append(PROJ_ROOT)
 
 # lead default lama model
-LLAMA_MODEL = get_llama_model()
+LLAMA_MODEL = get_llama_model(
+    model_path="saga_llm_evaluation_ml/model/llama-2-7b-chat.Q2_K.gguf"
+)

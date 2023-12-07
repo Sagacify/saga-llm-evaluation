@@ -9,8 +9,8 @@ class BERTScore:
         The final score is the average of the similarity scores of all tokens in the candidate sentence.
 
         Args:
-            lang (str, optional): language to use. Defaults to "en", It may also be "fr". Depending
-            on the language, a different model is used by default.
+            lang (str, optional): language to use. Defaults to "en", If another language is used, a
+            multilingual model is used.
             model_type (sr, optional): Model to use. Defaults to None. If None, a default model is
             used depending on the language (see above).
         """
@@ -54,6 +54,10 @@ class MAUVE:
         MAUVE score computes the difference between the candidate sentence distribution
         and the reference sentence distribution.
         The bigger the MAUVE score, the better.
+        Args:
+            featurize_model_name (str, optional): Model to use to featurize the sentences.
+            Defaults to "gpt2". Check https://huggingface.co/spaces/evaluate-metric/mauve for
+            more options.
         """
         self.metric = load("mauve")
         self.featurize_model_name = featurize_model_name

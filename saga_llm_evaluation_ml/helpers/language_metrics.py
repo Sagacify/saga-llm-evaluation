@@ -28,6 +28,7 @@ class BLEURTScore:
 
         Args:
             checkpoint (str, optional): Checkpoint to use. Defaults to BLEURT-tiny if not specified.
+            Check https://huggingface.co/spaces/evaluate-metric/bleurt for more checkpoints.
         """
         self.checkpoint = checkpoint
         self.metric = load("bleurt", module_type="metric", checkpoint=self.checkpoint)
@@ -85,6 +86,7 @@ class QSquared:
             self.nlp = spacy.load("fr_core_news_sm")
         elif lang == "en":
             self.nlp = spacy.load("en_core_web_sm")
+        self.lang = lang
 
     def get_answer(
         self, question: str, text: str
@@ -265,7 +267,9 @@ class QSquared:
             for cand in candidates:
                 questions = self.get_questions_beam(cand, prediction)
                 for question in questions:
-                    if not remove_personal or non_personal(question, self.nlp):
+                    if not remove_personal or non_personal(
+                        question, self.nlp, self.lang
+                    ):
                         question_score, _ = self.single_question_score(
                             question, cand, prediction, knowledge
                         )
