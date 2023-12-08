@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.1 (2023-12-08)
+
+### Fix
+
+* **cd:** Update credentials for private repo ([`d2832a3`](https://github.com/Sagacify/saga-llm-evaluation/commit/d2832a35b3c69aa75990339ff1ca45dc9ea38906))
+
 ## v0.7.0 (2023-12-07)
 
 ### Feature
