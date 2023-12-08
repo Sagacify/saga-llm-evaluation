@@ -8,8 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      POETRY_HTTP_BASIC_SAGACIFY_USERNAME: ${{ secrets.POETRY_HTTP_BASIC_SAGACIFY_USERNAME }}
-      POETRY_HTTP_BASIC_SAGACIFY_PASSWORD: ${{ secrets.POETRY_HTTP_BASIC_SAGACIFY_PASSWORD }}
+      POETRY_PYPI_TOKEN_PYPI: ${{ secrets.POETRY_PYPI_TOKEN_PYPI }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
