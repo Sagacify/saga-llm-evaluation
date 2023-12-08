@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.2 (2023-12-08)
+
+### Fix
+
+* **cd:** Add password for private repo ([`c509d8a`](https://github.com/Sagacify/saga-llm-evaluation/commit/c509d8aad54030007d765304072f8bbecb514385))
+* **cd:** Add username cred for private repo ([`6e02408`](https://github.com/Sagacify/saga-llm-evaluation/commit/6e02408978ae737bcc812b6dcc6430b950086df3))
+* **pyproject:** Re-add private repo to poetry ([`7360b4a`](https://github.com/Sagacify/saga-llm-evaluation/commit/7360b4afe8310eda837d12f35f4f3772fd017e7d))
+
 ## v0.7.1 (2023-12-08)
 
 ### Fix

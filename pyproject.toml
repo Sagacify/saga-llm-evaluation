@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "saga_llm_evaluation_ml"
-version = "0.7.1"
+version = "0.7.2"
 description = "Versatile Python library designed for evaluating the performance of large language models in Natural Language Processing (NLP) tasks. Developed by Sagacify"
 readme = "README.md"
 authors = ["Leonardo Remondini <leonardo.remondini@sagacify.com>", "Lucie Navez <lucie.navez@sagacify.com>"]
