@@ -22,6 +22,14 @@ INVALID_QUESTION = -1
 
 
 def load_json(path):
+    """
+    Load a JSON file.
+
+    :param path: Path to the JSON file.
+    :type path: str
+    :return: JSON file.
+    :rtype: dict
+    """
     with open(path) as json_file:
         o_file = json_file.read()
     return json.loads(o_file)
@@ -29,12 +37,14 @@ def load_json(path):
 
 def filter_questions(exp_ans, pred_ans):
     """
-    check if the expected answer and the predicted answer are the same.
-    Args:
-        exp_ans (str) : expected answer
-        pred_ans (str) : predicted answer
-    Returns:
-        str : "VALID" if the answers are the same, "NO MATCH" otherwise
+    Check if the expected answer and the predicted answer are the same.
+
+    :param exp_ans: Expected answer.
+    :type exp_ans: str
+    :param pred_ans: Predicted answer.
+    :type pred_ans: str
+    :return: "VALID" if the answers are the same, "NO MATCH" otherwise.
+    :rtype: str
     """
     if pred_ans == NO_ANS:
         return "NO MATCH"
@@ -45,11 +55,12 @@ def filter_questions(exp_ans, pred_ans):
 
 def clean_text(text):
     """
-    clean a text by removing punctuation and (some) stopwords.
-    Args:
-        text (str) : text to clean
-    Returns:
-        str : cleaned text
+    Clean a text by removing punctuation and (some) stopwords.
+
+    :param text: Text to clean.
+    :type text: str
+    :return: Cleaned text.
+    :rtype: str
     """
     # TODO: improve
     # TODO: add support to french language
@@ -61,12 +72,14 @@ def clean_text(text):
 
 def raw_f1_score(a_gold, a_pred):
     """
-    compute the raw F1 score between two answers.
-    Args:
-        a_gold (str) : expected answer
-        a_pred (str) : predicted answer
-    Returns:
-        float : F1 score
+    Compute the raw F1 score between two answers.
+
+    :param a_gold: Expected answer.
+    :type a_gold: str
+    :param a_pred: Predicted answer.
+    :type a_pred: str
+    :return: F1 score.
+    :rtype: float
     """
     if a_pred == "":
         return 0
@@ -84,12 +97,14 @@ def raw_f1_score(a_gold, a_pred):
 
 def non_personal(question, nlp, lan="en"):
     """
-    check if a question contains personal pronouns.
-    Args:
-        question (str) : question to check
-        nlp (spacy.lang) : spacy language model
-    Returns:
-        bool : True if the question does not contain personal pronouns, False otherwise
+    Check if a question contains personal pronouns.
+
+    :param question: Question to check.
+    :type question: str
+    :param nlp: Spacy language model.
+    :type nlp: spacy.lang
+    :return: True if the question does not contain personal pronouns, False otherwise.
+    :rtype: bool
     """
     question_tok = nlp(question)
     for tok in question_tok:
@@ -133,10 +148,13 @@ def get_llama_model(
 ):
     """
     Download and return a Llama model from HuggingFace Hub.
-    Args:
-        repo_id (str) : HuggingFace Hub repo id
-        filename (str) : model filename
-        model_path (str) : path to the model locally
+
+    :param repo_id: HuggingFace Hub repo id.
+    :type repo_id: str
+    :param filename: Model filename.
+    :type filename: str
+    :param model_path: Path to the model locally.
+    :type model_path: str
     """
     if not model_path:
         model_path = hf_hub_download(repo_id, filename)
@@ -164,12 +182,15 @@ def get_llama_model(
 def filter_class_input(args, python_function: object, drop=None):
     """
     Filters input arguments for a given class.
-    Args:
-        args (dict): dictionary of arguments
-        python_class (object): class to filter arguments for
-        drop (list, optional): list of arguments to drop. Defaults to None.
-    Returns:
-        dict: filtered dictionary of arguments
+
+    :param args: Dictionary of arguments.
+    :type args: dict
+    :param python_class: Class to filter arguments for.
+    :type python_class: object
+    :param drop: List of arguments to drop. Defaults to None.
+    :type drop: list, optional
+    :return: Filtered dictionary of arguments.
+    :rtype: dict
     """
     init_varnames = set(python_function.__code__.co_varnames)
     if drop:
@@ -181,11 +202,13 @@ def filter_class_input(args, python_function: object, drop=None):
 def check_list_type(array: list, list_type: type):
     """
     Check if an array is a list of a given type.
-    Args:
-        array (list): array to check
-        list_type (type): type to check
-    Returns:
-        bool: True if the array is a list of the given type, False otherwise
+
+    :param array: Array to check.
+    :type array: list
+    :param list_type: Type to check.
+    :type list_type: type
+    :return: True if the array is a list of the given type, False otherwise.
+    :rtype: bool
     """
     if not isinstance(array, list):
         return False
@@ -195,6 +218,9 @@ def check_list_type(array: list, list_type: type):
 # pylint:disable=invalid-name
 class MetadataExtractor:
     def __init__(self):
+        """
+        Metadata extractor class. Uses elemeta library.
+        """
         self.metadata_extractor = MetafeatureExtractorsRunner()
 
     def add_word_regex_matches_count(self, regex_rule, name=None):
@@ -202,8 +228,8 @@ class MetadataExtractor:
         Adds a regex rule to the metadata extractor.
         For a given regex return the number of words matching the regex.
 
-        Args:
-            regex_rule (str): regex rule to add
+        :param regex_rule: Regex rule to add.
+        :type regex_rule: str
         """
         self.metadata_extractor.add_metafeature_extractor(
             WordRegexMatchesCount(regex=regex_rule, name=name)
@@ -214,8 +240,8 @@ class MetadataExtractor:
         Adds a regex rule to the metadata extractor.
         For a given regex return the number of matches it has in the text.
 
-        Args:
-            regex_rule (str): regex rule to add
+        :param regex_rule: Regex rule to add.
+        :type regex_rule: str
         """
         self.metadata_extractor.add_metafeature_extractor(
             RegexMatchCount(regex=regex_rule, name=name)
@@ -225,8 +251,8 @@ class MetadataExtractor:
         """
         Adds a custom extractor to the metadata extractor.
 
-        Args:
-            extractor (object): extractor to add
+        :param extractor: Extractor to add.
+        :type extractor: object
         """
         self.metadata_extractor.add_metafeature_extractor(extractor)
 
@@ -234,10 +260,9 @@ class MetadataExtractor:
         """
         Computes metadata from a text using elemeta library and returns a dictionary of metadata.
 
-        Args:
-            text (str): text to extract metadata from
-
-        Returns:
-            dict: dictionary of metadata
+        :param text: Text to extract metadata from.
+        :type text: str
+        :return: Dictionary of metadata.
+        :rtype: dict
         """
         return self.metadata_extractor.run(text)

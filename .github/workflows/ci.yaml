@@ -36,7 +36,7 @@ jobs:
 
       - name: Install packages & build
         run: |
-          poetry install
+          poetry install -E docs
 
       - name: Run formatter
         run: |
@@ -49,3 +49,18 @@ jobs:
       - name: Run tests
         run: |
           poetry run pytest
+
+      - name: Build documentation
+        run: |
+          mkdir gh-pages
+          touch gh-pages/.nojekyll
+          cd docs/
+          poetry run sphinx-build -b html . _build
+          cp -r _build/* ../gh-pages/
+
+      - name: Deploy documentation
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: '*'
+          folder: gh-pages
+    

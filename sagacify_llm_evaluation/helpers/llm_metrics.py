@@ -2,7 +2,7 @@ import numpy as np
 from huggingface_hub import hf_hub_download
 from llama_cpp import Llama
 
-from saga_llm_evaluation_ml.helpers.utils import check_list_type
+from sagacify_llm_evaluation.helpers.utils import check_list_type
 
 # pylint: disable=consider-iterating-dictionary
 # pylint: disable=too-many-locals
@@ -20,12 +20,15 @@ class SelfCheckGPT:
         """
         This class implements the self-check GPT evaluation metric for generative language models.
         It is inspired by the self-check metric proposed in https://arxiv.org/pdf/2303.08896.pdf.
-        Args:
-            model (transformers.PreTrainedModel): LLM model to evaluate.
-            eval_model (LLama model, optional): Evaluation model. If False, the evaluation model is
-            downloaded from the HuggingFace Hub.
-            eval_model_name_or_path (str): Evaluation model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
-            eval_model_basename (str): Evaluation model basename. Defaults to "llama-2-7b-chat.Q2_K.gguf".
+
+        :param model: LLM model to evaluate.
+        :type model: transformers.PreTrainedModel
+        :param eval_model: Evaluation model. If False, the evaluation model is downloaded from the HuggingFace Hub.
+        :type eval_model: LLama model, optional
+        :param eval_model_name_or_path: Evaluation model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
+        :type eval_model_name_or_path: str
+        :param eval_model_basename: Evaluation model basename. Defaults to "llama-2-7b-chat.Q2_K.gguf".
+        :type eval_model_basename: str
         """
         assert isinstance(
             eval_model_name_or_path, str
@@ -49,13 +52,15 @@ class SelfCheckGPT:
     def get_prompt(self, pred: str, sample: str, question: str):
         """
         This method returns a prompt template given a candidate sentence, a sample sentence, and a question.
-        Args:
-            pred (str): Candidate sentence.
-            sample (str): Sample sentence.
-            question (str): Question asked to the model for which it generated $pred.
 
-        Returns:
-            str: Prompt template.
+        :param pred: Candidate sentence.
+        :type pred: str
+        :param sample: Sample sentence.
+        :type sample: str
+        :param question: Question asked to the model for which it generated $pred.
+        :type question: str
+        :return: Prompt template.
+        :rtype: str
         """
         system_prompt = "You are a helpful, polite and concise assistant. Your task is to check if two texts provide the same answer to a given question. Always answer with a single word. The possible answers are either YES or NO.\n\n"
         question = "###Question:\n" + question
@@ -70,27 +75,30 @@ class SelfCheckGPT:
 
     def get_prompts(self, pred: str, samples: str, question: str):
         """
-        This method returns a list of prompt templates given a candidate sentence, a list
-        of sample sentences, and a question.
-        Args:
-            pred (str): Candidate sentence.
-            samples (list of str): List of sample sentences.
-            question (str): Question asked to the model for which it generated $pred.
+        This method returns a list of prompt templates given a candidate sentence, a list of sample
+        sentences, and a question.
 
-        Returns:
-            list: List of prompt templates.
+        :param pred: Candidate sentence.
+        :type pred: str
+        :param samples: List of sample sentences.
+        :type samples: list of str
+        :param question: Question asked to the model for which it generated $pred.
+        :type question: str
+        :return: List of prompt templates.
+        :rtype: list
         """
         return [self.get_prompt(pred, sample, question) for sample in samples]
 
     def compute(self, user_prompts: list, predictions: list, n_samples=5):
         """
-        Args:
-            user_prompts (str): Question asked to the model for which it generated $pred.
-            predictions (str): Candidate sentence.
-            n_samples (int): Number of samples to generate.
-
-        Returns:
-            score (float): Score for the candidate sentence.
+        :param user_prompts: Question asked to the model for which it generated $pred.
+        :type user_prompts: str
+        :param predictions: Candidate sentence.
+        :type predictions: str
+        :param n_samples: Number of samples to generate.
+        :type n_samples: int
+        :return: Score for the candidate sentence.
+        :rtype: float
         """
         assert isinstance(user_prompts, str) or check_list_type(
             user_prompts, str
@@ -150,10 +158,13 @@ class GEval:
         """
         This class implements the GEval evaluation metric for generative language models.
         It is inspired by the GEval metric proposed in https://arxiv.org/pdf/2303.16634.pdf.
-        Args:
-            model (Llama model): model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.
-            model_name_or_path (str): Model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
-            model_basename (str): Model basename. Defaults to "llama-2-7b-chat.Q2_K.gguf".
+
+        :param model: Model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.
+        :type model: Llama model
+        :param model_name_or_path: Model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
+        :type model_name_or_path: str
+        :param model_basename: Model basename. Defaults to "llama-2-7b-chat.Q2_K.gguf".
+        :type model_basename: str
         """
         assert isinstance(
             model_name_or_path, str
@@ -207,14 +218,19 @@ class GEval:
 
     def add_task(self, name: str, definition: str):
         """
-        This method adds a task to the list of pre-defined tasks.
-        Please try to follow the following example pattern to ensure consistency.
-        Example:
-        "summ": "You will be given one summary written for a news article. Your task is to rate the summary on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.",
+        This function adds a task to the GEval metric. Please try to follow the example pattern to ensure consistency.
 
-        Args:
-            name (str): Task name.
-            definition (str): Task description.
+        Example::
+
+            "name" : "summ",
+            "definition": "You will be given one summary written for a news article. Your task is to rate
+            the summary on one metric. Please make sure you read and understand these instructions carefully.
+            Please keep this document open while reviewing, and refer to it as needed."
+
+        :param name: Name of the task.
+        :type name: str
+        :param definition: Definition of the task.
+        :type definition: str
         """
         assert isinstance(name, str), "name must be a string."
         assert isinstance(definition, str), "definition must be a string."
@@ -223,18 +239,26 @@ class GEval:
 
     def add_aspect(self, code: str, name: str, prompt: str):
         """
-        This method adds an aspect to the list of pre-defined aspects.
-        Please try to follow the following example pattern to ensure consistency.
-        Example:
-        "COH": {
-            "name": "Coherence",
-            "prompt": "Coherence (1-5) - the collective quality of all sentences. We align this dimension with the DUC quality question of structure and coherence whereby ”the summary should be well-structured and well-organized. The summary should not just be a heap of related information, but should build from sentence to sentence to a coherent body of information about a topic.”",
-        },
+        This function adds an aspect to the GEval metric. Please try to follow the example pattern
+        to ensure consistency.
 
-        Args:
-            code (str): Aspect code.
-            name (str): Aspect name.
-            prompt (str): Aspect prompt.
+        Example::
+
+            "COH": {
+                "name": "Coherence",
+                "prompt": "Coherence (1-5) - the collective quality of all sentences. We align this dimension with
+                the DUC quality question of structure and coherence whereby 'the summary should be
+                well-structured and well-organized. The summary should not just be a heap of related
+                information, but should build from sentence to sentence to a coherent body of information
+                about a topic.'",
+            }
+
+        :param code: Code of the aspect.
+        :type code: str
+        :param name: Name of the aspect.
+        :type name: str
+        :param prompt: Prompt of the aspect.
+        :type prompt: str
         """
         assert isinstance(code, str), "code must be a string."
         assert isinstance(name, str), "name must be a string."
@@ -245,11 +269,11 @@ class GEval:
     def get_prediction(self, prompt: str):
         """
         This method returns a prediction given a prompt template.
-        Args:
-            prompt (str): Prompt template.
 
-        Returns:
-            response (dict): Response from the model.
+        :param prompt: Prompt template.
+        :type prompt: str
+        :return: Response from the model.
+        :rtype: dict
         """
         response = self.lcpp_llm.create_completion(
             prompt=prompt,
@@ -266,11 +290,11 @@ class GEval:
     def get_cot(self, prompt: str):
         """
         This method returns a chain of thoughts given a prompt template.
-        Args:
-            prompt (str): Prompt template.
 
-        Returns:
-            cot (str): Chain of thoughts.
+        :param prompt: Prompt template.
+        :type prompt: str
+        :return: Chain of thoughts.
+        :rtype: str
         """
         title = "\nEvaluation steps:\n"
         cot = self.get_prediction(prompt + title)["choices"][0]["text"]
@@ -285,13 +309,16 @@ class GEval:
         custom_prompt: dict = None,
     ):
         """
-        Args:
-            prompts (list): list of source text.
-            predictions (list): list of candidate sentence to evaluate.
-            task (str): Definition of the task.
-            aspect (str): Evaluation criterion code.
-            custom_prompt (dict): Custom prompt template.
-                Must contain the following keys: "task", "aspect", "name".
+        :param prompts: List of source text.
+        :type prompts: list
+        :param predictions: List of candidate sentences to evaluate.
+        :type predictions: list
+        :param task: Definition of the task.
+        :type task: str
+        :param aspect: Evaluation criterion code.
+        :type aspect: str
+        :param custom_prompt: Custom prompt template. Must contain the following keys: "task", "aspect", "name".
+        :type custom_prompt: dict
         """
         definition = (
             "\n Task definition:\n" + self.tasks[task]
@@ -331,11 +358,10 @@ class GEval:
 
     def get_score(self, prompts: list):
         """
-        Args:
-            prompts (list): List of prompt template.
-
-        Returns:
-            scors (list): list of scores for each candidate sentence.
+        :param prompts: List of prompt template.
+        :type prompts: list
+        :return: List of scores for each candidate sentence.
+        :rtype: list
         """
         scores = []
         for prompt in prompts:
@@ -386,17 +412,21 @@ class GEval:
         custom_prompt=None,
     ):
         """
-        This method computes the GEval score for a candidate sentence given a source text,
-        a prompt template, an aspect to evaluate, and a task description.
-        Args:
-            user_prompts (list or str): Source text generated by the user.
-            pred (str): Candidate sentence to evaluate.
-            task (str, optional): Definition of the task.
-            aspect (str or list of str optional): (List of) Evaluation criterion codes.
-            custom_prompt (dict, optional): Custom prompt template. Defaults to None.
+        This method computes the GEval score for a candidate sentence given a source text, a prompt template,
+        an aspect to evaluate, and a task description.
 
-        Returns:
-            score (float): Score for the candidate sentence.
+        :param user_prompts: Source text generated by the user.
+        :type user_prompts: list or str
+        :param pred: Candidate sentence to evaluate.
+        :type pred: str
+        :param task: Definition of the task. Defaults to None.
+        :type task: str, optional
+        :param aspect: (List of) Evaluation criterion codes. Defaults to None.
+        :type aspect: str or list of str, optional
+        :param custom_prompt: Custom prompt template. Defaults to None.
+        :type custom_prompt: dict, optional
+        :return: Score for the candidate sentence.
+        :rtype: float
         """
         # prompts and predictions must be either a list of string or a string
         # convert to list if string
@@ -476,10 +506,13 @@ class GPTScore:
         """
         This class implements the GPTScore evaluation metric for generative language models.
         It is inspired by the GPTScore metric proposed in https://arxiv.org/pdf/2302.04166.pdf.
-        Args:
-            model (Llama model): model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.
-            model_name_or_path (str): Model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
-            model_basename (str): Model basename. Defaults to "llama-2-7b-chat.Q2_K.gguf".
+
+        :param model: Model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.
+        :type model: Llama model
+        :param model_name_or_path: Model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
+        :type model_name_or_path: str
+        :param model_basename: Model basename. Defaults to "llama-2-7b-chat.Q2_K.gguf".
+        :type model_basename: str
         """
         assert isinstance(
             model_name_or_path, str
@@ -540,19 +573,25 @@ class GPTScore:
 
     def add_template(self, task: str, code: str, prompt: str):
         """
-        This method adds a template to the list of pre-defined template.
+        This function adds a template to the GPTScore metric.
         Please try to follow the following example pattern to ensure consistency.
-        Example:
-        "diag": {
-            "COH": f"Answer the question based on the conversation between a human and AI.
-            \nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation?
-            (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
-        }
+        Example::
+
+            "diag": {
+                "COH":
+                "Answer the question based on the conversation between a human and AI.
+                Question: Is the AI coherent and maintains a good conversation flow throughout the conversation?
+                (a) Yes. (b) No.
+                Conversation:
+                User: {{src}}
+                AI: {{pred}}
+                Answer:",
+            },
 
         Args:
-            task (str): Task name.
-            code (str): Aspect code.
-            prompt (str): Aspect prompt.
+            task (str): Task of the template.
+            code (str): Code of the aspect.
+            prompt (str): Prompt of the aspect.
         """
         assert isinstance(task, str), "task must be a string."
         assert isinstance(code, str), "code must be a string."
@@ -570,15 +609,20 @@ class GPTScore:
     ):
         """
         This method returns a prompt template given a task description, and an aspect to evaluate.
-        Args:
-            prompts (str): list of source texts.
-            pred (str): list of candidate sentences.
-            aspect (str): Aspect to evaluate.
-            task (str): Task description.
-            custom_prompt (dict): Custom prompt template. Defaults to None.
-                Must contain the following keys: "task", "aspect".
-        Returns:
-            list: (list of) Prompt templates.
+
+        :param prompts: List of source texts.
+        :type prompts: str
+        :param pred: List of candidate sentences.
+        :type pred: str
+        :param aspect: Aspect to evaluate.
+        :type aspect: str
+        :param task: Task description.
+        :type task: str
+        :param custom_prompt: Custom prompt template. Must contain the following keys: "task", "aspect".\
+             Defaults to None.
+        :type custom_prompt: dict, optional
+        :return: (List of) Prompt templates.
+        :rtype: list
         """
         # define aspet and task
         if aspect and task:
@@ -611,10 +655,11 @@ class GPTScore:
     def get_score(self, prompts: list):
         """
         This method returns the GPTScore given a prompt template.
-        Args:
-            prompt (list): list of Prompt templates.
-        Returns:
-            avg_loss (float): GPTScore of the candidate sentence.
+
+        :param prompt: List of Prompt templates.
+        :type prompt: list
+        :return: GPTScore of the candidate sentence.
+        :rtype: float
         """
         scores = []
         for prompt in prompts:
@@ -654,17 +699,22 @@ class GPTScore:
         task: str = None,
     ):
         """
-        This method computes the GPTScore for a candidate sentence given a source text,
-        a system_prompt template, a user_prompt source text, an aspect to evaluate, and a task description.
-        Args:
-            user_prompts (list or str): (list of) Source text generated by the user.
-            pred (list or str): (list of) Candidate sentence.
-            custom_prompt (dict, optional): Custom prompt template. Defaults to None.
-                Must contain the following keys: "task", "aspect", "name".
-            aspect (str or list, optional): (List of) Aspect(s) to evaluate. Defaults to None.
-            task (str, optional): Task description. Defaults to None.
-        Returns:
-            score (dict): (list of) Score for (each of) the candidate sentence per aspect.
+        This method computes the GPTScore for a candidate sentence given a source text, a system_prompt template,
+        a user_prompt source text, an aspect to evaluate, and a task description.
+
+        :param user_prompts: (List of) Source text generated by the user.
+        :type user_prompts: list or str
+        :param pred: (List of) Candidate sentence.
+        :type pred: list or str
+        :param custom_prompt: Custom prompt template. Must contain the following keys: "task", "aspect",\
+             "name". Defaults to None.
+        :type custom_prompt: dict, optional
+        :param aspect: (List of) Aspect(s) to evaluate. Defaults to None.
+        :type aspect: str or list, optional
+        :param task: Task description. Defaults to None.
+        :type task: str, optional
+        :return: (List of) Score for (each of) the candidate sentence per aspect.
+        :rtype: dict
         """
         # prompts and predictions must be either a list of string or a string
         # convert to list if string

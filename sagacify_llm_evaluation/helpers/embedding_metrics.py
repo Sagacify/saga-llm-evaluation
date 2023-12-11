@@ -4,15 +4,15 @@ from evaluate import load
 class BERTScore:
     def __init__(self, lang="en", model_type=None):
         """
-        BERTScore computes a similarity score for each token in the candidate sentence with each
-        token in the reference sentence.
-        The final score is the average of the similarity scores of all tokens in the candidate sentence.
+        BERTScore computes a similarity score for each token in the candidate sentence with each token
+        in the reference sentence. The final score is the average of the similarity scores of all tokens
+        in the candidate sentence.
 
-        Args:
-            lang (str, optional): language to use. Defaults to "en", If another language is used, a
-            multilingual model is used.
-            model_type (sr, optional): Model to use. Defaults to None. If None, a default model is
-            used depending on the language (see above).
+        :param lang: Language to use. Defaults to "en". If another language is used, a multilingual model is used.
+        :type lang: str, optional
+        :param model_type: Model to use. Defaults to None. If None, a default model is used depending on the \
+            language (see above).
+        :type model_type: str, optional
         """
         if lang == "en":
             self.model_type = (
@@ -26,13 +26,13 @@ class BERTScore:
 
     def compute(self, references, predictions, **kwargs):
         """
-        Args:
-            references (list): List of reference sentences.
-            predictions (list): List of candidate sentences.
-
-        Returns:
-            list: List of scores for each candidate sentence. Contains a list of scores for
-            precisions, recalls, and F1 scores.
+        :param references: List of reference sentences.
+        :type references: list
+        :param predictions: List of candidate sentences.
+        :type predictions: list
+        :return: List of scores for each candidate sentence. Contains a list of scores for precisions, recalls, \
+        and F1 scores.
+        :rtype: list
         """
         assert len(references) == len(
             predictions
@@ -52,24 +52,23 @@ class MAUVE:
     def __init__(self, featurize_model_name="gpt2"):
         """
         MAUVE score computes the difference between the candidate sentence distribution
-        and the reference sentence distribution.
-        The bigger the MAUVE score, the better.
-        Args:
-            featurize_model_name (str, optional): Model to use to featurize the sentences.
-            Defaults to "gpt2". Check https://huggingface.co/spaces/evaluate-metric/mauve for
-            more options.
+        and the reference sentence distribution. The bigger the MAUVE score, the better.
+
+        :param featurize_model_name: Model to use to featurize the sentences. Defaults to "gpt2".
+        Check https://huggingface.co/spaces/evaluate-metric/mauve for more options.
+        :type featurize_model_name: str, optional
         """
         self.metric = load("mauve")
         self.featurize_model_name = featurize_model_name
 
     def compute(self, references, predictions, **kwargs):
         """
-        Args:
-            references (list): List of reference sentences.
-            predictions (list): List of candidate sentences.
-
-        Returns:
-            list: List of MAUVE scores for each candidate sentence.
+        :param references: List of reference sentences.
+        :type references: list
+        :param predictions: List of candidate sentences.
+        :type predictions: list
+        :return: List of MAUVE scores for each candidate sentence.
+        :rtype: list
         """
         return self.metric.compute(
             predictions=predictions, references=references, **kwargs

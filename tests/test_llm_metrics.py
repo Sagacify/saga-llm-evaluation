@@ -2,7 +2,7 @@ import unittest
 
 import pytest
 
-from saga_llm_evaluation_ml.helpers.llm_metrics import GEval, GPTScore, SelfCheckGPT
+from sagacify_llm_evaluation.helpers.llm_metrics import GEval, GPTScore, SelfCheckGPT
 from tests import LLAMA_MODEL
 
 # skip it for github actions, too many resources needed. Test locally

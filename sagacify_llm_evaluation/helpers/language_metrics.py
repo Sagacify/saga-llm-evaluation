@@ -7,8 +7,8 @@ from transformers import (
     AutoTokenizer,
 )
 
-from saga_llm_evaluation_ml.helpers.embedding_metrics import BERTScore
-from saga_llm_evaluation_ml.helpers.utils import (
+from sagacify_llm_evaluation.helpers.embedding_metrics import BERTScore
+from sagacify_llm_evaluation.helpers.utils import (
     INVALID_QUESTION,
     NO_ANS,
     check_list_type,
@@ -26,21 +26,21 @@ class BLEURTScore:
         BLEURT is a learnt metric that uses BERT to compute a similarity score for each token
         in the candidate sentence with each token in the reference sentence.
 
-        Args:
-            checkpoint (str, optional): Checkpoint to use. Defaults to BLEURT-tiny if not specified.
+        :param checkpoint: Checkpoint to use. Defaults to BLEURT-tiny if not specified. \
             Check https://huggingface.co/spaces/evaluate-metric/bleurt for more checkpoints.
+        :type checkpoint: str, optional
         """
         self.checkpoint = checkpoint
         self.metric = load("bleurt", module_type="metric", checkpoint=self.checkpoint)
 
     def compute(self, references, predictions, **kwargs):
         """
-        Args:
-            references (list): List of reference sentences.
-            predictions (list): List of candidate sentences.
-
-        Returns:
-            list: List of scores for each candidate sentence.
+        :param references: List of reference sentences.
+        :type references: list
+        :param predictions: List of candidate sentences.
+        :type predictions: list
+        :return: List of scores for each candidate sentence.
+        :rtype: list
         """
         assert len(references) == len(
             predictions
@@ -64,13 +64,15 @@ class QSquared:
     ) -> None:
         """
         Q² is a reference-free metric that aims to evaluate the factual consistency of knowledge-grounded
-        dialogue systems. The approach is based on automatic question generation and question answering
+        dialogue systems. The approach is based on automatic question generation and question answering.
         Source: https://github.com/orhonovich/q-squared
 
-        Args:
-            qa_model (str): Huggingface question answering model to use
-            qg_model (str): Huggingface question generation model to use
-            lan (str, optional): Language to use. Defaults to "en", It may also be "fr".
+        :param qa_model: Huggingface question answering model to use.
+        :type qa_model: str
+        :param qg_model: Huggingface question generation model to use.
+        :type qg_model: str
+        :param lan: Language to use. Defaults to "en", It may also be "fr".
+        :type lan: str, optional
         """
         self.qa_tokenizer = AutoTokenizer.from_pretrained(qa_model)
         self.qa_model = AutoModelForQuestionAnswering.from_pretrained(qa_model)
@@ -93,11 +95,12 @@ class QSquared:
     ):  # Code taken from https://huggingface.co/transformers/task_summary.html
         """
         Search for the answer in the text given the question.
-        Args:
-            question (str) : question to ask
-            text (str) : text to search in
-        Returns:
-            answer (str) : answer to the question
+        :param question: Question to ask.
+        :type question: str
+        :param text: Text to search in.
+        :type text: str
+        :return: Answer to the question.
+        :rtype: str
         """
         inputs = self.qa_tokenizer.encode_plus(
             question, text, add_special_tokens=True, return_tensors="pt"
@@ -123,10 +126,10 @@ class QSquared:
     def get_answer_candidates(self, text: str):
         """
         Look for candidate aswers that could be answered by the text.
-        Args:
-            text (str) : text to search in
-        Returns:
-            candidates (str) : candidates answers
+        :param text: Text to search in.
+        :type text: str
+        :return: Candidates answers.
+        :rtype: str
         """
         doc = self.nlp(text)
         candidates = [ent.text for ent in list(doc.ents)]
@@ -151,16 +154,20 @@ class QSquared:
         num_return: int = 5,
     ):
         """
-        Get the n best questions for a given answer, given the context. "Beam" is the name of the
-        approach
-        Args:
-            answer (str) : answer to the question
-            context (str) : context to search in
-            max_length (int, optional) : max length of the generated question. Defaults to 128.
-            beam_size (int, optional) : beam size. Defaults to 5.
-            num_return (int, optional) : number of questions to return. Defaults to 5.
-        Returns:
-            all_questions (list) : n best questions
+        Get the n best questions for a given answer, given the context. "Beam" is the name of the approach.
+
+        :param answer: Answer to the question.
+        :type answer: str
+        :param context: Context to search in.
+        :type context: str
+        :param max_length: Max length of the generated question. Defaults to 128.
+        :type max_length: int, optional
+        :param beam_size: Beam size. Defaults to 5.
+        :type beam_size: int, optional
+        :param num_return: Number of questions to return. Defaults to 5.
+        :type num_return: int, optional
+        :return: N best questions.
+        :rtype: list
         """
         all_questions = []
         input_text = f"answer: {answer}  context: {context} </s>"
@@ -190,19 +197,22 @@ class QSquared:
     ):
         """
         Given a candidate pair of question and answer (generated from the candidate text), get the
-        score of the aswer given by taking as a context the knowledge that the LLM was given.
+        score of the answer given by taking as a context the knowledge that the LLM was given.
         The higher the F1-score, the more the model we are trying to evaluate is consistent
         with the knowledge.
-        Args:
-            question (str) : cadidate question (generated from the candidate text)
-            answer (str) : candidate answer (generated from the candidate text)
-            response (str) : text generated by the LLM
-            knowledge (str) : knowledge given as a context to the LLM
 
-        Returns:
-            score, answer (tuple) : bert-score of the knowledge answer, knowledge answer
+        :param question: The candidate question (generated from the candidate text).
+        :type question: str
+        :param answer: The candidate answer (generated from the candidate text).
+        :type answer: str
+        :param response: The text generated by the LLM.
+        :type response: str
+        :param knowledge: The knowledge given as a context to the LLM.
+        :type knowledge: str
+
+        :return: A tuple containing the BERT-score of the knowledge answer and the knowledge answer itself.
+        :rtype: tuple
         """
-
         pred_ans = self.get_answer(question, response)
 
         if (
@@ -226,16 +236,14 @@ class QSquared:
     ):
         """
         Compute the Q² score for a given response and knowledge.
-        Args:
-            references (list or str) : (list of) candidate text generated by the LLM
-            knowledges (list or str) : (list of) knowledge given as a context to the LLM for each candidate text
-            single (bool) : if True, only one question is generated for each candidate answer.
-                            Defaults to False.
-            remove_personal (bool) : if True, remove questions that contain personal pronouns.
-                                     Defaults to True.
-        Returns:
-            dictionary with the following keys:
-                avg_f1 (float) : avg F1-score Q² score among all the questions
+
+        :param predictions: (list or str) List of candidate text generated by the LLM.
+        :param knowledges: (list or str) List of knowledge given as a context to the LLM for each candidate text.
+        :param single: (bool) If True, only one question is generated for each candidate answer. Defaults to False.
+        :param remove_personal: (bool) If True, remove questions that contain personal pronouns. Defaults to True.
+
+        :return: (dict) Dictionary with the following keys:
+            - avg_f1 (float): Average F1-score Q² score among all the questions.
         """
         assert check_list_type(
             predictions, str

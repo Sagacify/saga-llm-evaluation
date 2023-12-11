@@ -2,8 +2,8 @@ import unittest
 
 import pytest
 
-from saga_llm_evaluation_ml.helpers.utils import load_json
-from saga_llm_evaluation_ml.score import LLMScorer
+from sagacify_llm_evaluation.helpers.utils import load_json
+from sagacify_llm_evaluation.score import LLMScorer
 from tests import LLAMA_MODEL
 
 # skip it for github actions, too many resources needed. Test locally
