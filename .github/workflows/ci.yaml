@@ -1,9 +1,14 @@
 name: Continuous Integration
+
 on:
   pull_request:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     env:
       POETRY_HTTP_BASIC_SAGACIFY_USERNAME: ${{ secrets.POETRY_HTTP_BASIC_SAGACIFY_USERNAME }}
       POETRY_HTTP_BASIC_SAGACIFY_PASSWORD: ${{ secrets.POETRY_HTTP_BASIC_SAGACIFY_PASSWORD }}
