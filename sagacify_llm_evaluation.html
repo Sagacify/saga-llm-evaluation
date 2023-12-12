@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sagacify_llm_evaluation package &mdash; Sagacify LLM Evaluation Library 0.7.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=6dfdf7c3"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Sagacify LLM Evaluation Library
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">sagacify_llm_evaluation package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-sagacify_llm_evaluation.score">sagacify_llm_evaluation.score module</a><ul>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.score.LLMScorer"><code class="docutils literal notranslate"><span class="pre">LLMScorer</span></code></a><ul>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.score.LLMScorer.add_geval_aspect"><code class="docutils literal notranslate"><span class="pre">LLMScorer.add_geval_aspect()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.score.LLMScorer.add_geval_task"><code class="docutils literal notranslate"><span class="pre">LLMScorer.add_geval_task()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.score.LLMScorer.add_gptscore_template"><code class="docutils literal notranslate"><span class="pre">LLMScorer.add_gptscore_template()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.score.LLMScorer.score"><code class="docutils literal notranslate"><span class="pre">LLMScorer.score()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.score.get_model"><code class="docutils literal notranslate"><span class="pre">get_model()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-sagacify_llm_evaluation">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Sagacify LLM Evaluation Library</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">sagacify_llm_evaluation package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/sagacify_llm_evaluation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sagacify-llm-evaluation-package">
+<h1>sagacify_llm_evaluation package<a class="headerlink" href="#sagacify-llm-evaluation-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html">sagacify_llm_evaluation.helpers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#module-sagacify_llm_evaluation.helpers.embedding_metrics">sagacify_llm_evaluation.helpers.embedding_metrics module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.embedding_metrics.BERTScore"><code class="docutils literal notranslate"><span class="pre">BERTScore</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.embedding_metrics.BERTScore.compute"><code class="docutils literal notranslate"><span class="pre">BERTScore.compute()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.embedding_metrics.MAUVE"><code class="docutils literal notranslate"><span class="pre">MAUVE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.embedding_metrics.MAUVE.compute"><code class="docutils literal notranslate"><span class="pre">MAUVE.compute()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#module-sagacify_llm_evaluation.helpers.language_metrics">sagacify_llm_evaluation.helpers.language_metrics module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.BLEURTScore"><code class="docutils literal notranslate"><span class="pre">BLEURTScore</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.BLEURTScore.compute"><code class="docutils literal notranslate"><span class="pre">BLEURTScore.compute()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.QSquared"><code class="docutils literal notranslate"><span class="pre">QSquared</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.QSquared.compute"><code class="docutils literal notranslate"><span class="pre">QSquared.compute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.QSquared.get_answer"><code class="docutils literal notranslate"><span class="pre">QSquared.get_answer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.QSquared.get_answer_candidates"><code class="docutils literal notranslate"><span class="pre">QSquared.get_answer_candidates()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.QSquared.get_questions_beam"><code class="docutils literal notranslate"><span class="pre">QSquared.get_questions_beam()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.QSquared.single_question_score"><code class="docutils literal notranslate"><span class="pre">QSquared.single_question_score()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#module-sagacify_llm_evaluation.helpers.llm_metrics">sagacify_llm_evaluation.helpers.llm_metrics module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval"><code class="docutils literal notranslate"><span class="pre">GEval</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval.add_aspect"><code class="docutils literal notranslate"><span class="pre">GEval.add_aspect()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval.add_task"><code class="docutils literal notranslate"><span class="pre">GEval.add_task()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval.compute"><code class="docutils literal notranslate"><span class="pre">GEval.compute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_cot"><code class="docutils literal notranslate"><span class="pre">GEval.get_cot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_prediction"><code class="docutils literal notranslate"><span class="pre">GEval.get_prediction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_prompt"><code class="docutils literal notranslate"><span class="pre">GEval.get_prompt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_score"><code class="docutils literal notranslate"><span class="pre">GEval.get_score()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore"><code class="docutils literal notranslate"><span class="pre">GPTScore</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.add_template"><code class="docutils literal notranslate"><span class="pre">GPTScore.add_template()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.compute"><code class="docutils literal notranslate"><span class="pre">GPTScore.compute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.get_prompt"><code class="docutils literal notranslate"><span class="pre">GPTScore.get_prompt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.get_score"><code class="docutils literal notranslate"><span class="pre">GPTScore.get_score()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT"><code class="docutils literal notranslate"><span class="pre">SelfCheckGPT</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT.compute"><code class="docutils literal notranslate"><span class="pre">SelfCheckGPT.compute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT.get_prompt"><code class="docutils literal notranslate"><span class="pre">SelfCheckGPT.get_prompt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT.get_prompts"><code class="docutils literal notranslate"><span class="pre">SelfCheckGPT.get_prompts()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#module-sagacify_llm_evaluation.helpers.utils">sagacify_llm_evaluation.helpers.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.MetadataExtractor"><code class="docutils literal notranslate"><span class="pre">MetadataExtractor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.add_custom_extractor"><code class="docutils literal notranslate"><span class="pre">MetadataExtractor.add_custom_extractor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.add_regex_match_count"><code class="docutils literal notranslate"><span class="pre">MetadataExtractor.add_regex_match_count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.add_word_regex_matches_count"><code class="docutils literal notranslate"><span class="pre">MetadataExtractor.add_word_regex_matches_count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.compute"><code class="docutils literal notranslate"><span class="pre">MetadataExtractor.compute()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.check_list_type"><code class="docutils literal notranslate"><span class="pre">check_list_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.clean_text"><code class="docutils literal notranslate"><span class="pre">clean_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.filter_class_input"><code class="docutils literal notranslate"><span class="pre">filter_class_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.filter_questions"><code class="docutils literal notranslate"><span class="pre">filter_questions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.get_llama_model"><code class="docutils literal notranslate"><span class="pre">get_llama_model()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.load_json"><code class="docutils literal notranslate"><span class="pre">load_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.non_personal"><code class="docutils literal notranslate"><span class="pre">non_personal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.raw_f1_score"><code class="docutils literal notranslate"><span class="pre">raw_f1_score()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sagacify_llm_evaluation.helpers.html#module-sagacify_llm_evaluation.helpers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sagacify_llm_evaluation.model.html">sagacify_llm_evaluation.model package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sagacify_llm_evaluation.model.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sagacify_llm_evaluation.resources.html">sagacify_llm_evaluation.resources package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sagacify_llm_evaluation.resources.html#module-sagacify_llm_evaluation.resources">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-sagacify_llm_evaluation.score">
+<span id="sagacify-llm-evaluation-score-module"></span><h2>sagacify_llm_evaluation.score module<a class="headerlink" href="#module-sagacify_llm_evaluation.score" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.score.LLMScorer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.score.</span></span><span class="sig-name descname"><span class="pre">LLMScorer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['bert_score',</span> <span class="pre">'mauve',</span> <span class="pre">'bleurt',</span> <span class="pre">'q_squared',</span> <span class="pre">'selfcheckgpt',</span> <span class="pre">'geval',</span> <span class="pre">'gptscore']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/score.html#LLMScorer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.score.LLMScorer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.score.LLMScorer.add_geval_aspect">
+<span class="sig-name descname"><span class="pre">add_geval_aspect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/score.html#LLMScorer.add_geval_aspect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.score.LLMScorer.add_geval_aspect" title="Link to this definition"></a></dt>
+<dd><p>This function adds an aspect to the GEval metric. Please try to follow the example pattern
+to ensure consistency.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;COH&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Coherence&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;Coherence (1-5) - the collective quality of all sentences. We align this dimension with</span>
+    <span class="n">the</span> <span class="n">DUC</span> <span class="n">quality</span> <span class="n">question</span> <span class="n">of</span> <span class="n">structure</span> <span class="ow">and</span> <span class="n">coherence</span> <span class="n">whereby</span> <span class="s1">&#39;the summary should be</span>
+    <span class="n">well</span><span class="o">-</span><span class="n">structured</span> <span class="ow">and</span> <span class="n">well</span><span class="o">-</span><span class="n">organized</span><span class="o">.</span> <span class="n">The</span> <span class="n">summary</span> <span class="n">should</span> <span class="ow">not</span> <span class="n">just</span> <span class="n">be</span> <span class="n">a</span> <span class="n">heap</span> <span class="n">of</span> <span class="n">related</span>
+    <span class="n">information</span><span class="p">,</span> <span class="n">but</span> <span class="n">should</span> <span class="n">build</span> <span class="kn">from</span> <span class="nn">sentence</span> <span class="n">to</span> <span class="n">sentence</span> <span class="n">to</span> <span class="n">a</span> <span class="n">coherent</span> <span class="n">body</span> <span class="n">of</span> <span class="n">information</span>
+    <span class="n">about</span> <span class="n">a</span> <span class="n">topic</span><span class="o">.</span><span class="s1">&#39;&quot;,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>code</strong> (<em>str</em>) – Code of the aspect.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the aspect.</p></li>
+<li><p><strong>prompt</strong> (<em>str</em>) – Prompt of the aspect.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.score.LLMScorer.add_geval_task">
+<span class="sig-name descname"><span class="pre">add_geval_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/score.html#LLMScorer.add_geval_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.score.LLMScorer.add_geval_task" title="Link to this definition"></a></dt>
+<dd><p>This function adds a task to the GEval metric. Please try to follow the example pattern to ensure consistency.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;summ&quot;</span><span class="p">,</span>
+<span class="s2">&quot;definition&quot;</span><span class="p">:</span> <span class="s2">&quot;You will be given one summary written for a news article. Your task is to rate</span>
+<span class="n">the</span> <span class="n">summary</span> <span class="n">on</span> <span class="n">one</span> <span class="n">metric</span><span class="o">.</span> <span class="n">Please</span> <span class="n">make</span> <span class="n">sure</span> <span class="n">you</span> <span class="n">read</span> <span class="ow">and</span> <span class="n">understand</span> <span class="n">these</span> <span class="n">instructions</span> <span class="n">carefully</span><span class="o">.</span>
+<span class="n">Please</span> <span class="n">keep</span> <span class="n">this</span> <span class="n">document</span> <span class="nb">open</span> <span class="k">while</span> <span class="n">reviewing</span><span class="p">,</span> <span class="ow">and</span> <span class="n">refer</span> <span class="n">to</span> <span class="n">it</span> <span class="k">as</span> <span class="n">needed</span><span class="o">.</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the task.</p></li>
+<li><p><strong>definition</strong> (<em>str</em>) – Definition of the task.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.score.LLMScorer.add_gptscore_template">
+<span class="sig-name descname"><span class="pre">add_gptscore_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/score.html#LLMScorer.add_gptscore_template"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.score.LLMScorer.add_gptscore_template" title="Link to this definition"></a></dt>
+<dd><p>This function adds a template to the GPTScore metric.
+Please try to follow the following example pattern to ensure consistency.
+Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&quot;diag&quot;: {
+    &quot;COH&quot;:
+    &quot;Answer the question based on the conversation between a human and AI.
+    Question: Is the AI coherent and maintains a good conversation flow throughout the conversation?
+    (a) Yes. (b) No.
+    Conversation:
+    User: {{src}}
+    AI: {{pred}}
+    Answer:&quot;,
+},
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>task</strong> (<em>str</em>) – Task of the template.</p></li>
+<li><p><strong>code</strong> (<em>str</em>) – Code of the aspect.</p></li>
+<li><p><strong>prompt</strong> (<em>str</em>) – Prompt of the aspect.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.score.LLMScorer.score">
+<span class="sig-name descname"><span class="pre">score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prediction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knowledge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/score.html#LLMScorer.score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.score.LLMScorer.score" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_prompt</strong> (<em>str</em>) – User prompt to the model.</p></li>
+<li><p><strong>prediction</strong> (<em>str</em>) – Prediction of the model.</p></li>
+<li><p><strong>knowledge</strong> (<em>str</em><em>, </em><em>optional</em>) – Source text that the model used to generate the prediction. Defaults to None.</p></li>
+<li><p><strong>reference</strong> (<em>str</em><em>, </em><em>optional</em>) – Reference of the prediction. Defaults to None.</p></li>
+<li><p><strong>config</strong> (<em>dict</em><em>, </em><em>optional</em>) – Config file. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.score.get_model">
+<span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.score.</span></span><span class="sig-name descname"><span class="pre">get_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bert_score'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/score.html#get_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.score.get_model" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-sagacify_llm_evaluation">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sagacify_llm_evaluation" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Leonardo Remondini (leonardo.remondini@sagacify.com), Lucie Navez (lucie.navez@sagacify.com).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

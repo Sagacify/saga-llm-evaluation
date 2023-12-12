@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sagacify_llm_evaluation.helpers.utils &mdash; Sagacify LLM Evaluation Library 0.7.2 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=6dfdf7c3"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Sagacify LLM Evaluation Library
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Sagacify LLM Evaluation Library</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sagacify_llm_evaluation.helpers.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sagacify_llm_evaluation.helpers.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">elemeta.nlp.extractors.high_level.regex_match_count</span> <span class="kn">import</span> <span class="n">RegexMatchCount</span>
+<span class="kn">from</span> <span class="nn">elemeta.nlp.extractors.high_level.word_regex_matches_count</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">WordRegexMatchesCount</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">elemeta.nlp.extractors.low_level.abstract_metafeature_extractor</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AbstractMetafeatureExtractor</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">elemeta.nlp.metafeature_extractors_runner</span> <span class="kn">import</span> <span class="n">MetafeatureExtractorsRunner</span>
+<span class="kn">from</span> <span class="nn">huggingface_hub</span> <span class="kn">import</span> <span class="n">hf_hub_download</span>
+<span class="kn">from</span> <span class="nn">llama_cpp</span> <span class="kn">import</span> <span class="n">Llama</span>
+
+<span class="n">NO_ANS</span> <span class="o">=</span> <span class="s2">&quot;[CLS]&quot;</span>
+<span class="n">INVALID_QUESTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+<span class="c1"># pylint:disable=too-many-boolean-expressions</span>
+
+
+<div class="viewcode-block" id="load_json">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.load_json">[docs]</a>
+<span class="k">def</span> <span class="nf">load_json</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a JSON file.</span>
+
+<span class="sd">    :param path: Path to the JSON file.</span>
+<span class="sd">    :type path: str</span>
+<span class="sd">    :return: JSON file.</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+        <span class="n">o_file</span> <span class="o">=</span> <span class="n">json_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">o_file</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="filter_questions">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.filter_questions">[docs]</a>
+<span class="k">def</span> <span class="nf">filter_questions</span><span class="p">(</span><span class="n">exp_ans</span><span class="p">,</span> <span class="n">pred_ans</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if the expected answer and the predicted answer are the same.</span>
+
+<span class="sd">    :param exp_ans: Expected answer.</span>
+<span class="sd">    :type exp_ans: str</span>
+<span class="sd">    :param pred_ans: Predicted answer.</span>
+<span class="sd">    :type pred_ans: str</span>
+<span class="sd">    :return: &quot;VALID&quot; if the answers are the same, &quot;NO MATCH&quot; otherwise.</span>
+<span class="sd">    :rtype: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">pred_ans</span> <span class="o">==</span> <span class="n">NO_ANS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;NO MATCH&quot;</span>
+    <span class="k">if</span> <span class="n">clean_text</span><span class="p">(</span><span class="n">exp_ans</span><span class="p">)</span> <span class="o">!=</span> <span class="n">clean_text</span><span class="p">(</span><span class="n">pred_ans</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;NO MATCH&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;VALID&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="clean_text">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.clean_text">[docs]</a>
+<span class="k">def</span> <span class="nf">clean_text</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clean a text by removing punctuation and (some) stopwords.</span>
+
+<span class="sd">    :param text: Text to clean.</span>
+<span class="sd">    :type text: str</span>
+<span class="sd">    :return: Cleaned text.</span>
+<span class="sd">    :rtype: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: improve</span>
+    <span class="c1"># TODO: add support to french language</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">))</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\b(a|an|the|in|our)\b&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot; +&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="raw_f1_score">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.raw_f1_score">[docs]</a>
+<span class="k">def</span> <span class="nf">raw_f1_score</span><span class="p">(</span><span class="n">a_gold</span><span class="p">,</span> <span class="n">a_pred</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the raw F1 score between two answers.</span>
+
+<span class="sd">    :param a_gold: Expected answer.</span>
+<span class="sd">    :type a_gold: str</span>
+<span class="sd">    :param a_pred: Predicted answer.</span>
+<span class="sd">    :type a_pred: str</span>
+<span class="sd">    :return: F1 score.</span>
+<span class="sd">    :rtype: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">a_pred</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="n">gold_toks</span> <span class="o">=</span> <span class="n">clean_text</span><span class="p">(</span><span class="n">a_gold</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">pred_toks</span> <span class="o">=</span> <span class="n">clean_text</span><span class="p">(</span><span class="n">a_pred</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">common</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">gold_toks</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">Counter</span><span class="p">(</span><span class="n">pred_toks</span><span class="p">)</span>
+    <span class="n">num_same</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">num_same</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="n">precision</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">num_same</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">pred_toks</span><span class="p">)</span>
+    <span class="n">recall</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">num_same</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">gold_toks</span><span class="p">)</span>
+    <span class="n">f1_score</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">precision</span> <span class="o">*</span> <span class="n">recall</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">precision</span> <span class="o">+</span> <span class="n">recall</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">f1_score</span></div>
+
+
+
+<div class="viewcode-block" id="non_personal">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.non_personal">[docs]</a>
+<span class="k">def</span> <span class="nf">non_personal</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">nlp</span><span class="p">,</span> <span class="n">lan</span><span class="o">=</span><span class="s2">&quot;en&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a question contains personal pronouns.</span>
+
+<span class="sd">    :param question: Question to check.</span>
+<span class="sd">    :type question: str</span>
+<span class="sd">    :param nlp: Spacy language model.</span>
+<span class="sd">    :type nlp: spacy.lang</span>
+<span class="sd">    :return: True if the question does not contain personal pronouns, False otherwise.</span>
+<span class="sd">    :rtype: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">question_tok</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">question_tok</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tok</span><span class="o">.</span><span class="n">dep_</span> <span class="o">==</span> <span class="s2">&quot;nsubj&quot;</span> <span class="ow">and</span> <span class="n">lan</span> <span class="o">==</span> <span class="s2">&quot;en&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">tok</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;i&quot;</span> <span class="ow">or</span> <span class="n">tok</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;you&quot;</span>
+            <span class="p">):</span>  <span class="c1"># TODO: add support to french language</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">tok</span><span class="o">.</span><span class="n">dep_</span> <span class="o">==</span> <span class="s2">&quot;poss&quot;</span> <span class="ow">and</span> <span class="n">lan</span> <span class="o">==</span> <span class="s2">&quot;en&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">tok</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;my&quot;</span> <span class="ow">or</span> <span class="n">tok</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;your&quot;</span>
+            <span class="p">):</span>  <span class="c1"># TODO: add support to french language</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># french</span>
+        <span class="k">elif</span> <span class="n">tok</span><span class="o">.</span><span class="n">dep_</span> <span class="o">==</span> <span class="s2">&quot;nsubj&quot;</span> <span class="ow">and</span> <span class="n">lan</span> <span class="o">==</span> <span class="s2">&quot;fr&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">tok</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;je&quot;</span>
+                <span class="ow">or</span> <span class="n">tok</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;tu&quot;</span>
+                <span class="ow">or</span> <span class="n">tok</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;vous&quot;</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">tok</span><span class="o">.</span><span class="n">dep_</span> <span class="o">==</span> <span class="s2">&quot;poss&quot;</span> <span class="ow">and</span> <span class="n">lan</span> <span class="o">==</span> <span class="s2">&quot;fr&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">tok</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;mon&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ton&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;votre&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ma&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ta&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;vos&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mes&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tes&quot;</span><span class="p">,</span>
+            <span class="p">]:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+
+<div class="viewcode-block" id="get_llama_model">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.get_llama_model">[docs]</a>
+<span class="k">def</span> <span class="nf">get_llama_model</span><span class="p">(</span>
+    <span class="n">repo_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;TheBloke/Llama-2-7b-Chat-GGUF&quot;</span><span class="p">,</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;llama-2-7b-chat.Q2_K.gguf&quot;</span><span class="p">,</span>
+    <span class="n">model_path</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Download and return a Llama model from HuggingFace Hub.</span>
+
+<span class="sd">    :param repo_id: HuggingFace Hub repo id.</span>
+<span class="sd">    :type repo_id: str</span>
+<span class="sd">    :param filename: Model filename.</span>
+<span class="sd">    :type filename: str</span>
+<span class="sd">    :param model_path: Path to the model locally.</span>
+<span class="sd">    :type model_path: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">model_path</span><span class="p">:</span>
+        <span class="n">model_path</span> <span class="o">=</span> <span class="n">hf_hub_download</span><span class="p">(</span><span class="n">repo_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+        <span class="n">lcpp_llm</span> <span class="o">=</span> <span class="n">Llama</span><span class="p">(</span>
+            <span class="n">model_path</span><span class="o">=</span><span class="n">model_path</span><span class="p">,</span>
+            <span class="n">main_gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">n_gpu_layers</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>  <span class="c1"># check this</span>
+            <span class="n">n_batch</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+            <span class="n">logits_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">n_ctx</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cuda&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lcpp_llm</span> <span class="o">=</span> <span class="n">Llama</span><span class="p">(</span>
+            <span class="n">model_path</span><span class="o">=</span><span class="n">model_path</span><span class="p">,</span>
+            <span class="n">logits_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">n_ctx</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">lcpp_llm</span></div>
+
+
+
+<div class="viewcode-block" id="filter_class_input">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.filter_class_input">[docs]</a>
+<span class="k">def</span> <span class="nf">filter_class_input</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">python_function</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filters input arguments for a given class.</span>
+
+<span class="sd">    :param args: Dictionary of arguments.</span>
+<span class="sd">    :type args: dict</span>
+<span class="sd">    :param python_class: Class to filter arguments for.</span>
+<span class="sd">    :type python_class: object</span>
+<span class="sd">    :param drop: List of arguments to drop. Defaults to None.</span>
+<span class="sd">    :type drop: list, optional</span>
+<span class="sd">    :return: Filtered dictionary of arguments.</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">init_varnames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">python_function</span><span class="o">.</span><span class="vm">__code__</span><span class="o">.</span><span class="n">co_varnames</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">drop</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">init_varnames</span><span class="p">}</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">init_varnames</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">args</span></div>
+
+
+
+<div class="viewcode-block" id="check_list_type">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.check_list_type">[docs]</a>
+<span class="k">def</span> <span class="nf">check_list_type</span><span class="p">(</span><span class="n">array</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">list_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if an array is a list of a given type.</span>
+
+<span class="sd">    :param array: Array to check.</span>
+<span class="sd">    :type array: list</span>
+<span class="sd">    :param list_type: Type to check.</span>
+<span class="sd">    :type list_type: type</span>
+<span class="sd">    :return: True if the array is a list of the given type, False otherwise.</span>
+<span class="sd">    :rtype: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">list_type</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">array</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># pylint:disable=invalid-name</span>
+<div class="viewcode-block" id="MetadataExtractor">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.MetadataExtractor">[docs]</a>
+<span class="k">class</span> <span class="nc">MetadataExtractor</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Metadata extractor class. Uses elemeta library.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_extractor</span> <span class="o">=</span> <span class="n">MetafeatureExtractorsRunner</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MetadataExtractor.add_word_regex_matches_count">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.add_word_regex_matches_count">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_word_regex_matches_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">regex_rule</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a regex rule to the metadata extractor.</span>
+<span class="sd">        For a given regex return the number of words matching the regex.</span>
+
+<span class="sd">        :param regex_rule: Regex rule to add.</span>
+<span class="sd">        :type regex_rule: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_extractor</span><span class="o">.</span><span class="n">add_metafeature_extractor</span><span class="p">(</span>
+            <span class="n">WordRegexMatchesCount</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">regex_rule</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MetadataExtractor.add_regex_match_count">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.add_regex_match_count">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_regex_match_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">regex_rule</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a regex rule to the metadata extractor.</span>
+<span class="sd">        For a given regex return the number of matches it has in the text.</span>
+
+<span class="sd">        :param regex_rule: Regex rule to add.</span>
+<span class="sd">        :type regex_rule: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_extractor</span><span class="o">.</span><span class="n">add_metafeature_extractor</span><span class="p">(</span>
+            <span class="n">RegexMatchCount</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">regex_rule</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MetadataExtractor.add_custom_extractor">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.add_custom_extractor">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_custom_extractor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extractor</span><span class="p">:</span> <span class="n">AbstractMetafeatureExtractor</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a custom extractor to the metadata extractor.</span>
+
+<span class="sd">        :param extractor: Extractor to add.</span>
+<span class="sd">        :type extractor: object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_extractor</span><span class="o">.</span><span class="n">add_metafeature_extractor</span><span class="p">(</span><span class="n">extractor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MetadataExtractor.compute">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.compute">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes metadata from a text using elemeta library and returns a dictionary of metadata.</span>
+
+<span class="sd">        :param text: Text to extract metadata from.</span>
+<span class="sd">        :type text: str</span>
+<span class="sd">        :return: Dictionary of metadata.</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_extractor</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Leonardo Remondini (leonardo.remondini@sagacify.com), Lucie Navez (lucie.navez@sagacify.com).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

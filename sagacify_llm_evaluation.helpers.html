@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sagacify_llm_evaluation.helpers package &mdash; Sagacify LLM Evaluation Library 0.7.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=6dfdf7c3"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Sagacify LLM Evaluation Library
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">sagacify_llm_evaluation.helpers package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-sagacify_llm_evaluation.helpers.embedding_metrics">sagacify_llm_evaluation.helpers.embedding_metrics module</a><ul>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.embedding_metrics.BERTScore"><code class="docutils literal notranslate"><span class="pre">BERTScore</span></code></a><ul>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.embedding_metrics.BERTScore.compute"><code class="docutils literal notranslate"><span class="pre">BERTScore.compute()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.embedding_metrics.MAUVE"><code class="docutils literal notranslate"><span class="pre">MAUVE</span></code></a><ul>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.embedding_metrics.MAUVE.compute"><code class="docutils literal notranslate"><span class="pre">MAUVE.compute()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-sagacify_llm_evaluation.helpers.language_metrics">sagacify_llm_evaluation.helpers.language_metrics module</a><ul>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.language_metrics.BLEURTScore"><code class="docutils literal notranslate"><span class="pre">BLEURTScore</span></code></a><ul>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.language_metrics.BLEURTScore.compute"><code class="docutils literal notranslate"><span class="pre">BLEURTScore.compute()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.language_metrics.QSquared"><code class="docutils literal notranslate"><span class="pre">QSquared</span></code></a><ul>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.language_metrics.QSquared.compute"><code class="docutils literal notranslate"><span class="pre">QSquared.compute()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.language_metrics.QSquared.get_answer"><code class="docutils literal notranslate"><span class="pre">QSquared.get_answer()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.language_metrics.QSquared.get_answer_candidates"><code class="docutils literal notranslate"><span class="pre">QSquared.get_answer_candidates()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.language_metrics.QSquared.get_questions_beam"><code class="docutils literal notranslate"><span class="pre">QSquared.get_questions_beam()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.language_metrics.QSquared.single_question_score"><code class="docutils literal notranslate"><span class="pre">QSquared.single_question_score()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-sagacify_llm_evaluation.helpers.llm_metrics">sagacify_llm_evaluation.helpers.llm_metrics module</a><ul>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval"><code class="docutils literal notranslate"><span class="pre">GEval</span></code></a><ul>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval.add_aspect"><code class="docutils literal notranslate"><span class="pre">GEval.add_aspect()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval.add_task"><code class="docutils literal notranslate"><span class="pre">GEval.add_task()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval.compute"><code class="docutils literal notranslate"><span class="pre">GEval.compute()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_cot"><code class="docutils literal notranslate"><span class="pre">GEval.get_cot()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_prediction"><code class="docutils literal notranslate"><span class="pre">GEval.get_prediction()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_prompt"><code class="docutils literal notranslate"><span class="pre">GEval.get_prompt()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_score"><code class="docutils literal notranslate"><span class="pre">GEval.get_score()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore"><code class="docutils literal notranslate"><span class="pre">GPTScore</span></code></a><ul>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.add_template"><code class="docutils literal notranslate"><span class="pre">GPTScore.add_template()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.compute"><code class="docutils literal notranslate"><span class="pre">GPTScore.compute()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.get_prompt"><code class="docutils literal notranslate"><span class="pre">GPTScore.get_prompt()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.get_score"><code class="docutils literal notranslate"><span class="pre">GPTScore.get_score()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT"><code class="docutils literal notranslate"><span class="pre">SelfCheckGPT</span></code></a><ul>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT.compute"><code class="docutils literal notranslate"><span class="pre">SelfCheckGPT.compute()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT.get_prompt"><code class="docutils literal notranslate"><span class="pre">SelfCheckGPT.get_prompt()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT.get_prompts"><code class="docutils literal notranslate"><span class="pre">SelfCheckGPT.get_prompts()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-sagacify_llm_evaluation.helpers.utils">sagacify_llm_evaluation.helpers.utils module</a><ul>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.utils.MetadataExtractor"><code class="docutils literal notranslate"><span class="pre">MetadataExtractor</span></code></a><ul>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.add_custom_extractor"><code class="docutils literal notranslate"><span class="pre">MetadataExtractor.add_custom_extractor()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.add_regex_match_count"><code class="docutils literal notranslate"><span class="pre">MetadataExtractor.add_regex_match_count()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.add_word_regex_matches_count"><code class="docutils literal notranslate"><span class="pre">MetadataExtractor.add_word_regex_matches_count()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.compute"><code class="docutils literal notranslate"><span class="pre">MetadataExtractor.compute()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.utils.check_list_type"><code class="docutils literal notranslate"><span class="pre">check_list_type()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.utils.clean_text"><code class="docutils literal notranslate"><span class="pre">clean_text()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.utils.filter_class_input"><code class="docutils literal notranslate"><span class="pre">filter_class_input()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.utils.filter_questions"><code class="docutils literal notranslate"><span class="pre">filter_questions()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.utils.get_llama_model"><code class="docutils literal notranslate"><span class="pre">get_llama_model()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.utils.load_json"><code class="docutils literal notranslate"><span class="pre">load_json()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.utils.non_personal"><code class="docutils literal notranslate"><span class="pre">non_personal()</span></code></a></li>
+<li><a class="reference internal" href="#sagacify_llm_evaluation.helpers.utils.raw_f1_score"><code class="docutils literal notranslate"><span class="pre">raw_f1_score()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-sagacify_llm_evaluation.helpers">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Sagacify LLM Evaluation Library</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">sagacify_llm_evaluation.helpers package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/sagacify_llm_evaluation.helpers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sagacify-llm-evaluation-helpers-package">
+<h1>sagacify_llm_evaluation.helpers package<a class="headerlink" href="#sagacify-llm-evaluation-helpers-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-sagacify_llm_evaluation.helpers.embedding_metrics">
+<span id="sagacify-llm-evaluation-helpers-embedding-metrics-module"></span><h2>sagacify_llm_evaluation.helpers.embedding_metrics module<a class="headerlink" href="#module-sagacify_llm_evaluation.helpers.embedding_metrics" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.embedding_metrics.BERTScore">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.embedding_metrics.</span></span><span class="sig-name descname"><span class="pre">BERTScore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lang</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'en'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/embedding_metrics.html#BERTScore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.embedding_metrics.BERTScore" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>BERTScore computes a similarity score for each token in the candidate sentence with each token
+in the reference sentence. The final score is the average of the similarity scores of all tokens
+in the candidate sentence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lang</strong> (<em>str</em><em>, </em><em>optional</em>) – Language to use. Defaults to “en”. If another language is used, a multilingual model is used.</p></li>
+<li><p><strong>model_type</strong> (<em>str</em><em>, </em><em>optional</em>) – Model to use. Defaults to None. If None, a default model is used depending on the             language (see above).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.embedding_metrics.BERTScore.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/embedding_metrics.html#BERTScore.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.embedding_metrics.BERTScore.compute" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>references</strong> (<em>list</em>) – List of reference sentences.</p></li>
+<li><p><strong>predictions</strong> (<em>list</em>) – List of candidate sentences.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of scores for each candidate sentence. Contains a list of scores for precisions, recalls,         and F1 scores.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.embedding_metrics.MAUVE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.embedding_metrics.</span></span><span class="sig-name descname"><span class="pre">MAUVE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">featurize_model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gpt2'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/embedding_metrics.html#MAUVE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.embedding_metrics.MAUVE" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>MAUVE score computes the difference between the candidate sentence distribution
+and the reference sentence distribution. The bigger the MAUVE score, the better.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>featurize_model_name</strong> – Model to use to featurize the sentences. Defaults to “gpt2”.</p>
+</dd>
+</dl>
+<p>Check <a class="reference external" href="https://huggingface.co/spaces/evaluate-metric/mauve">https://huggingface.co/spaces/evaluate-metric/mauve</a> for more options.
+:type featurize_model_name: str, optional</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.embedding_metrics.MAUVE.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/embedding_metrics.html#MAUVE.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.embedding_metrics.MAUVE.compute" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>references</strong> (<em>list</em>) – List of reference sentences.</p></li>
+<li><p><strong>predictions</strong> (<em>list</em>) – List of candidate sentences.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of MAUVE scores for each candidate sentence.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sagacify_llm_evaluation.helpers.language_metrics">
+<span id="sagacify-llm-evaluation-helpers-language-metrics-module"></span><h2>sagacify_llm_evaluation.helpers.language_metrics module<a class="headerlink" href="#module-sagacify_llm_evaluation.helpers.language_metrics" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.language_metrics.BLEURTScore">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.language_metrics.</span></span><span class="sig-name descname"><span class="pre">BLEURTScore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BLEURT-tiny'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/language_metrics.html#BLEURTScore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.language_metrics.BLEURTScore" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>BLEURT is a learnt metric that uses BERT to compute a similarity score for each token
+in the candidate sentence with each token in the reference sentence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>checkpoint</strong> (<em>str</em><em>, </em><em>optional</em>) – Checkpoint to use. Defaults to BLEURT-tiny if not specified.             Check <a class="reference external" href="https://huggingface.co/spaces/evaluate-metric/bleurt">https://huggingface.co/spaces/evaluate-metric/bleurt</a> for more checkpoints.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.language_metrics.BLEURTScore.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">references</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/language_metrics.html#BLEURTScore.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.language_metrics.BLEURTScore.compute" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>references</strong> (<em>list</em>) – List of reference sentences.</p></li>
+<li><p><strong>predictions</strong> (<em>list</em>) – List of candidate sentences.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of scores for each candidate sentence.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.language_metrics.QSquared">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.language_metrics.</span></span><span class="sig-name descname"><span class="pre">QSquared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qa_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ktrapeznikov/albert-xlarge-v2-squad-v2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qg_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mrm8488/t5-base-finetuned-question-generation-ap'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lang</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'en'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/language_metrics.html#QSquared"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.language_metrics.QSquared" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Q² is a reference-free metric that aims to evaluate the factual consistency of knowledge-grounded
+dialogue systems. The approach is based on automatic question generation and question answering.
+Source: <a class="reference external" href="https://github.com/orhonovich/q-squared">https://github.com/orhonovich/q-squared</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qa_model</strong> (<em>str</em>) – Huggingface question answering model to use.</p></li>
+<li><p><strong>qg_model</strong> (<em>str</em>) – Huggingface question generation model to use.</p></li>
+<li><p><strong>lan</strong> (<em>str</em><em>, </em><em>optional</em>) – Language to use. Defaults to “en”, It may also be “fr”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.language_metrics.QSquared.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knowledges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_personal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/language_metrics.html#QSquared.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.language_metrics.QSquared.compute" title="Link to this definition"></a></dt>
+<dd><p>Compute the Q² score for a given response and knowledge.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>predictions</strong> – (list or str) List of candidate text generated by the LLM.</p></li>
+<li><p><strong>knowledges</strong> – (list or str) List of knowledge given as a context to the LLM for each candidate text.</p></li>
+<li><p><strong>single</strong> – (bool) If True, only one question is generated for each candidate answer. Defaults to False.</p></li>
+<li><p><strong>remove_personal</strong> – (bool) If True, remove questions that contain personal pronouns. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(dict) Dictionary with the following keys:
+- avg_f1 (float): Average F1-score Q² score among all the questions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.language_metrics.QSquared.get_answer">
+<span class="sig-name descname"><span class="pre">get_answer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/language_metrics.html#QSquared.get_answer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.language_metrics.QSquared.get_answer" title="Link to this definition"></a></dt>
+<dd><p>Search for the answer in the text given the question.
+:param question: Question to ask.
+:type question: str
+:param text: Text to search in.
+:type text: str
+:return: Answer to the question.
+:rtype: str</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.language_metrics.QSquared.get_answer_candidates">
+<span class="sig-name descname"><span class="pre">get_answer_candidates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/language_metrics.html#QSquared.get_answer_candidates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.language_metrics.QSquared.get_answer_candidates" title="Link to this definition"></a></dt>
+<dd><p>Look for candidate aswers that could be answered by the text.
+:param text: Text to search in.
+:type text: str
+:return: Candidates answers.
+:rtype: str</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.language_metrics.QSquared.get_questions_beam">
+<span class="sig-name descname"><span class="pre">get_questions_beam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">answer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beam_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_return</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/language_metrics.html#QSquared.get_questions_beam"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.language_metrics.QSquared.get_questions_beam" title="Link to this definition"></a></dt>
+<dd><p>Get the n best questions for a given answer, given the context. “Beam” is the name of the approach.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>answer</strong> (<em>str</em>) – Answer to the question.</p></li>
+<li><p><strong>context</strong> (<em>str</em>) – Context to search in.</p></li>
+<li><p><strong>max_length</strong> (<em>int</em><em>, </em><em>optional</em>) – Max length of the generated question. Defaults to 128.</p></li>
+<li><p><strong>beam_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Beam size. Defaults to 5.</p></li>
+<li><p><strong>num_return</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of questions to return. Defaults to 5.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>N best questions.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.language_metrics.QSquared.single_question_score">
+<span class="sig-name descname"><span class="pre">single_question_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">answer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knowledge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/language_metrics.html#QSquared.single_question_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.language_metrics.QSquared.single_question_score" title="Link to this definition"></a></dt>
+<dd><p>Given a candidate pair of question and answer (generated from the candidate text), get the
+score of the answer given by taking as a context the knowledge that the LLM was given.
+The higher the F1-score, the more the model we are trying to evaluate is consistent
+with the knowledge.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>question</strong> (<em>str</em>) – The candidate question (generated from the candidate text).</p></li>
+<li><p><strong>answer</strong> (<em>str</em>) – The candidate answer (generated from the candidate text).</p></li>
+<li><p><strong>response</strong> (<em>str</em>) – The text generated by the LLM.</p></li>
+<li><p><strong>knowledge</strong> (<em>str</em>) – The knowledge given as a context to the LLM.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the BERT-score of the knowledge answer and the knowledge answer itself.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sagacify_llm_evaluation.helpers.llm_metrics">
+<span id="sagacify-llm-evaluation-helpers-llm-metrics-module"></span><h2>sagacify_llm_evaluation.helpers.llm_metrics module<a class="headerlink" href="#module-sagacify_llm_evaluation.helpers.llm_metrics" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.GEval">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.llm_metrics.</span></span><span class="sig-name descname"><span class="pre">GEval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name_or_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TheBloke/Llama-2-7b-Chat-GGUF'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_basename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'llama-2-7b-chat.Q2_K.gguf'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#GEval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class implements the GEval evaluation metric for generative language models.
+It is inspired by the GEval metric proposed in <a class="reference external" href="https://arxiv.org/pdf/2303.16634.pdf">https://arxiv.org/pdf/2303.16634.pdf</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Llama model</em>) – Model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.</p></li>
+<li><p><strong>model_name_or_path</strong> (<em>str</em>) – Model name or path. Defaults to “TheBloke/Llama-2-7b-Chat-GGUF”.</p></li>
+<li><p><strong>model_basename</strong> (<em>str</em>) – Model basename. Defaults to “llama-2-7b-chat.Q2_K.gguf”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.GEval.add_aspect">
+<span class="sig-name descname"><span class="pre">add_aspect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#GEval.add_aspect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval.add_aspect" title="Link to this definition"></a></dt>
+<dd><p>This function adds an aspect to the GEval metric. Please try to follow the example pattern
+to ensure consistency.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;COH&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Coherence&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;Coherence (1-5) - the collective quality of all sentences. We align this dimension with</span>
+    <span class="n">the</span> <span class="n">DUC</span> <span class="n">quality</span> <span class="n">question</span> <span class="n">of</span> <span class="n">structure</span> <span class="ow">and</span> <span class="n">coherence</span> <span class="n">whereby</span> <span class="s1">&#39;the summary should be</span>
+    <span class="n">well</span><span class="o">-</span><span class="n">structured</span> <span class="ow">and</span> <span class="n">well</span><span class="o">-</span><span class="n">organized</span><span class="o">.</span> <span class="n">The</span> <span class="n">summary</span> <span class="n">should</span> <span class="ow">not</span> <span class="n">just</span> <span class="n">be</span> <span class="n">a</span> <span class="n">heap</span> <span class="n">of</span> <span class="n">related</span>
+    <span class="n">information</span><span class="p">,</span> <span class="n">but</span> <span class="n">should</span> <span class="n">build</span> <span class="kn">from</span> <span class="nn">sentence</span> <span class="n">to</span> <span class="n">sentence</span> <span class="n">to</span> <span class="n">a</span> <span class="n">coherent</span> <span class="n">body</span> <span class="n">of</span> <span class="n">information</span>
+    <span class="n">about</span> <span class="n">a</span> <span class="n">topic</span><span class="o">.</span><span class="s1">&#39;&quot;,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>code</strong> (<em>str</em>) – Code of the aspect.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the aspect.</p></li>
+<li><p><strong>prompt</strong> (<em>str</em>) – Prompt of the aspect.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.GEval.add_task">
+<span class="sig-name descname"><span class="pre">add_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#GEval.add_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval.add_task" title="Link to this definition"></a></dt>
+<dd><p>This function adds a task to the GEval metric. Please try to follow the example pattern to ensure consistency.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;summ&quot;</span><span class="p">,</span>
+<span class="s2">&quot;definition&quot;</span><span class="p">:</span> <span class="s2">&quot;You will be given one summary written for a news article. Your task is to rate</span>
+<span class="n">the</span> <span class="n">summary</span> <span class="n">on</span> <span class="n">one</span> <span class="n">metric</span><span class="o">.</span> <span class="n">Please</span> <span class="n">make</span> <span class="n">sure</span> <span class="n">you</span> <span class="n">read</span> <span class="ow">and</span> <span class="n">understand</span> <span class="n">these</span> <span class="n">instructions</span> <span class="n">carefully</span><span class="o">.</span>
+<span class="n">Please</span> <span class="n">keep</span> <span class="n">this</span> <span class="n">document</span> <span class="nb">open</span> <span class="k">while</span> <span class="n">reviewing</span><span class="p">,</span> <span class="ow">and</span> <span class="n">refer</span> <span class="n">to</span> <span class="n">it</span> <span class="k">as</span> <span class="n">needed</span><span class="o">.</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the task.</p></li>
+<li><p><strong>definition</strong> (<em>str</em>) – Definition of the task.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.GEval.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_prompts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aspect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_prompt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#GEval.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval.compute" title="Link to this definition"></a></dt>
+<dd><p>This method computes the GEval score for a candidate sentence given a source text, a prompt template,
+an aspect to evaluate, and a task description.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_prompts</strong> (<em>list</em><em> or </em><em>str</em>) – Source text generated by the user.</p></li>
+<li><p><strong>pred</strong> (<em>str</em>) – Candidate sentence to evaluate.</p></li>
+<li><p><strong>task</strong> (<em>str</em><em>, </em><em>optional</em>) – Definition of the task. Defaults to None.</p></li>
+<li><p><strong>aspect</strong> (<em>str</em><em> or </em><em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – (List of) Evaluation criterion codes. Defaults to None.</p></li>
+<li><p><strong>custom_prompt</strong> (<em>dict</em><em>, </em><em>optional</em>) – Custom prompt template. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Score for the candidate sentence.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_cot">
+<span class="sig-name descname"><span class="pre">get_cot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#GEval.get_cot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_cot" title="Link to this definition"></a></dt>
+<dd><p>This method returns a chain of thoughts given a prompt template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prompt</strong> (<em>str</em>) – Prompt template.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Chain of thoughts.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_prediction">
+<span class="sig-name descname"><span class="pre">get_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#GEval.get_prediction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_prediction" title="Link to this definition"></a></dt>
+<dd><p>This method returns a prediction given a prompt template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prompt</strong> (<em>str</em>) – Prompt template.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response from the model.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_prompt">
+<span class="sig-name descname"><span class="pre">get_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prompts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aspect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#GEval.get_prompt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_prompt" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prompts</strong> (<em>list</em>) – List of source text.</p></li>
+<li><p><strong>predictions</strong> (<em>list</em>) – List of candidate sentences to evaluate.</p></li>
+<li><p><strong>task</strong> (<em>str</em>) – Definition of the task.</p></li>
+<li><p><strong>aspect</strong> (<em>str</em>) – Evaluation criterion code.</p></li>
+<li><p><strong>custom_prompt</strong> (<em>dict</em>) – Custom prompt template. Must contain the following keys: “task”, “aspect”, “name”.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_score">
+<span class="sig-name descname"><span class="pre">get_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prompts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#GEval.get_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_score" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prompts</strong> (<em>list</em>) – List of prompt template.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of scores for each candidate sentence.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.GPTScore">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.llm_metrics.</span></span><span class="sig-name descname"><span class="pre">GPTScore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name_or_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TheBloke/Llama-2-7b-Chat-GGUF'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_basename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'llama-2-7b-chat.Q2_K.gguf'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#GPTScore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class implements the GPTScore evaluation metric for generative language models.
+It is inspired by the GPTScore metric proposed in <a class="reference external" href="https://arxiv.org/pdf/2302.04166.pdf">https://arxiv.org/pdf/2302.04166.pdf</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Llama model</em>) – Model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.</p></li>
+<li><p><strong>model_name_or_path</strong> (<em>str</em>) – Model name or path. Defaults to “TheBloke/Llama-2-7b-Chat-GGUF”.</p></li>
+<li><p><strong>model_basename</strong> (<em>str</em>) – Model basename. Defaults to “llama-2-7b-chat.Q2_K.gguf”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.add_template">
+<span class="sig-name descname"><span class="pre">add_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#GPTScore.add_template"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.add_template" title="Link to this definition"></a></dt>
+<dd><p>This function adds a template to the GPTScore metric.
+Please try to follow the following example pattern to ensure consistency.
+Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&quot;diag&quot;: {
+    &quot;COH&quot;:
+    &quot;Answer the question based on the conversation between a human and AI.
+    Question: Is the AI coherent and maintains a good conversation flow throughout the conversation?
+    (a) Yes. (b) No.
+    Conversation:
+    User: {{src}}
+    AI: {{pred}}
+    Answer:&quot;,
+},
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>task</strong> (<em>str</em>) – Task of the template.</p></li>
+<li><p><strong>code</strong> (<em>str</em>) – Code of the aspect.</p></li>
+<li><p><strong>prompt</strong> (<em>str</em>) – Prompt of the aspect.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_prompts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aspect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#GPTScore.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.compute" title="Link to this definition"></a></dt>
+<dd><p>This method computes the GPTScore for a candidate sentence given a source text, a system_prompt template,
+a user_prompt source text, an aspect to evaluate, and a task description.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_prompts</strong> (<em>list</em><em> or </em><em>str</em>) – (List of) Source text generated by the user.</p></li>
+<li><p><strong>pred</strong> (<em>list</em><em> or </em><em>str</em>) – (List of) Candidate sentence.</p></li>
+<li><p><strong>custom_prompt</strong> (<em>dict</em><em>, </em><em>optional</em>) – Custom prompt template. Must contain the following keys: “task”, “aspect”,             “name”. Defaults to None.</p></li>
+<li><p><strong>aspect</strong> (<em>str</em><em> or </em><em>list</em><em>, </em><em>optional</em>) – (List of) Aspect(s) to evaluate. Defaults to None.</p></li>
+<li><p><strong>task</strong> (<em>str</em><em>, </em><em>optional</em>) – Task description. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(List of) Score for (each of) the candidate sentence per aspect.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.get_prompt">
+<span class="sig-name descname"><span class="pre">get_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aspect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#GPTScore.get_prompt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.get_prompt" title="Link to this definition"></a></dt>
+<dd><p>This method returns a prompt template given a task description, and an aspect to evaluate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prompts</strong> (<em>str</em>) – List of source texts.</p></li>
+<li><p><strong>pred</strong> (<em>str</em>) – List of candidate sentences.</p></li>
+<li><p><strong>aspect</strong> (<em>str</em>) – Aspect to evaluate.</p></li>
+<li><p><strong>task</strong> (<em>str</em>) – Task description.</p></li>
+<li><p><strong>custom_prompt</strong> (<em>dict</em><em>, </em><em>optional</em>) – Custom prompt template. Must contain the following keys: “task”, “aspect”.             Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(List of) Prompt templates.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.get_score">
+<span class="sig-name descname"><span class="pre">get_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prompts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#GPTScore.get_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.get_score" title="Link to this definition"></a></dt>
+<dd><p>This method returns the GPTScore given a prompt template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prompt</strong> (<em>list</em>) – List of Prompt templates.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>GPTScore of the candidate sentence.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.llm_metrics.</span></span><span class="sig-name descname"><span class="pre">SelfCheckGPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_model_name_or_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TheBloke/Llama-2-7b-Chat-GGUF'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_model_basename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'llama-2-7b-chat.Q2_K.gguf'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#SelfCheckGPT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class implements the self-check GPT evaluation metric for generative language models.
+It is inspired by the self-check metric proposed in <a class="reference external" href="https://arxiv.org/pdf/2303.08896.pdf">https://arxiv.org/pdf/2303.08896.pdf</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>transformers.PreTrainedModel</em>) – LLM model to evaluate.</p></li>
+<li><p><strong>eval_model</strong> (<em>LLama model</em><em>, </em><em>optional</em>) – Evaluation model. If False, the evaluation model is downloaded from the HuggingFace Hub.</p></li>
+<li><p><strong>eval_model_name_or_path</strong> (<em>str</em>) – Evaluation model name or path. Defaults to “TheBloke/Llama-2-7b-Chat-GGUF”.</p></li>
+<li><p><strong>eval_model_basename</strong> (<em>str</em>) – Evaluation model basename. Defaults to “llama-2-7b-chat.Q2_K.gguf”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_prompts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#SelfCheckGPT.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT.compute" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_prompts</strong> (<em>str</em>) – Question asked to the model for which it generated $pred.</p></li>
+<li><p><strong>predictions</strong> (<em>str</em>) – Candidate sentence.</p></li>
+<li><p><strong>n_samples</strong> (<em>int</em>) – Number of samples to generate.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Score for the candidate sentence.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT.get_prompt">
+<span class="sig-name descname"><span class="pre">get_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#SelfCheckGPT.get_prompt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT.get_prompt" title="Link to this definition"></a></dt>
+<dd><p>This method returns a prompt template given a candidate sentence, a sample sentence, and a question.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pred</strong> (<em>str</em>) – Candidate sentence.</p></li>
+<li><p><strong>sample</strong> (<em>str</em>) – Sample sentence.</p></li>
+<li><p><strong>question</strong> (<em>str</em>) – Question asked to the model for which it generated $pred.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Prompt template.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT.get_prompts">
+<span class="sig-name descname"><span class="pre">get_prompts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/llm_metrics.html#SelfCheckGPT.get_prompts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT.get_prompts" title="Link to this definition"></a></dt>
+<dd><p>This method returns a list of prompt templates given a candidate sentence, a list of sample
+sentences, and a question.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pred</strong> (<em>str</em>) – Candidate sentence.</p></li>
+<li><p><strong>samples</strong> (<em>list</em><em> of </em><em>str</em>) – List of sample sentences.</p></li>
+<li><p><strong>question</strong> (<em>str</em>) – Question asked to the model for which it generated $pred.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of prompt templates.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sagacify_llm_evaluation.helpers.utils">
+<span id="sagacify-llm-evaluation-helpers-utils-module"></span><h2>sagacify_llm_evaluation.helpers.utils module<a class="headerlink" href="#module-sagacify_llm_evaluation.helpers.utils" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.utils.MetadataExtractor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.utils.</span></span><span class="sig-name descname"><span class="pre">MetadataExtractor</span></span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/utils.html#MetadataExtractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.utils.MetadataExtractor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Metadata extractor class. Uses elemeta library.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.utils.MetadataExtractor.add_custom_extractor">
+<span class="sig-name descname"><span class="pre">add_custom_extractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AbstractMetafeatureExtractor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/utils.html#MetadataExtractor.add_custom_extractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.add_custom_extractor" title="Link to this definition"></a></dt>
+<dd><p>Adds a custom extractor to the metadata extractor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>extractor</strong> (<em>object</em>) – Extractor to add.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.utils.MetadataExtractor.add_regex_match_count">
+<span class="sig-name descname"><span class="pre">add_regex_match_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regex_rule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/utils.html#MetadataExtractor.add_regex_match_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.add_regex_match_count" title="Link to this definition"></a></dt>
+<dd><p>Adds a regex rule to the metadata extractor.
+For a given regex return the number of matches it has in the text.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>regex_rule</strong> (<em>str</em>) – Regex rule to add.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.utils.MetadataExtractor.add_word_regex_matches_count">
+<span class="sig-name descname"><span class="pre">add_word_regex_matches_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regex_rule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/utils.html#MetadataExtractor.add_word_regex_matches_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.add_word_regex_matches_count" title="Link to this definition"></a></dt>
+<dd><p>Adds a regex rule to the metadata extractor.
+For a given regex return the number of words matching the regex.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>regex_rule</strong> (<em>str</em>) – Regex rule to add.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.utils.MetadataExtractor.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/utils.html#MetadataExtractor.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.utils.MetadataExtractor.compute" title="Link to this definition"></a></dt>
+<dd><p>Computes metadata from a text using elemeta library and returns a dictionary of metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text</strong> (<em>str</em>) – Text to extract metadata from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of metadata.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.utils.check_list_type">
+<span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.utils.</span></span><span class="sig-name descname"><span class="pre">check_list_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/utils.html#check_list_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.utils.check_list_type" title="Link to this definition"></a></dt>
+<dd><p>Check if an array is a list of a given type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>array</strong> (<em>list</em>) – Array to check.</p></li>
+<li><p><strong>list_type</strong> (<em>type</em>) – Type to check.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the array is a list of the given type, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.utils.clean_text">
+<span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.utils.</span></span><span class="sig-name descname"><span class="pre">clean_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/utils.html#clean_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.utils.clean_text" title="Link to this definition"></a></dt>
+<dd><p>Clean a text by removing punctuation and (some) stopwords.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text</strong> (<em>str</em>) – Text to clean.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cleaned text.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.utils.filter_class_input">
+<span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.utils.</span></span><span class="sig-name descname"><span class="pre">filter_class_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">python_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/utils.html#filter_class_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.utils.filter_class_input" title="Link to this definition"></a></dt>
+<dd><p>Filters input arguments for a given class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> (<em>dict</em>) – Dictionary of arguments.</p></li>
+<li><p><strong>python_class</strong> (<em>object</em>) – Class to filter arguments for.</p></li>
+<li><p><strong>drop</strong> (<em>list</em><em>, </em><em>optional</em>) – List of arguments to drop. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Filtered dictionary of arguments.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.utils.filter_questions">
+<span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.utils.</span></span><span class="sig-name descname"><span class="pre">filter_questions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exp_ans</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_ans</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/utils.html#filter_questions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.utils.filter_questions" title="Link to this definition"></a></dt>
+<dd><p>Check if the expected answer and the predicted answer are the same.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>exp_ans</strong> (<em>str</em>) – Expected answer.</p></li>
+<li><p><strong>pred_ans</strong> (<em>str</em>) – Predicted answer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>“VALID” if the answers are the same, “NO MATCH” otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.utils.get_llama_model">
+<span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.utils.</span></span><span class="sig-name descname"><span class="pre">get_llama_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repo_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'TheBloke/Llama-2-7b-Chat-GGUF'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'llama-2-7b-chat.Q2_K.gguf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/utils.html#get_llama_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.utils.get_llama_model" title="Link to this definition"></a></dt>
+<dd><p>Download and return a Llama model from HuggingFace Hub.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>repo_id</strong> (<em>str</em>) – HuggingFace Hub repo id.</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Model filename.</p></li>
+<li><p><strong>model_path</strong> (<em>str</em>) – Path to the model locally.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.utils.load_json">
+<span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.utils.</span></span><span class="sig-name descname"><span class="pre">load_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/utils.html#load_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.utils.load_json" title="Link to this definition"></a></dt>
+<dd><p>Load a JSON file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to the JSON file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.utils.non_personal">
+<span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.utils.</span></span><span class="sig-name descname"><span class="pre">non_personal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nlp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'en'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/utils.html#non_personal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.utils.non_personal" title="Link to this definition"></a></dt>
+<dd><p>Check if a question contains personal pronouns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>question</strong> (<em>str</em>) – Question to check.</p></li>
+<li><p><strong>nlp</strong> (<em>spacy.lang</em>) – Spacy language model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the question does not contain personal pronouns, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sagacify_llm_evaluation.helpers.utils.raw_f1_score">
+<span class="sig-prename descclassname"><span class="pre">sagacify_llm_evaluation.helpers.utils.</span></span><span class="sig-name descname"><span class="pre">raw_f1_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a_gold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sagacify_llm_evaluation/helpers/utils.html#raw_f1_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sagacify_llm_evaluation.helpers.utils.raw_f1_score" title="Link to this definition"></a></dt>
+<dd><p>Compute the raw F1 score between two answers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a_gold</strong> (<em>str</em>) – Expected answer.</p></li>
+<li><p><strong>a_pred</strong> (<em>str</em>) – Predicted answer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>F1 score.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-sagacify_llm_evaluation.helpers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sagacify_llm_evaluation.helpers" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Leonardo Remondini (leonardo.remondini@sagacify.com), Lucie Navez (lucie.navez@sagacify.com).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

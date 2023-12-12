@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sagacify_llm_evaluation.helpers.llm_metrics &mdash; Sagacify LLM Evaluation Library 0.7.2 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=6dfdf7c3"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Sagacify LLM Evaluation Library
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Sagacify LLM Evaluation Library</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sagacify_llm_evaluation.helpers.llm_metrics</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sagacify_llm_evaluation.helpers.llm_metrics</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">huggingface_hub</span> <span class="kn">import</span> <span class="n">hf_hub_download</span>
+<span class="kn">from</span> <span class="nn">llama_cpp</span> <span class="kn">import</span> <span class="n">Llama</span>
+
+<span class="kn">from</span> <span class="nn">sagacify_llm_evaluation.helpers.utils</span> <span class="kn">import</span> <span class="n">check_list_type</span>
+
+<span class="c1"># pylint: disable=consider-iterating-dictionary</span>
+<span class="c1"># pylint: disable=too-many-locals</span>
+<span class="c1"># pylint: disable=unidiomatic-typecheck</span>
+
+
+<div class="viewcode-block" id="SelfCheckGPT">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT">[docs]</a>
+<span class="k">class</span> <span class="nc">SelfCheckGPT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">,</span>
+        <span class="n">eval_model</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">eval_model_name_or_path</span><span class="o">=</span><span class="s2">&quot;TheBloke/Llama-2-7b-Chat-GGUF&quot;</span><span class="p">,</span>
+        <span class="n">eval_model_basename</span><span class="o">=</span><span class="s2">&quot;llama-2-7b-chat.Q2_K.gguf&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class implements the self-check GPT evaluation metric for generative language models.</span>
+<span class="sd">        It is inspired by the self-check metric proposed in https://arxiv.org/pdf/2303.08896.pdf.</span>
+
+<span class="sd">        :param model: LLM model to evaluate.</span>
+<span class="sd">        :type model: transformers.PreTrainedModel</span>
+<span class="sd">        :param eval_model: Evaluation model. If False, the evaluation model is downloaded from the HuggingFace Hub.</span>
+<span class="sd">        :type eval_model: LLama model, optional</span>
+<span class="sd">        :param eval_model_name_or_path: Evaluation model name or path. Defaults to &quot;TheBloke/Llama-2-7b-Chat-GGUF&quot;.</span>
+<span class="sd">        :type eval_model_name_or_path: str</span>
+<span class="sd">        :param eval_model_basename: Evaluation model basename. Defaults to &quot;llama-2-7b-chat.Q2_K.gguf&quot;.</span>
+<span class="sd">        :type eval_model_basename: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">eval_model_name_or_path</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;eval_model_name_or_path must be a string.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">eval_model_basename</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;eval_model_basename must be a string.&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">eval_model</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eval_model_path</span> <span class="o">=</span> <span class="n">hf_hub_download</span><span class="p">(</span>
+                <span class="n">repo_id</span><span class="o">=</span><span class="n">eval_model_name_or_path</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">eval_model_basename</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">eval_model</span> <span class="o">=</span> <span class="n">Llama</span><span class="p">(</span>
+                <span class="n">model_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_model_path</span><span class="p">,</span> <span class="n">n_threads</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># CPU cores</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eval_model</span> <span class="o">=</span> <span class="n">eval_model</span>
+
+<div class="viewcode-block" id="SelfCheckGPT.get_prompt">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT.get_prompt">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pred</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns a prompt template given a candidate sentence, a sample sentence, and a question.</span>
+
+<span class="sd">        :param pred: Candidate sentence.</span>
+<span class="sd">        :type pred: str</span>
+<span class="sd">        :param sample: Sample sentence.</span>
+<span class="sd">        :type sample: str</span>
+<span class="sd">        :param question: Question asked to the model for which it generated $pred.</span>
+<span class="sd">        :type question: str</span>
+<span class="sd">        :return: Prompt template.</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">system_prompt</span> <span class="o">=</span> <span class="s2">&quot;You are a helpful, polite and concise assistant. Your task is to check if two texts provide the same answer to a given question. Always answer with a single word. The possible answers are either YES or NO.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="n">question</span> <span class="o">=</span> <span class="s2">&quot;###Question:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">question</span>
+        <span class="n">text1</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">###Text 1: &quot;</span> <span class="o">+</span> <span class="n">sample</span>
+        <span class="n">text2</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">###Text 2: &quot;</span> <span class="o">+</span> <span class="n">pred</span>
+
+        <span class="n">prompt_template</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SYSTEM: </span><span class="si">{</span><span class="n">system_prompt</span><span class="si">}</span>
+<span class="s2">        USER: </span><span class="si">{</span><span class="n">question</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">text1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">text2</span><span class="si">}</span>
+<span class="s2">        ASSISTANT (YES or NO):&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">prompt_template</span></div>
+
+
+<div class="viewcode-block" id="SelfCheckGPT.get_prompts">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT.get_prompts">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_prompts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pred</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns a list of prompt templates given a candidate sentence, a list of sample</span>
+<span class="sd">        sentences, and a question.</span>
+
+<span class="sd">        :param pred: Candidate sentence.</span>
+<span class="sd">        :type pred: str</span>
+<span class="sd">        :param samples: List of sample sentences.</span>
+<span class="sd">        :type samples: list of str</span>
+<span class="sd">        :param question: Question asked to the model for which it generated $pred.</span>
+<span class="sd">        :type question: str</span>
+<span class="sd">        :return: List of prompt templates.</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_prompt</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">question</span><span class="p">)</span> <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="SelfCheckGPT.compute">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.SelfCheckGPT.compute">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_prompts</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">predictions</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">n_samples</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param user_prompts: Question asked to the model for which it generated $pred.</span>
+<span class="sd">        :type user_prompts: str</span>
+<span class="sd">        :param predictions: Candidate sentence.</span>
+<span class="sd">        :type predictions: str</span>
+<span class="sd">        :param n_samples: Number of samples to generate.</span>
+<span class="sd">        :type n_samples: int</span>
+<span class="sd">        :return: Score for the candidate sentence.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_prompts</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">check_list_type</span><span class="p">(</span>
+            <span class="n">user_prompts</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;user_prompts must be either a list of string or a string.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">check_list_type</span><span class="p">(</span>
+            <span class="n">predictions</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;predictions must be either a list of string or a string.&quot;</span>
+        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span>
+            <span class="n">user_prompts</span>
+        <span class="p">),</span> <span class="s2">&quot;user_prompts and predictions must be of the same type.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;Number of samples must be an integer.&quot;</span>
+        <span class="k">assert</span> <span class="n">n_samples</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Number of samples must be greater than 0.&quot;</span>
+
+        <span class="c1"># map to list if string</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">user_prompts</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">):</span>  <span class="c1"># all input variables shuold be strings in this case</span>
+            <span class="n">user_prompts</span> <span class="o">=</span> <span class="p">[</span><span class="n">user_prompts</span><span class="p">]</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="p">[</span><span class="n">predictions</span><span class="p">]</span>
+
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">user_prompts</span><span class="p">,</span> <span class="n">predictions</span><span class="p">):</span>
+            <span class="c1"># Generate n_samples samples from the model</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_samples</span><span class="p">):</span>
+                <span class="n">system_prompt</span> <span class="o">=</span> <span class="s2">&quot;You are a helpful, respectful and honest assistant. Always answer as helpfully as possible.&quot;</span>
+                <span class="n">prompt_template</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SYSTEM: </span><span class="si">{</span><span class="n">system_prompt</span><span class="si">}</span>
+<span class="s2">                USER: </span><span class="si">{</span><span class="n">user_prompt</span><span class="si">}</span>
+<span class="s2">                ASSISTANT:&quot;&quot;&quot;</span>
+
+                <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">prompt_template</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+                <span class="n">sample</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;choices&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
+                <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+
+            <span class="c1"># For each sample, ask evaluator model to evaluate the sample</span>
+            <span class="n">prompts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_prompts</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">)</span>
+            <span class="n">sample_scores</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">:</span>
+                <span class="n">answer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eval_model</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="mi">200</span><span class="p">)[</span><span class="s2">&quot;choices&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
+                <span class="n">sample_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">answer</span><span class="p">)</span>
+
+            <span class="c1"># Compute the score: how often the sentence if supported by the sample</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="mi">1</span> <span class="k">if</span> <span class="s2">&quot;yes&quot;</span> <span class="ow">in</span> <span class="n">score</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">sample_scores</span><span class="p">])</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">scores</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="GEval">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval">[docs]</a>
+<span class="k">class</span> <span class="nc">GEval</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">model_name_or_path</span><span class="o">=</span><span class="s2">&quot;TheBloke/Llama-2-7b-Chat-GGUF&quot;</span><span class="p">,</span>
+        <span class="n">model_basename</span><span class="o">=</span><span class="s2">&quot;llama-2-7b-chat.Q2_K.gguf&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class implements the GEval evaluation metric for generative language models.</span>
+<span class="sd">        It is inspired by the GEval metric proposed in https://arxiv.org/pdf/2303.16634.pdf.</span>
+
+<span class="sd">        :param model: Model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.</span>
+<span class="sd">        :type model: Llama model</span>
+<span class="sd">        :param model_name_or_path: Model name or path. Defaults to &quot;TheBloke/Llama-2-7b-Chat-GGUF&quot;.</span>
+<span class="sd">        :type model_name_or_path: str</span>
+<span class="sd">        :param model_basename: Model basename. Defaults to &quot;llama-2-7b-chat.Q2_K.gguf&quot;.</span>
+<span class="sd">        :type model_basename: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">model_name_or_path</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;model_name_or_path must be a string.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_basename</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;model_basename must be a string.&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span> <span class="o">=</span> <span class="n">hf_hub_download</span><span class="p">(</span>
+                <span class="n">repo_id</span><span class="o">=</span><span class="n">model_name_or_path</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">model_basename</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">lcpp_llm</span> <span class="o">=</span> <span class="n">Llama</span><span class="p">(</span>
+                <span class="n">model_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span>
+                <span class="n">n_threads</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># CPU cores</span>
+                <span class="n">logits_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">n_ctx</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lcpp_llm</span> <span class="o">=</span> <span class="n">model</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;summ&quot;</span><span class="p">:</span> <span class="s2">&quot;You will be given one summary written for a news article. Your task is to rate the summary on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;diag&quot;</span><span class="p">:</span> <span class="s2">&quot;You will be given a conversation between two individuals. You will then be given one potential response for the next turn in the conversation. The response concerns an interesting fact, which will be provided as well. Your task is to rate the responses on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aspects</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;COH&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Coherence&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;Coherence (1-5) - the collective quality of all sentences. We align this dimension with the DUC quality question of structure and coherence whereby ”the summary should be well-structured and well-organized. The summary should not just be a heap of related information, but should build from sentence to sentence to a coherent body of information about a topic.”&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;CON&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Consistency&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;Consistency (1-5) - the factual alignment between the summary and the summarized source. A factually consistent summary contains only statements that are entailed by the source document. Annotators were also asked to penalize summaries that contained hallucinated facts. &quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;ENG&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Engagingness&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;Engagingness (1-5) - Is the response dull/interesting? - A score of 1 indicates that the response is dull and uninteresting. A score of 5 indicates that the response is interesting and engaging.&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;FLU&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Fluency&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;Fluency (1-5) - the quality of the summary in terms of grammar, spelling, punctuation, word choice, and sentence structure. - 1: Poor. The summary is difficult to read and understand. It contains many grammatical errors, spelling mistakes, and/or punctuation errors. - 2: Fair. The summary is somewhat difficult to read and understand. It contains some grammatical errors, spelling mistakes, and/or punctuation errors. - 3: Good. The summary is easy to read and understand. It contains few grammatical errors, spelling mistakes, and/or punctuation errors. - 4: Very Good. The summary is easy to read and understand. It contains no grammatical errors, spelling mistakes, and/or punctuation errors. - 5: Excellent. The summary is easy to read and understand. It contains no grammatical errors, spelling mistakes, and/or punctuation errors.&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;REL&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Relevance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;Relevance (1-5) - selection of important content from the source. The summary should include only important information from the source document. Annotators were instructed to penalize summaries which contained redundancies and excess information.&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;POL&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Politeness&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;Politeness (1-5) - the degree to which the response is polite. - 1: Very impolite. The response is very impolite. - 2: Somewhat impolite. The response is somewhat impolite. - 3: Neutral. The response is neutral. - 4: Somewhat polite. The response is somewhat polite. - 5: Very polite. The response is very polite.&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="GEval.add_task">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval.add_task">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">definition</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function adds a task to the GEval metric. Please try to follow the example pattern to ensure consistency.</span>
+
+<span class="sd">        Example::</span>
+
+<span class="sd">            &quot;name&quot; : &quot;summ&quot;,</span>
+<span class="sd">            &quot;definition&quot;: &quot;You will be given one summary written for a news article. Your task is to rate</span>
+<span class="sd">            the summary on one metric. Please make sure you read and understand these instructions carefully.</span>
+<span class="sd">            Please keep this document open while reviewing, and refer to it as needed.&quot;</span>
+
+<span class="sd">        :param name: Name of the task.</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param definition: Definition of the task.</span>
+<span class="sd">        :type definition: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;name must be a string.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">definition</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;definition must be a string.&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">definition</span></div>
+
+
+<div class="viewcode-block" id="GEval.add_aspect">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval.add_aspect">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_aspect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function adds an aspect to the GEval metric. Please try to follow the example pattern</span>
+<span class="sd">        to ensure consistency.</span>
+
+<span class="sd">        Example::</span>
+
+<span class="sd">            &quot;COH&quot;: {</span>
+<span class="sd">                &quot;name&quot;: &quot;Coherence&quot;,</span>
+<span class="sd">                &quot;prompt&quot;: &quot;Coherence (1-5) - the collective quality of all sentences. We align this dimension with</span>
+<span class="sd">                the DUC quality question of structure and coherence whereby &#39;the summary should be</span>
+<span class="sd">                well-structured and well-organized. The summary should not just be a heap of related</span>
+<span class="sd">                information, but should build from sentence to sentence to a coherent body of information</span>
+<span class="sd">                about a topic.&#39;&quot;,</span>
+<span class="sd">            }</span>
+
+<span class="sd">        :param code: Code of the aspect.</span>
+<span class="sd">        :type code: str</span>
+<span class="sd">        :param name: Name of the aspect.</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param prompt: Prompt of the aspect.</span>
+<span class="sd">        :type prompt: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;code must be a string.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;name must be a string.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;prompt must be a string.&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">aspects</span><span class="p">[</span><span class="n">code</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="GEval.get_prediction">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_prediction">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns a prediction given a prompt template.</span>
+
+<span class="sd">        :param prompt: Prompt template.</span>
+<span class="sd">        :type prompt: str</span>
+<span class="sd">        :return: Response from the model.</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcpp_llm</span><span class="o">.</span><span class="n">create_completion</span><span class="p">(</span>
+            <span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span>
+            <span class="n">max_tokens</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span>
+            <span class="n">temperature</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">top_p</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
+            <span class="n">logprobs</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">repeat_penalty</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span>
+            <span class="n">top_k</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+            <span class="n">echo</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+<div class="viewcode-block" id="GEval.get_cot">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_cot">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns a chain of thoughts given a prompt template.</span>
+
+<span class="sd">        :param prompt: Prompt template.</span>
+<span class="sd">        :type prompt: str</span>
+<span class="sd">        :return: Chain of thoughts.</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Evaluation steps:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">cot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_prediction</span><span class="p">(</span><span class="n">prompt</span> <span class="o">+</span> <span class="n">title</span><span class="p">)[</span><span class="s2">&quot;choices&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">cot</span></div>
+
+
+<div class="viewcode-block" id="GEval.get_prompt">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_prompt">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_prompt</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">prompts</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">predictions</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">aspect</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">custom_prompt</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param prompts: List of source text.</span>
+<span class="sd">        :type prompts: list</span>
+<span class="sd">        :param predictions: List of candidate sentences to evaluate.</span>
+<span class="sd">        :type predictions: list</span>
+<span class="sd">        :param task: Definition of the task.</span>
+<span class="sd">        :type task: str</span>
+<span class="sd">        :param aspect: Evaluation criterion code.</span>
+<span class="sd">        :type aspect: str</span>
+<span class="sd">        :param custom_prompt: Custom prompt template. Must contain the following keys: &quot;task&quot;, &quot;aspect&quot;, &quot;name&quot;.</span>
+<span class="sd">        :type custom_prompt: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">definition</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Task definition:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">[</span><span class="n">task</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="k">else</span> <span class="n">custom_prompt</span><span class="p">[</span><span class="s2">&quot;task&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">crit</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Evaluation criteria:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">aspects</span><span class="p">[</span><span class="n">aspect</span><span class="p">][</span><span class="s2">&quot;prompt&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">aspect</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aspects</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="k">else</span> <span class="n">custom_prompt</span><span class="p">[</span><span class="s2">&quot;aspect&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">aspects</span><span class="p">[</span><span class="n">aspect</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">aspect</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aspects</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="k">else</span> <span class="n">custom_prompt</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># get geval_prompt with chain of thoughts, set of intermediate instructions generated</span>
+        <span class="c1"># by llm detailing evaluation steps</span>
+        <span class="n">geval_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">definition</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">crit</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">auto_cot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cot</span><span class="p">(</span><span class="n">geval_prompt</span><span class="p">)</span>
+
+        <span class="n">geval_prompts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">prompts</span><span class="p">,</span> <span class="n">predictions</span><span class="p">):</span>
+            <span class="n">geval_prompts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">geval_prompt</span>
+                <span class="o">+</span> <span class="n">auto_cot</span>
+                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Example:</span><span class="se">\n</span><span class="s2"> Source Text:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="n">prompt</span>
+                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Generated text:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="n">prediction</span>
+                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Evaluation Form (scores ONLY):</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="n">name</span>
+                <span class="o">+</span> <span class="s2">&quot;: &quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">geval_prompts</span></div>
+
+
+<div class="viewcode-block" id="GEval.get_score">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval.get_score">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prompts</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param prompts: List of prompt template.</span>
+<span class="sd">        :type prompts: list</span>
+<span class="sd">        :return: List of scores for each candidate sentence.</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_prediction</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;choices&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;logprobs&quot;</span><span class="p">][</span><span class="s2">&quot;tokens&quot;</span><span class="p">]</span>
+            <span class="n">top_logprobs</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;choices&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;logprobs&quot;</span><span class="p">][</span><span class="s2">&quot;top_logprobs&quot;</span><span class="p">]</span>
+
+            <span class="c1"># Extract evaluation form from tokens ()</span>
+            <span class="n">template_tokens</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot; E&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;valu&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ation&quot;</span><span class="p">,</span>
+                <span class="s2">&quot; Form&quot;</span><span class="p">,</span>
+                <span class="s2">&quot; (&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ores&quot;</span><span class="p">,</span>
+                <span class="s2">&quot; ON&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;LY&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;):&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="n">start_index</span> <span class="o">=</span> <span class="n">tokens</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">template_tokens</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="c1"># Extract number index from the remaining tokens</span>
+            <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">[</span><span class="n">start_index</span><span class="p">:]:</span>
+                <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                    <span class="n">number_index</span> <span class="o">=</span> <span class="n">tokens</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+                    <span class="k">break</span>
+
+            <span class="c1"># Get logprobs associated with number</span>
+            <span class="n">logprobs</span> <span class="o">=</span> <span class="n">top_logprobs</span><span class="p">[</span><span class="n">number_index</span><span class="p">]</span>
+
+            <span class="c1"># Compute score</span>
+            <span class="c1"># Get only keys that are numbers</span>
+            <span class="n">number_keys</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">logprobs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()]</span>
+            <span class="n">number_logprobs</span> <span class="o">=</span> <span class="p">[</span><span class="n">logprobs</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">number_keys</span><span class="p">]</span>
+            <span class="n">number_probs</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logprob</span><span class="p">)</span> <span class="k">for</span> <span class="n">logprob</span> <span class="ow">in</span> <span class="n">number_logprobs</span><span class="p">]</span>
+
+            <span class="n">score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">number_keys</span><span class="p">,</span> <span class="n">number_probs</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">number_keys</span><span class="p">)</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">scores</span></div>
+
+
+<div class="viewcode-block" id="GEval.compute">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GEval.compute">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">user_prompts</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">predictions</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">aspect</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">custom_prompt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method computes the GEval score for a candidate sentence given a source text, a prompt template,</span>
+<span class="sd">        an aspect to evaluate, and a task description.</span>
+
+<span class="sd">        :param user_prompts: Source text generated by the user.</span>
+<span class="sd">        :type user_prompts: list or str</span>
+<span class="sd">        :param pred: Candidate sentence to evaluate.</span>
+<span class="sd">        :type pred: str</span>
+<span class="sd">        :param task: Definition of the task. Defaults to None.</span>
+<span class="sd">        :type task: str, optional</span>
+<span class="sd">        :param aspect: (List of) Evaluation criterion codes. Defaults to None.</span>
+<span class="sd">        :type aspect: str or list of str, optional</span>
+<span class="sd">        :param custom_prompt: Custom prompt template. Defaults to None.</span>
+<span class="sd">        :type custom_prompt: dict, optional</span>
+<span class="sd">        :return: Score for the candidate sentence.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># prompts and predictions must be either a list of string or a string</span>
+        <span class="c1"># convert to list if string</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_prompts</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">check_list_type</span><span class="p">(</span>
+            <span class="n">user_prompts</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;user_prompts must be either a list of string or a string.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">check_list_type</span><span class="p">(</span>
+            <span class="n">predictions</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;predictions must be either a list of string or a string.&quot;</span>
+        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span>
+            <span class="n">user_prompts</span>
+        <span class="p">),</span> <span class="s2">&quot;user_prompts and predictions must be of the same type.&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">user_prompts</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">):</span>  <span class="c1"># all input variables shuold be strings in this case</span>
+            <span class="n">user_prompts</span> <span class="o">=</span> <span class="p">[</span><span class="n">user_prompts</span><span class="p">]</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="p">[</span><span class="n">predictions</span><span class="p">]</span>
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">task</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;task must be a string or None.&quot;</span>
+        <span class="k">assert</span> <span class="n">custom_prompt</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">custom_prompt</span><span class="p">,</span> <span class="nb">dict</span>
+        <span class="p">),</span> <span class="s2">&quot;custom_prompt must be a dict.&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">aspect</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">check_list_type</span><span class="p">(</span><span class="n">aspect</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">aspect</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">),</span> <span class="s2">&quot;aspect must be a string or a list of string or None.&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aspect</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">aspect</span> <span class="o">=</span> <span class="p">[</span><span class="n">aspect</span><span class="p">]</span>
+
+        <span class="c1"># set aspect</span>
+        <span class="k">if</span> <span class="n">aspect</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">asp</span> <span class="ow">in</span> <span class="n">aspect</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="p">(</span>
+                    <span class="n">asp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aspects</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="p">),</span> <span class="s2">&quot;aspect is not in the list of criteria.&quot;</span>
+
+        <span class="c1"># check if custom_prompt is given</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">custom_prompt</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">task</span> <span class="ow">and</span> <span class="n">aspect</span>
+            <span class="p">),</span> <span class="s2">&quot;task and aspect must be given if no custom_prompt is given.&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">task</span> <span class="ow">and</span> <span class="n">aspect</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">custom_prompt</span>
+            <span class="p">),</span> <span class="s2">&quot;custom_prompt must be given if task and aspect are not given.&quot;</span>
+
+        <span class="c1"># get scores accordingly</span>
+        <span class="k">if</span> <span class="n">custom_prompt</span><span class="p">:</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">custom_prompt</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span>
+                    <span class="n">prompts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_prompt</span><span class="p">(</span>
+                        <span class="n">user_prompts</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">aspect</span><span class="p">,</span> <span class="n">custom_prompt</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">asp</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span>
+                    <span class="n">prompts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_prompt</span><span class="p">(</span>
+                        <span class="n">user_prompts</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">asp</span><span class="p">,</span> <span class="n">custom_prompt</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">asp</span> <span class="ow">in</span> <span class="n">aspect</span>  <span class="c1"># score for each aspect gave as input</span>
+            <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">scores</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="GPTScore">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore">[docs]</a>
+<span class="k">class</span> <span class="nc">GPTScore</span><span class="p">:</span>
+    <span class="c1"># pylint: disable=f-string-without-interpolation</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">model_name_or_path</span><span class="o">=</span><span class="s2">&quot;TheBloke/Llama-2-7b-Chat-GGUF&quot;</span><span class="p">,</span>
+        <span class="n">model_basename</span><span class="o">=</span><span class="s2">&quot;llama-2-7b-chat.Q2_K.gguf&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class implements the GPTScore evaluation metric for generative language models.</span>
+<span class="sd">        It is inspired by the GPTScore metric proposed in https://arxiv.org/pdf/2302.04166.pdf.</span>
+
+<span class="sd">        :param model: Model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.</span>
+<span class="sd">        :type model: Llama model</span>
+<span class="sd">        :param model_name_or_path: Model name or path. Defaults to &quot;TheBloke/Llama-2-7b-Chat-GGUF&quot;.</span>
+<span class="sd">        :type model_name_or_path: str</span>
+<span class="sd">        :param model_basename: Model basename. Defaults to &quot;llama-2-7b-chat.Q2_K.gguf&quot;.</span>
+<span class="sd">        :type model_basename: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">model_name_or_path</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;model_name_or_path must be a string.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_basename</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;model_basename must be a string.&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">templates</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;summ&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;FAC&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Generate a summary with consistent facts for the following text: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n\n</span><span class="s2">Tl;dr</span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;COV&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Generate a summary with as much semantic coverage as possible for the following text: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n\n</span><span class="s2">Tl;dr</span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;CON&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Generate factually consistent summary for the following text: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n\n</span><span class="s2">Tl;dr</span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;INF&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Generate an informative summary that captures the key points of the following text:</span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n\n</span><span class="s2">Tl;dr</span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;COH&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Generate a coherent summary for the following text: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n\n</span><span class="s2">Tl;dr</span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;REL&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Generate a relevant summary with consistent details for the following text: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n\n</span><span class="s2">Tl;dr</span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;FLU&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Generate a fluent and grammatical summary for the following text: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n\n</span><span class="s2">Tl;dr</span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;MT&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;ACC&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Rewrite the following text with its core information and consistent facts:</span><span class="se">{{</span><span class="s2">src</span><span class="se">}}</span><span class="s2"> In other words, </span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;FLU&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Rewrite the following text to make it more grammatical and well-written:</span><span class="se">{{</span><span class="s2">src</span><span class="se">}}</span><span class="s2"> In other words,</span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;MQM&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Rewrite the following text into high-quality text with its core information:</span><span class="se">{{</span><span class="s2">src</span><span class="se">}}</span><span class="s2"> In other words,</span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;D2T&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;INF&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Convert the following text to another expression that preserves key information:</span><span class="se">\n\n{{</span><span class="s2">src</span><span class="se">}}</span><span class="s2"> In other words, </span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;NAT&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Convert the following text into another expression that is human-like and natural:</span><span class="se">\n\n{{</span><span class="s2">src</span><span class="se">}}</span><span class="s2"> In other words, </span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;FLU&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Convert the following text into another expression that preserves key information and is human-like and natural:</span><span class="se">\n\n{{</span><span class="s2">src</span><span class="se">}}</span><span class="s2"> In other words, </span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;diag&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;COH&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Answer the question based on the conversation between a human and AI.</span><span class="se">\n</span><span class="s2">Question: Is the AI coherent and maintains a good conversation flow throughout the conversation? (a) Yes. (b) No.</span><span class="se">\n</span><span class="s2">Conversation:</span><span class="se">\n</span><span class="s2">User: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n</span><span class="s2">AI: </span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}\n</span><span class="s2">Answer:&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;DIV&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Answer the question based on the conversation between a human and AI.</span><span class="se">\n</span><span class="s2">Question: Is there diversity in the AI responses? (a) Yes. (b) No.</span><span class="se">\n</span><span class="s2">Conversation:</span><span class="se">\n</span><span class="s2">User: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n</span><span class="s2">AI: </span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}\n</span><span class="s2">Answer:&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;FLE&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Answer the question based on the conversation between a human and AI.</span><span class="se">\n</span><span class="s2">Question: Is the AI flexible and adaptable to human and their interests? (a) Yes. (b) No.</span><span class="se">\n</span><span class="s2">Conversation:</span><span class="se">\n</span><span class="s2">User: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n</span><span class="s2">AI: </span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}\n</span><span class="s2">Answer:&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;UND&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Answer the question based on the conversation between a human and AI.</span><span class="se">\n</span><span class="s2">Question: Does the AI seem to understand the human? (a) Yes. (b) No.</span><span class="se">\n</span><span class="s2">Conversation:</span><span class="se">\n</span><span class="s2">User: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n</span><span class="s2">AI: </span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}\n</span><span class="s2">Answer:&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;INQ&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Answer the question based on the conversation between a human and AI.</span><span class="se">\n</span><span class="s2">Question: Is the AI inquisitive throughout the conversation? (a) Yes. (b) No.</span><span class="se">\n</span><span class="s2">Conversation:</span><span class="se">\n</span><span class="s2">User: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n</span><span class="s2">AI: </span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}\n</span><span class="s2">Answer:&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;CON&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Answer the question based on the conversation between a human and AI.</span><span class="se">\n</span><span class="s2">Question: Are the responses of AI consistent in the information it provides throughout the conversation? (a) Yes. (b) No.</span><span class="se">\n</span><span class="s2">Conversation:</span><span class="se">\n</span><span class="s2">User: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n</span><span class="s2">AI: </span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}\n</span><span class="s2">Answer:&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;INF&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Answer the question based on the conversation between a human and AI.</span><span class="se">\n</span><span class="s2">Question: Are the responses of AI informative throughout the conversation? (a) Yes. (b) No.</span><span class="se">\n</span><span class="s2">Conversation:</span><span class="se">\n</span><span class="s2">User: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n</span><span class="s2">AI: </span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}\n</span><span class="s2">Answer:&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;LIK&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Answer the question based on the conversation between a human and AI.</span><span class="se">\n</span><span class="s2">Question: Does the AI display a likeable personality? (a) Yes. (b) No.</span><span class="se">\n</span><span class="s2">Conversation:</span><span class="se">\n</span><span class="s2">User: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n</span><span class="s2">AI: </span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}\n</span><span class="s2">Answer:&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;DEP&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Answer the question based on the conversation between a human and AI.</span><span class="se">\n</span><span class="s2">Question: Does the AI discuss topics in depth? (a) Yes. (b) No.</span><span class="se">\n</span><span class="s2">Conversation:</span><span class="se">\n</span><span class="s2">User: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n</span><span class="s2">AI: </span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}\n</span><span class="s2">Answer:&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ERR&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Answer the question based on the conversation between a human and AI.</span><span class="se">\n</span><span class="s2">Question: Is the AI able to recover from errors that it makes? (a) Yes. (b) No.</span><span class="se">\n</span><span class="s2">Conversation:</span><span class="se">\n</span><span class="s2">User: </span><span class="se">{{</span><span class="s2">src</span><span class="se">}}\n</span><span class="s2">AI: </span><span class="se">{{</span><span class="s2">pred</span><span class="se">}}\n</span><span class="s2">Answer:&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aspects</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="p">{</span><span class="n">aspect</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span> <span class="k">for</span> <span class="n">aspect</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">templates</span><span class="p">[</span><span class="n">task</span><span class="p">]}</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span> <span class="o">=</span> <span class="n">hf_hub_download</span><span class="p">(</span>
+                <span class="n">repo_id</span><span class="o">=</span><span class="n">model_name_or_path</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">model_basename</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">lcpp_llm</span> <span class="o">=</span> <span class="n">Llama</span><span class="p">(</span>
+                <span class="n">model_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span>
+                <span class="n">n_threads</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># CPU cores</span>
+                <span class="n">logits_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lcpp_llm</span> <span class="o">=</span> <span class="n">model</span>
+
+<div class="viewcode-block" id="GPTScore.add_template">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.add_template">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function adds a template to the GPTScore metric.</span>
+<span class="sd">        Please try to follow the following example pattern to ensure consistency.</span>
+<span class="sd">        Example::</span>
+
+<span class="sd">            &quot;diag&quot;: {</span>
+<span class="sd">                &quot;COH&quot;:</span>
+<span class="sd">                &quot;Answer the question based on the conversation between a human and AI.</span>
+<span class="sd">                Question: Is the AI coherent and maintains a good conversation flow throughout the conversation?</span>
+<span class="sd">                (a) Yes. (b) No.</span>
+<span class="sd">                Conversation:</span>
+<span class="sd">                User: {{src}}</span>
+<span class="sd">                AI: {{pred}}</span>
+<span class="sd">                Answer:&quot;,</span>
+<span class="sd">            },</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            task (str): Task of the template.</span>
+<span class="sd">            code (str): Code of the aspect.</span>
+<span class="sd">            prompt (str): Prompt of the aspect.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;task must be a string.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;code must be a string.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;prompt must be a string.&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">templates</span><span class="p">[</span><span class="n">task</span><span class="p">][</span><span class="n">code</span><span class="p">]</span> <span class="o">=</span> <span class="n">prompt</span></div>
+
+
+<div class="viewcode-block" id="GPTScore.get_prompt">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.get_prompt">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_prompt</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">aspect</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">prompts</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">predictions</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">custom_prompt</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns a prompt template given a task description, and an aspect to evaluate.</span>
+
+<span class="sd">        :param prompts: List of source texts.</span>
+<span class="sd">        :type prompts: str</span>
+<span class="sd">        :param pred: List of candidate sentences.</span>
+<span class="sd">        :type pred: str</span>
+<span class="sd">        :param aspect: Aspect to evaluate.</span>
+<span class="sd">        :type aspect: str</span>
+<span class="sd">        :param task: Task description.</span>
+<span class="sd">        :type task: str</span>
+<span class="sd">        :param custom_prompt: Custom prompt template. Must contain the following keys: &quot;task&quot;, &quot;aspect&quot;.\</span>
+<span class="sd">             Defaults to None.</span>
+<span class="sd">        :type custom_prompt: dict, optional</span>
+<span class="sd">        :return: (List of) Prompt templates.</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># define aspet and task</span>
+        <span class="k">if</span> <span class="n">aspect</span> <span class="ow">and</span> <span class="n">task</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">aspect</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">templates</span><span class="p">[</span><span class="n">task</span><span class="p">]</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Aspect </span><span class="si">{</span><span class="n">aspect</span><span class="si">}</span><span class="s2"> is not available for task </span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">templates</span><span class="p">[</span><span class="n">task</span><span class="p">][</span>
+                <span class="n">aspect</span>
+            <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Prompt template for aspect </span><span class="si">{</span><span class="n">aspect</span><span class="si">}</span><span class="s2"> and task </span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s2"> is non-existent. Please specify a prompt template.&quot;</span>
+
+        <span class="c1"># set general template</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">templates</span><span class="p">[</span><span class="n">task</span><span class="p">][</span><span class="n">aspect</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">aspect</span> <span class="ow">and</span> <span class="n">task</span><span class="p">)</span>
+            <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">custom_prompt</span><span class="p">[</span><span class="s2">&quot;task&quot;</span><span class="p">])</span>
+            <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Question: &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">custom_prompt</span><span class="p">[</span><span class="s2">&quot;aspect&quot;</span><span class="p">])</span>
+            <span class="o">+</span> <span class="s2">&quot;(a) Yes. (b) No.</span><span class="se">\n</span><span class="s2">Conversation:</span><span class="se">\n</span><span class="s2">User: </span><span class="si">{src}</span><span class="se">\n</span><span class="s2">AI: </span><span class="si">{pred}</span><span class="se">\n</span><span class="s2">Answer:&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># get final prompt for each pair of prompt and candidate sentence</span>
+        <span class="n">templates</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">prompts</span><span class="p">,</span> <span class="n">predictions</span><span class="p">):</span>
+            <span class="n">template</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{src}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">prompt</span><span class="p">)</span>
+            <span class="n">template</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{pred}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">prediction</span><span class="p">)</span>
+            <span class="n">templates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">templates</span></div>
+
+
+<div class="viewcode-block" id="GPTScore.get_score">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.get_score">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prompts</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the GPTScore given a prompt template.</span>
+
+<span class="sd">        :param prompt: List of Prompt templates.</span>
+<span class="sd">        :type prompt: list</span>
+<span class="sd">        :return: GPTScore of the candidate sentence.</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcpp_llm</span><span class="o">.</span><span class="n">create_completion</span><span class="p">(</span>
+                <span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span>
+                <span class="n">max_tokens</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+                <span class="n">temperature</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                <span class="n">top_p</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
+                <span class="n">logprobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">repeat_penalty</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span>
+                <span class="n">top_k</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+                <span class="n">echo</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Compute logprobs</span>
+            <span class="c1"># Find the end position of the input...</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;choices&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;logprobs&quot;</span><span class="p">][</span><span class="s2">&quot;text_offset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">prompt</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="c1"># Get logprobs</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="o">-</span><span class="nb">sum</span><span class="p">(</span>
+                <span class="n">response</span><span class="p">[</span><span class="s2">&quot;choices&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;logprobs&quot;</span><span class="p">][</span><span class="s2">&quot;token_logprobs&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>  <span class="c1"># ignore the last &#39;.&#39;</span>
+            <span class="n">avg_loss</span> <span class="o">=</span> <span class="n">loss</span> <span class="o">/</span> <span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s2">&quot;choices&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;logprobs&quot;</span><span class="p">][</span><span class="s2">&quot;text_offset&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="p">)</span>  <span class="c1"># 1 is the last &#39;.&#39;</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">avg_loss</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">scores</span></div>
+
+
+<div class="viewcode-block" id="GPTScore.compute">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.llm_metrics.GPTScore.compute">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">user_prompts</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">predictions</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">custom_prompt</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">aspect</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">task</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method computes the GPTScore for a candidate sentence given a source text, a system_prompt template,</span>
+<span class="sd">        a user_prompt source text, an aspect to evaluate, and a task description.</span>
+
+<span class="sd">        :param user_prompts: (List of) Source text generated by the user.</span>
+<span class="sd">        :type user_prompts: list or str</span>
+<span class="sd">        :param pred: (List of) Candidate sentence.</span>
+<span class="sd">        :type pred: list or str</span>
+<span class="sd">        :param custom_prompt: Custom prompt template. Must contain the following keys: &quot;task&quot;, &quot;aspect&quot;,\</span>
+<span class="sd">             &quot;name&quot;. Defaults to None.</span>
+<span class="sd">        :type custom_prompt: dict, optional</span>
+<span class="sd">        :param aspect: (List of) Aspect(s) to evaluate. Defaults to None.</span>
+<span class="sd">        :type aspect: str or list, optional</span>
+<span class="sd">        :param task: Task description. Defaults to None.</span>
+<span class="sd">        :type task: str, optional</span>
+<span class="sd">        :return: (List of) Score for (each of) the candidate sentence per aspect.</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># prompts and predictions must be either a list of string or a string</span>
+        <span class="c1"># convert to list if string</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_prompts</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">check_list_type</span><span class="p">(</span>
+            <span class="n">user_prompts</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;Source must be a either a list of string or a string.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">check_list_type</span><span class="p">(</span>
+            <span class="n">predictions</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;Pred must be a either a list of string or a string.&quot;</span>
+        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span>
+            <span class="n">user_prompts</span>
+        <span class="p">),</span> <span class="s2">&quot;Source and pred must be of the same type.&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">user_prompts</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">):</span>  <span class="c1"># all input variables shuold be strings in this case</span>
+            <span class="n">user_prompts</span> <span class="o">=</span> <span class="p">[</span><span class="n">user_prompts</span><span class="p">]</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="p">[</span><span class="n">predictions</span><span class="p">]</span>
+
+        <span class="c1"># If prompt is given, check that it is a dict with the following keys: &quot;task&quot;, &quot;aspect&quot;</span>
+        <span class="k">if</span> <span class="n">custom_prompt</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">custom_prompt</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s2">&quot;prompt must be a dict.&quot;</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">aspect</span><span class="p">,</span> <span class="s2">&quot;aspect must not be given if prompt is given.&quot;</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">task</span><span class="p">,</span> <span class="s2">&quot;aspect must not be given if prompt is given.&quot;</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="s2">&quot;task&quot;</span> <span class="ow">in</span> <span class="n">custom_prompt</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="s2">&quot;aspect&quot;</span> <span class="ow">in</span> <span class="n">custom_prompt</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="p">),</span> <span class="s2">&quot;prompt must contain the following keys: &#39;task&#39;, &#39;aspect&#39;&quot;</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">custom_prompt</span><span class="p">[</span><span class="s2">&quot;task&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;task must be a string.&quot;</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">custom_prompt</span><span class="p">[</span><span class="s2">&quot;aspect&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;aspect must be a string.&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># If prompt is not given, check that task and aspect are given</span>
+            <span class="k">assert</span> <span class="n">aspect</span><span class="p">,</span> <span class="s2">&quot;Aspect must be given if prompt is not given.&quot;</span>
+            <span class="k">assert</span> <span class="n">task</span><span class="p">,</span> <span class="s2">&quot;Task must be given if prompt is not given.&quot;</span>
+
+        <span class="c1"># If aspect is given, check that it is a string, convert to list if string</span>
+        <span class="k">if</span> <span class="n">aspect</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aspect</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">check_list_type</span><span class="p">(</span>
+                <span class="n">aspect</span><span class="p">,</span> <span class="nb">str</span>
+            <span class="p">),</span> <span class="s2">&quot;Aspect must be either a list of string or a string.&quot;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aspect</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">aspect</span> <span class="o">=</span> <span class="p">[</span><span class="n">aspect</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">asp</span> <span class="ow">in</span> <span class="n">aspect</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">asp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aspects</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Aspect must be one of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">aspects</span><span class="si">}</span><span class="s2">.&quot;</span>
+
+        <span class="c1"># If task is given, check that it is a string</span>
+        <span class="k">if</span> <span class="n">task</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;Task must be a string.&quot;</span>
+            <span class="k">assert</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Task must be one of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="si">}</span><span class="s2">.&quot;</span>
+
+        <span class="c1"># Generative LLM is given a prompt template and some context information</span>
+        <span class="c1"># TODO: with custom_prompt only one aspect can be evaluated at a time for now</span>
+        <span class="k">if</span> <span class="n">custom_prompt</span><span class="p">:</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">custom_prompt</span><span class="p">[</span><span class="s2">&quot;aspect&quot;</span><span class="p">]:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span>
+                    <span class="n">prompts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_prompt</span><span class="p">(</span>
+                        <span class="n">aspect</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">user_prompts</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">custom_prompt</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">asp</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span>
+                    <span class="n">prompts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_prompt</span><span class="p">(</span>
+                        <span class="n">asp</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">user_prompts</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">custom_prompt</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">asp</span> <span class="ow">in</span> <span class="n">aspect</span>  <span class="c1"># score for each aspect gave as input</span>
+            <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">scores</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Leonardo Remondini (leonardo.remondini@sagacify.com), Lucie Navez (lucie.navez@sagacify.com).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sagacify_llm_evaluation.helpers.language_metrics &mdash; Sagacify LLM Evaluation Library 0.7.2 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=6dfdf7c3"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Sagacify LLM Evaluation Library
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Sagacify LLM Evaluation Library</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sagacify_llm_evaluation.helpers.language_metrics</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sagacify_llm_evaluation.helpers.language_metrics</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">spacy</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">evaluate</span> <span class="kn">import</span> <span class="n">load</span>
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AutoModelForQuestionAnswering</span><span class="p">,</span>
+    <span class="n">AutoModelWithLMHead</span><span class="p">,</span>
+    <span class="n">AutoTokenizer</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sagacify_llm_evaluation.helpers.embedding_metrics</span> <span class="kn">import</span> <span class="n">BERTScore</span>
+<span class="kn">from</span> <span class="nn">sagacify_llm_evaluation.helpers.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">INVALID_QUESTION</span><span class="p">,</span>
+    <span class="n">NO_ANS</span><span class="p">,</span>
+    <span class="n">check_list_type</span><span class="p">,</span>
+    <span class="n">filter_questions</span><span class="p">,</span>
+    <span class="n">non_personal</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># pylint:disable=too-many-locals</span>
+<span class="c1"># pylint:disable=too-many-nested-blocks</span>
+
+
+<div class="viewcode-block" id="BLEURTScore">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.BLEURTScore">[docs]</a>
+<span class="k">class</span> <span class="nc">BLEURTScore</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="s2">&quot;BLEURT-tiny&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        BLEURT is a learnt metric that uses BERT to compute a similarity score for each token</span>
+<span class="sd">        in the candidate sentence with each token in the reference sentence.</span>
+
+<span class="sd">        :param checkpoint: Checkpoint to use. Defaults to BLEURT-tiny if not specified. \</span>
+<span class="sd">            Check https://huggingface.co/spaces/evaluate-metric/bleurt for more checkpoints.</span>
+<span class="sd">        :type checkpoint: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span> <span class="o">=</span> <span class="n">checkpoint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="s2">&quot;bleurt&quot;</span><span class="p">,</span> <span class="n">module_type</span><span class="o">=</span><span class="s2">&quot;metric&quot;</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BLEURTScore.compute">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.BLEURTScore.compute">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param references: List of reference sentences.</span>
+<span class="sd">        :type references: list</span>
+<span class="sd">        :param predictions: List of candidate sentences.</span>
+<span class="sd">        :type predictions: list</span>
+<span class="sd">        :return: List of scores for each candidate sentence.</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">references</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="n">predictions</span>
+        <span class="p">),</span> <span class="s2">&quot;Number of references and predictions must be equal.&quot;</span>
+        <span class="k">assert</span> <span class="n">check_list_type</span><span class="p">(</span><span class="n">references</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;References must be a list of strings.&quot;</span>
+        <span class="k">assert</span> <span class="n">check_list_type</span><span class="p">(</span>
+            <span class="n">predictions</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;Predictions must be a list of strings.&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span>
+            <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="n">references</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="QSquared">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.QSquared">[docs]</a>
+<span class="k">class</span> <span class="nc">QSquared</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">qa_model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ktrapeznikov/albert-xlarge-v2-squad-v2&quot;</span><span class="p">,</span>
+        <span class="n">qg_model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mrm8488/t5-base-finetuned-question-generation-ap&quot;</span><span class="p">,</span>
+        <span class="n">lang</span><span class="o">=</span><span class="s2">&quot;en&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Q² is a reference-free metric that aims to evaluate the factual consistency of knowledge-grounded</span>
+<span class="sd">        dialogue systems. The approach is based on automatic question generation and question answering.</span>
+<span class="sd">        Source: https://github.com/orhonovich/q-squared</span>
+
+<span class="sd">        :param qa_model: Huggingface question answering model to use.</span>
+<span class="sd">        :type qa_model: str</span>
+<span class="sd">        :param qg_model: Huggingface question generation model to use.</span>
+<span class="sd">        :type qg_model: str</span>
+<span class="sd">        :param lan: Language to use. Defaults to &quot;en&quot;, It may also be &quot;fr&quot;.</span>
+<span class="sd">        :type lan: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qa_tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">qa_model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qa_model</span> <span class="o">=</span> <span class="n">AutoModelForQuestionAnswering</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">qa_model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qg_tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">qg_model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qg_model</span> <span class="o">=</span> <span class="n">AutoModelWithLMHead</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">qg_model</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">lang</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;fr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;en&quot;</span><span class="p">,</span>
+        <span class="p">],</span> <span class="s2">&quot;Languages supported are either fr (French) or en (English)&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bert_score</span> <span class="o">=</span> <span class="n">BERTScore</span><span class="p">(</span><span class="n">lang</span><span class="o">=</span><span class="n">lang</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">lang</span> <span class="o">==</span> <span class="s2">&quot;fr&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;fr_core_news_sm&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">lang</span> <span class="o">==</span> <span class="s2">&quot;en&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;en_core_web_sm&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lang</span> <span class="o">=</span> <span class="n">lang</span>
+
+<div class="viewcode-block" id="QSquared.get_answer">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.QSquared.get_answer">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_answer</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">):</span>  <span class="c1"># Code taken from https://huggingface.co/transformers/task_summary.html</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Search for the answer in the text given the question.</span>
+<span class="sd">        :param question: Question to ask.</span>
+<span class="sd">        :type question: str</span>
+<span class="sd">        :param text: Text to search in.</span>
+<span class="sd">        :type text: str</span>
+<span class="sd">        :return: Answer to the question.</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qa_tokenizer</span><span class="o">.</span><span class="n">encode_plus</span><span class="p">(</span>
+            <span class="n">question</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">add_special_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span>
+        <span class="p">)</span>
+        <span class="n">input_ids</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s2">&quot;input_ids&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">answer_start_scores</span><span class="p">,</span> <span class="n">answer_end_scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qa_model</span><span class="p">(</span>
+            <span class="o">**</span><span class="n">inputs</span><span class="p">,</span> <span class="n">return_dict</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="n">answer_start</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span>
+            <span class="n">answer_start_scores</span>
+        <span class="p">)</span>  <span class="c1"># Get the most likely beginning of answer with the argmax of the score</span>
+        <span class="n">answer_end</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">answer_end_scores</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="p">)</span>  <span class="c1"># Get the most likely end of answer with the argmax of the score</span>
+
+        <span class="n">ans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qa_tokenizer</span><span class="o">.</span><span class="n">convert_tokens_to_string</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">qa_tokenizer</span><span class="o">.</span><span class="n">convert_ids_to_tokens</span><span class="p">(</span><span class="n">input_ids</span><span class="p">[</span><span class="n">answer_start</span><span class="p">:</span><span class="n">answer_end</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ans</span></div>
+
+
+<div class="viewcode-block" id="QSquared.get_answer_candidates">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.QSquared.get_answer_candidates">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_answer_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Look for candidate aswers that could be answered by the text.</span>
+<span class="sd">        :param text: Text to search in.</span>
+<span class="sd">        :type text: str</span>
+<span class="sd">        :return: Candidates answers.</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlp</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span><span class="n">ent</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">ent</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">ents</span><span class="p">)]</span>
+        <span class="n">noun_chunks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">noun_chunks</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">noun_chunks</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">cand</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">chunk</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">cand</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                    <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+                <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chunk</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="c1"># candidates += [chunk.text for chunk in list(doc.noun_chunks) if chunk.text not in candidates]</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span><span class="n">cand</span> <span class="k">for</span> <span class="n">cand</span> <span class="ow">in</span> <span class="n">candidates</span> <span class="k">if</span> <span class="n">cand</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;i&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">candidates</span></div>
+
+
+<div class="viewcode-block" id="QSquared.get_questions_beam">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.QSquared.get_questions_beam">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_questions_beam</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">answer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
+        <span class="n">beam_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="n">num_return</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the n best questions for a given answer, given the context. &quot;Beam&quot; is the name of the approach.</span>
+
+<span class="sd">        :param answer: Answer to the question.</span>
+<span class="sd">        :type answer: str</span>
+<span class="sd">        :param context: Context to search in.</span>
+<span class="sd">        :type context: str</span>
+<span class="sd">        :param max_length: Max length of the generated question. Defaults to 128.</span>
+<span class="sd">        :type max_length: int, optional</span>
+<span class="sd">        :param beam_size: Beam size. Defaults to 5.</span>
+<span class="sd">        :type beam_size: int, optional</span>
+<span class="sd">        :param num_return: Number of questions to return. Defaults to 5.</span>
+<span class="sd">        :type num_return: int, optional</span>
+<span class="sd">        :return: N best questions.</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_questions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">input_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;answer: </span><span class="si">{</span><span class="n">answer</span><span class="si">}</span><span class="s2">  context: </span><span class="si">{</span><span class="n">context</span><span class="si">}</span><span class="s2"> &lt;/s&gt;&quot;</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qg_tokenizer</span><span class="p">([</span><span class="n">input_text</span><span class="p">],</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">)</span>
+
+        <span class="n">beam_outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qg_model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+            <span class="n">input_ids</span><span class="o">=</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;input_ids&quot;</span><span class="p">],</span>
+            <span class="n">attention_mask</span><span class="o">=</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;attention_mask&quot;</span><span class="p">],</span>
+            <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">,</span>
+            <span class="n">num_beams</span><span class="o">=</span><span class="n">beam_size</span><span class="p">,</span>
+            <span class="n">no_repeat_ngram_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">num_return_sequences</span><span class="o">=</span><span class="n">num_return</span><span class="p">,</span>
+            <span class="n">early_stopping</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">beam_output</span> <span class="ow">in</span> <span class="n">beam_outputs</span><span class="p">:</span>
+            <span class="n">all_questions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">qg_tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">beam_output</span><span class="p">,</span> <span class="n">skip_special_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                    <span class="s2">&quot;question: &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">1</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">all_questions</span></div>
+
+
+<div class="viewcode-block" id="QSquared.single_question_score">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.QSquared.single_question_score">[docs]</a>
+    <span class="k">def</span> <span class="nf">single_question_score</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">answer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">response</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">knowledge</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a candidate pair of question and answer (generated from the candidate text), get the</span>
+<span class="sd">        score of the answer given by taking as a context the knowledge that the LLM was given.</span>
+<span class="sd">        The higher the F1-score, the more the model we are trying to evaluate is consistent</span>
+<span class="sd">        with the knowledge.</span>
+
+<span class="sd">        :param question: The candidate question (generated from the candidate text).</span>
+<span class="sd">        :type question: str</span>
+<span class="sd">        :param answer: The candidate answer (generated from the candidate text).</span>
+<span class="sd">        :type answer: str</span>
+<span class="sd">        :param response: The text generated by the LLM.</span>
+<span class="sd">        :type response: str</span>
+<span class="sd">        :param knowledge: The knowledge given as a context to the LLM.</span>
+<span class="sd">        :type knowledge: str</span>
+
+<span class="sd">        :return: A tuple containing the BERT-score of the knowledge answer and the knowledge answer itself.</span>
+<span class="sd">        :rtype: tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pred_ans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_answer</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">filter_questions</span><span class="p">(</span><span class="n">answer</span><span class="p">,</span> <span class="n">pred_ans</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;VALID&quot;</span>
+        <span class="p">):</span>  <span class="c1"># check if the answer is valid</span>
+            <span class="n">knowledge_ans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_answer</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">knowledge</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">knowledge_ans</span> <span class="o">!=</span> <span class="n">NO_ANS</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bert_score</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span>
+                    <span class="n">references</span><span class="o">=</span><span class="p">[</span><span class="n">answer</span><span class="p">],</span> <span class="n">predictions</span><span class="o">=</span><span class="p">[</span><span class="n">knowledge_ans</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;f1&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">knowledge_ans</span>
+            <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="n">NO_ANS</span>
+        <span class="k">return</span> <span class="n">INVALID_QUESTION</span><span class="p">,</span> <span class="n">INVALID_QUESTION</span></div>
+
+
+<div class="viewcode-block" id="QSquared.compute">
+<a class="viewcode-back" href="../../../sagacify_llm_evaluation.helpers.html#sagacify_llm_evaluation.helpers.language_metrics.QSquared.compute">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">predictions</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">knowledges</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">single</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">remove_personal</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the Q² score for a given response and knowledge.</span>
+
+<span class="sd">        :param predictions: (list or str) List of candidate text generated by the LLM.</span>
+<span class="sd">        :param knowledges: (list or str) List of knowledge given as a context to the LLM for each candidate text.</span>
+<span class="sd">        :param single: (bool) If True, only one question is generated for each candidate answer. Defaults to False.</span>
+<span class="sd">        :param remove_personal: (bool) If True, remove questions that contain personal pronouns. Defaults to True.</span>
+
+<span class="sd">        :return: (dict) Dictionary with the following keys:</span>
+<span class="sd">            - avg_f1 (float): Average F1-score Q² score among all the questions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">check_list_type</span><span class="p">(</span>
+            <span class="n">predictions</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">),</span> <span class="s2">&quot;Predictions must be a list of strings.&quot;</span>
+        <span class="k">assert</span> <span class="n">check_list_type</span><span class="p">(</span><span class="n">knowledges</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;Knowledges must be a list of strings.&quot;</span>
+
+        <span class="c1"># convert to list if single prediction and/or knowledge</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="p">[</span><span class="n">predictions</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">knowledges</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">knowledges</span> <span class="o">=</span> <span class="p">[</span><span class="n">knowledges</span><span class="p">]</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="n">knowledges</span>
+        <span class="p">),</span> <span class="s2">&quot;Number of predictions and knowledges must be equal.&quot;</span>
+
+        <span class="n">avg_f1s</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">knowledge</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">knowledges</span><span class="p">):</span>
+            <span class="c1"># set initial values</span>
+            <span class="n">f1_bert_score</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">num_questions</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">candidates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_answer_candidates</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">cand</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+                <span class="n">questions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_questions_beam</span><span class="p">(</span><span class="n">cand</span><span class="p">,</span> <span class="n">prediction</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">questions</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">remove_personal</span> <span class="ow">or</span> <span class="n">non_personal</span><span class="p">(</span>
+                        <span class="n">question</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lang</span>
+                    <span class="p">):</span>
+                        <span class="n">question_score</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_question_score</span><span class="p">(</span>
+                            <span class="n">question</span><span class="p">,</span> <span class="n">cand</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">knowledge</span>
+                        <span class="p">)</span>
+                        <span class="k">if</span> <span class="n">question_score</span> <span class="o">!=</span> <span class="n">INVALID_QUESTION</span><span class="p">:</span>
+                            <span class="n">num_questions</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="n">f1_bert_score</span> <span class="o">+=</span> <span class="n">question_score</span>
+                            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">question_score</span><span class="p">)</span>
+
+                            <span class="k">if</span> <span class="n">single</span><span class="p">:</span>
+                                <span class="k">break</span>
+
+            <span class="k">if</span> <span class="n">num_questions</span><span class="p">:</span>
+                <span class="n">avg_f1</span> <span class="o">=</span> <span class="n">f1_bert_score</span> <span class="o">/</span> <span class="n">num_questions</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">avg_f1</span> <span class="o">=</span> <span class="n">INVALID_QUESTION</span>
+            <span class="n">avg_f1s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">avg_f1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;avg_f1&quot;</span><span class="p">:</span> <span class="n">avg_f1s</span><span class="p">,</span>
+        <span class="p">}</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Leonardo Remondini (leonardo.remondini@sagacify.com), Lucie Navez (lucie.navez@sagacify.com).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
