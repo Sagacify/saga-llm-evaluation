@@ -6,8 +6,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      pages: write
+      #contents: read/write
+      #pages: read/write
       id-token: write
     env:
       POETRY_HTTP_BASIC_SAGACIFY_USERNAME: ${{ secrets.POETRY_HTTP_BASIC_SAGACIFY_USERNAME }}
