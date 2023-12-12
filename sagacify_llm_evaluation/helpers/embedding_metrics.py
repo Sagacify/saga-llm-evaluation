@@ -54,8 +54,8 @@ class MAUVE:
         MAUVE score computes the difference between the candidate sentence distribution
         and the reference sentence distribution. The bigger the MAUVE score, the better.
 
-        :param featurize_model_name: Model to use to featurize the sentences. Defaults to "gpt2".
-        Check https://huggingface.co/spaces/evaluate-metric/mauve for more options.
+        :param featurize_model_name: Model to use to featurize the sentences. Defaults to "gpt2".\
+            Check https://huggingface.co/spaces/evaluate-metric/mauve for more options.
         :type featurize_model_name: str, optional
         """
         self.metric = load("mauve")

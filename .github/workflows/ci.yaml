@@ -51,18 +51,17 @@ jobs:
           poetry run pytest
 
       - name: Build documentation
+        working-directory: docs
         run: |
-          mkdir gh-pages
-          touch gh-pages/.nojekyll
-          cd docs/
-          poetry run sphinx-build -b html . _build
-          cp -r _build/* ../gh-pages/
+            poetry run sphinx-build -b html . _build
 
-      - name: Deploy documentation
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
         with:
-          publish_branch: api_documentation
-          github_token: ${{ secrets.SAGA_GITHUB_TOKEN }}
-          publish_dir: ./gh-pages
-          force_orphan: true
+          path: 'docs/_build'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v3
     

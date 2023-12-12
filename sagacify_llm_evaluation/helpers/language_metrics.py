@@ -1,20 +1,14 @@
 import spacy
 import torch
 from evaluate import load
-from transformers import (
-    AutoModelForQuestionAnswering,
-    AutoModelWithLMHead,
-    AutoTokenizer,
-)
+from transformers import (AutoModelForQuestionAnswering, AutoModelWithLMHead,
+                          AutoTokenizer)
 
 from sagacify_llm_evaluation.helpers.embedding_metrics import BERTScore
-from sagacify_llm_evaluation.helpers.utils import (
-    INVALID_QUESTION,
-    NO_ANS,
-    check_list_type,
-    filter_questions,
-    non_personal,
-)
+from sagacify_llm_evaluation.helpers.utils import (INVALID_QUESTION, NO_ANS,
+                                                   check_list_type,
+                                                   filter_questions,
+                                                   non_personal)
 
 # pylint:disable=too-many-locals
 # pylint:disable=too-many-nested-blocks
@@ -95,6 +89,7 @@ class QSquared:
     ):  # Code taken from https://huggingface.co/transformers/task_summary.html
         """
         Search for the answer in the text given the question.
+        
         :param question: Question to ask.
         :type question: str
         :param text: Text to search in.
@@ -126,6 +121,7 @@ class QSquared:
     def get_answer_candidates(self, text: str):
         """
         Look for candidate aswers that could be answered by the text.
+        
         :param text: Text to search in.
         :type text: str
         :return: Candidates answers.
