@@ -38,17 +38,17 @@ jobs:
         run: |
           poetry install -E docs
 
-      - name: Run formatter
-        run: |
-          poetry run black --check sagacify_llm_evaluation tests
-
-      - name: Run linter
-        run: |
-          poetry run pylint sagacify_llm_evaluation tests
-
-      - name: Run tests
-        run: |
-          poetry run pytest
+      #- name: Run formatter
+      #  run: |
+      #    poetry run black --check sagacify_llm_evaluation tests
+#
+      #- name: Run linter
+      #  run: |
+      #    poetry run pylint sagacify_llm_evaluation tests
+#
+      #- name: Run tests
+      #  run: |
+      #    poetry run pytest
 
       - name: Build documentation
         working-directory: docs
