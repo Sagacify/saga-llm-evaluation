@@ -5,11 +5,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: read
-      id-token: write
-      pages: write
     env:
       POETRY_HTTP_BASIC_SAGACIFY_USERNAME: ${{ secrets.POETRY_HTTP_BASIC_SAGACIFY_USERNAME }}
       POETRY_HTTP_BASIC_SAGACIFY_PASSWORD: ${{ secrets.POETRY_HTTP_BASIC_SAGACIFY_PASSWORD }}
@@ -43,6 +38,18 @@ jobs:
       - name: Install packages & build
         run: |
           poetry install -E docs
+
+      - name: Run formatter
+        run: |
+          poetry run black --check sagacify_llm_evaluation tests
+
+      - name: Run linter
+        run: |
+          poetry run pylint sagacify_llm_evaluation tests
+
+      - name: Run tests
+        run: |
+          poetry run pytest
 
       - name: Build documentation
         working-directory: docs
