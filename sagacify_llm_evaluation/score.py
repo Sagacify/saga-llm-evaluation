@@ -1,7 +1,7 @@
-from saga_llm_evaluation_ml.helpers.embedding_metrics import MAUVE, BERTScore
-from saga_llm_evaluation_ml.helpers.language_metrics import BLEURTScore, QSquared
-from saga_llm_evaluation_ml.helpers.llm_metrics import GEval, GPTScore, SelfCheckGPT
-from saga_llm_evaluation_ml.helpers.utils import (
+from sagacify_llm_evaluation.helpers.embedding_metrics import MAUVE, BERTScore
+from sagacify_llm_evaluation.helpers.language_metrics import BLEURTScore, QSquared
+from sagacify_llm_evaluation.helpers.llm_metrics import GEval, GPTScore, SelfCheckGPT
+from sagacify_llm_evaluation.helpers.utils import (
     MetadataExtractor,
     check_list_type,
     filter_class_input,
@@ -85,16 +85,19 @@ class LLMScorer:
 
     def add_geval_task(self, name: str, definition: str):
         """
-        This function adds a task to the GEval metric.
-        Please try to follow the following example pattern to ensure consistency.
-        Example:
-        "summ": "You will be given one summary written for a news article.
-            Your task is to rate the summary on one metric.
-            Please make sure you read and understand these instructions carefully.
-            Please keep this document open while reviewing, and refer to it as needed.",
-        Args:
-            name (str): Name of the task.
-            definition (str): Definition of the task.
+        This function adds a task to the GEval metric. Please try to follow the example pattern to ensure consistency.
+
+        Example::
+
+            "name" : "summ",
+            "definition": "You will be given one summary written for a news article. Your task is to rate
+            the summary on one metric. Please make sure you read and understand these instructions carefully.
+            Please keep this document open while reviewing, and refer to it as needed."
+
+        :param name: Name of the task.
+        :type name: str
+        :param definition: Definition of the task.
+        :type definition: str
         """
         assert isinstance(name, str), "name must be a string."
         assert isinstance(definition, str), "definition must be a string."
@@ -106,23 +109,28 @@ class LLMScorer:
 
     def add_geval_aspect(self, code: str, name: str, prompt: str):
         """
-        This function adds an aspect to the GEval metric.
-        Please try to follow the following example pattern to ensure consistency.
-        Example:
-        "COH": {
-            "name": "Coherence",
-            "prompt": "Coherence (1-5) - the collective quality of all sentences.
-                We align this dimension with the DUC quality question of structure and coherence
-                whereby ”the summary should be well-structured and well-organized.
-                The summary should not just be a heap of related information,
-                but should build from sentence to sentence to a coherent body of information about a topic.”",
-        },
+        This function adds an aspect to the GEval metric. Please try to follow the example pattern
+        to ensure consistency.
 
-        Args:
-            code (str): Code of the aspect.
-            name (str): Name of the aspect.
-            prompt (str): Prompt of the aspect.
+        Example::
+
+            "COH": {
+                "name": "Coherence",
+                "prompt": "Coherence (1-5) - the collective quality of all sentences. We align this dimension with
+                the DUC quality question of structure and coherence whereby 'the summary should be
+                well-structured and well-organized. The summary should not just be a heap of related
+                information, but should build from sentence to sentence to a coherent body of information
+                about a topic.'",
+            }
+
+        :param code: Code of the aspect.
+        :type code: str
+        :param name: Name of the aspect.
+        :type name: str
+        :param prompt: Prompt of the aspect.
+        :type prompt: str
         """
+
         assert isinstance(code, str), "code must be a string."
         assert isinstance(name, str), "name must be a string."
         assert isinstance(prompt, str), "prompt must be a string."
@@ -136,12 +144,19 @@ class LLMScorer:
         """
         This function adds a template to the GPTScore metric.
         Please try to follow the following example pattern to ensure consistency.
-        Example:
-        "diag": {
-            "COH": f"Answer the question based on the conversation between a human and AI.
-            \nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation?
-            (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
-        }
+        Example::
+
+            "diag": {
+                "COH":
+                "Answer the question based on the conversation between a human and AI.
+                Question: Is the AI coherent and maintains a good conversation flow throughout the conversation?
+                (a) Yes. (b) No.
+                Conversation:
+                User: {{src}}
+                AI: {{pred}}
+                Answer:",
+            },
+
         Args:
             task (str): Task of the template.
             code (str): Code of the aspect.
@@ -165,12 +180,16 @@ class LLMScorer:
         config: dict = None,
     ):
         """
-        Args:
-            user_prompt (str): user prompt to the model
-            prediction (str): Prediction of the model.
-            knowledge (str, optional): Source text that the model used to generate the prediction. Defaults to None.
-            reference (str, optional): Reference of the prediction. Defaults to None.
-            config (dict, optional): Config file. Defaults to None.
+        :param user_prompt: User prompt to the model.
+        :type user_prompt: str
+        :param prediction: Prediction of the model.
+        :type prediction: str
+        :param knowledge: Source text that the model used to generate the prediction. Defaults to None.
+        :type knowledge: str, optional
+        :param reference: Reference of the prediction. Defaults to None.
+        :type reference: str, optional
+        :param config: Config file. Defaults to None.
+        :type config: dict, optional
         """
         # TODO: add support to custom_prompt for geval and gptscore thruogh the config file
         # Custom prompt template. Defaults to None.

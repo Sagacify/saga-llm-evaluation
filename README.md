@@ -28,7 +28,7 @@ Each of these metrics uses the [LLAMA model](https://ai.meta.com/llama/) to eval
 ## Installation
 To install the Saga LLM Evaluation ML library, use the following command:
 
-```pip install saga_llm_evaluation_ml```
+```pip install sagacify-llm-evaluation```
 
 Be aware that by default the library will run pytorch on the CPU. If you want to run it on the GPU, you need to install pytorch with GPU support. You can find the instructions [here](https://pytorch.org/get-started/locally/).
 
@@ -40,7 +40,7 @@ The Scorer is a class that allows you to run multiple metrics at once. The metri
 
 
 ```python
-from saga_llm_evaluation_ml import LLMScorer
+from sagacify_llm_evaluation import LLMScorer
 scorer = LLMScorer(
     metrics = ["bertscore", "mauve", "bleurtscore", "q_squared", "selcheckgpt", "geval", "gptscore"],
     model = transformers.PreTrainedModel, # language model that inherits from transformers.PreTrainedModel which needs to be evaluated. Needed for SelCheck-GPT
@@ -94,7 +94,7 @@ scorer.score(
 
 ### BERTScore
 ```python
-from saga_llm_evaluation_ml import BERTScore
+from sagacify_llm_evaluation import BERTScore
 
 bert_score = BERTScore()
 scores = bert_score.compute(
@@ -105,7 +105,7 @@ scores = bert_score.compute(
 
 ### MAUVE
 ```python
-from saga_llm_evaluation_ml import MAUVE
+from sagacify_llm_evaluation import MAUVE
 mauve = MAUVE()
 scores = mauve.compute(
     references=["This is a reference sentence"],
@@ -115,7 +115,7 @@ scores = mauve.compute(
 
 ### BLEURTScore
 ```python
-from saga_llm_evaluation_ml import BLEURTScore
+from sagacify_llm_evaluation import BLEURTScore
 bleurt_score = BLEURTScore()
 scores = bleurt_score.compute(
     references=["This is a reference sentence"],
@@ -125,7 +125,7 @@ scores = bleurt_score.compute(
 
 ### Q-Squared
 ```python
-from saga_llm_evaluation_ml import QSquared
+from sagacify_llm_evaluation import QSquared
 q_squared = QSquared()
 scores = q_squared.compute(
     knowledges=["This is the text gave to the LLM as knowledge"],
@@ -135,7 +135,7 @@ scores = q_squared.compute(
 
 ### SelCheck-GPT
 ```python
-from saga_llm_evaluation_ml import SelCheckGPT
+from sagacify_llm_evaluation import SelCheckGPT
 selcheck_gpt = SelCheckGPT(
     model = transformers.PreTrainedModel, # language model that inherits from transformers.PreTrainedModel which needs to be evaluated.
     eval_model = transformers.PreTrainedModel, # language model that inherits from transformers.PreTrainedModel which is used to evaluate the model.
@@ -148,7 +148,7 @@ scores = selcheck_gpt.compute(
 
 ### G-Eval
 ```python
-from saga_llm_evaluation_ml import GEval
+from sagacify_llm_evaluation import GEval
 g_eval = GEval(
     model = transformers.PreTrainedModel, # language model that inherits from transformers.PreTrainedModel which is used to evaluate the model.
 )
@@ -175,7 +175,7 @@ scores = g_eval.compute(
 
 ### GPT-Score
 ```python
-from saga_llm_evaluation_ml import GPTScore
+from sagacify_llm_evaluation import GPTScore
 gpt_score = GPTScore(
     model = transformers.PreTrainedModel, # language model that inherits from transformers.PreTrainedModel which is used to evaluate the model.
 )
@@ -206,7 +206,7 @@ You can use a different LLAMA model as evaluator by using the get_llama_model fu
 The full list of quantized LLAMA models that may be used is available [here](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GGUF).
 
 ```python
-from saga_llm_evaluation_ml import get_llama_model
+from sagacify_llm_evaluation import get_llama_model
 
 llama_model = get_llama_model(
     repo_id = "TheBloke/Llama-2-7b-Chat-GGUF", 
@@ -219,7 +219,7 @@ You can also download the LLAMA model manually and specify the local path to the
 ```huggingface-cli download TheBloke/Llama-2-7b-Chat-GGUF llama-2-7b-chat.Q2_K.gguf --local-dir path_to_model_folder --local-dir-use-symlinks False```
 
 ```python
-from saga_llm_evaluation_ml import get_llama_model
+from sagacify_llm_evaluation import get_llama_model
 
 llama_model = get_llama_model(
     model_path = "path_to_model_folder", 

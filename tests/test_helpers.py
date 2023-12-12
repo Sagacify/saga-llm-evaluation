@@ -1,6 +1,6 @@
 import unittest
 
-from saga_llm_evaluation_ml.helpers.utils import MetadataExtractor
+from sagacify_llm_evaluation.helpers.utils import MetadataExtractor
 
 
 class TestMetadataExtractor(unittest.TestCase):

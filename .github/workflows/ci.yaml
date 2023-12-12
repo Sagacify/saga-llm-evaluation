@@ -1,4 +1,5 @@
 name: Continuous Integration
+
 on:
   pull_request:
 jobs:
@@ -36,15 +37,15 @@ jobs:
 
       - name: Install packages & build
         run: |
-          poetry install
+          poetry install -E docs
 
       - name: Run formatter
         run: |
-          poetry run black --check saga_llm_evaluation_ml tests
+          poetry run black --check sagacify_llm_evaluation tests
 
       - name: Run linter
         run: |
-          poetry run pylint saga_llm_evaluation_ml tests
+          poetry run pylint sagacify_llm_evaluation tests
 
       - name: Run tests
         run: |
