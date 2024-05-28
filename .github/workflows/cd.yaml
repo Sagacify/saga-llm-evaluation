@@ -52,4 +52,4 @@ jobs:
 
       - name: Push to private PyPI registry
         if: ${{ steps.new_version.outputs.version != steps.current_version.outputs.version }}
-        run: poetry publish --repository sagacify
+        run: poetry publish

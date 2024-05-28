@@ -40,11 +40,11 @@ jobs:
 
       - name: Run formatter
         run: |
-          poetry run black --check saga_llm_evaluation_ml tests
+          poetry run black --check saga_llm_evaluation tests
 
       - name: Run linter
         run: |
-          poetry run pylint saga_llm_evaluation_ml tests
+          poetry run pylint saga_llm_evaluation tests
 
       - name: Run tests
         run: |

@@ -2,7 +2,7 @@ import numpy as np
 from huggingface_hub import hf_hub_download
 from llama_cpp import Llama
 
-from saga_llm_evaluation_ml.helpers.utils import check_list_type
+from saga_llm_evaluation.helpers.utils import check_list_type
 
 # pylint: disable=consider-iterating-dictionary
 # pylint: disable=too-many-locals
