@@ -1,6 +1,11 @@
 import unittest
 
-from saga_llm_evaluation_ml.helpers.language_metrics import BLEURTScore, QSquared
+import pytest
+
+from saga_llm_evaluation.helpers.language_metrics import BLEURTScore, QSquared
+
+# skip it for github actions, too many resources needed. Test locally
+pytest.skip(allow_module_level=True)
 
 
 class TestBLEURTScore(unittest.TestCase):

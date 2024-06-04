@@ -2,8 +2,8 @@ import unittest
 
 import pytest
 
-from saga_llm_evaluation_ml.helpers.utils import load_json
-from saga_llm_evaluation_ml.score import LLMScorer
+from saga_llm_evaluation.helpers.utils import load_json
+from saga_llm_evaluation.score import LLMScorer
 from tests import LLAMA_MODEL
 
 # skip it for github actions, too many resources needed. Test locally
@@ -27,7 +27,7 @@ class TestLLMScorer(unittest.TestCase):
         knowledge = "You are a cat. You don't like dogs."
         prediction = "I am a cat, I don't like dogs."
         reference = "I am a cat, I don't like dogs, miau."
-        config = load_json("saga_llm_evaluation_ml/scorer.json")
+        config = load_json("saga_llm_evaluation/scorer.json")
 
         with self.assertRaises(AssertionError):
             self.scorer.score(False, knowledge, prediction, reference, config)
@@ -56,7 +56,7 @@ class TestLLMScorer(unittest.TestCase):
         knowledge = "Example: Eww, I hate dogs."
         prediction = "I am a cat, I don't like dogs."
         reference = "I am a cat, I don't like dogs, miau."
-        config = load_json("saga_llm_evaluation_ml/scorer.json")
+        config = load_json("saga_llm_evaluation/scorer.json")
 
         scores = self.scorer.score(
             user_prompt=user_prompt,

@@ -1,7 +1,7 @@
 import os
 import sys
 
-from saga_llm_evaluation_ml.helpers.utils import get_llama_model
+from saga_llm_evaluation.helpers.utils import get_llama_model
 
 MODULE_ROOT = os.path.abspath("/www/app/src")
 sys.path.append(MODULE_ROOT)

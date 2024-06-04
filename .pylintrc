@@ -98,7 +98,6 @@ disable=missing-module-docstring,
         fixme,
         unspecified-encoding,
         duplicate-code,
-        no-self-use,
         too-few-public-methods,
         attribute-defined-outside-init
 

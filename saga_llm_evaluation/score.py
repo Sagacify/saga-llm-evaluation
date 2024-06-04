@@ -1,7 +1,7 @@
-from saga_llm_evaluation_ml.helpers.embedding_metrics import MAUVE, BERTScore
-from saga_llm_evaluation_ml.helpers.language_metrics import BLEURTScore, QSquared
-from saga_llm_evaluation_ml.helpers.llm_metrics import GEval, GPTScore, SelfCheckGPT
-from saga_llm_evaluation_ml.helpers.utils import (
+from saga_llm_evaluation.helpers.embedding_metrics import MAUVE, BERTScore
+from saga_llm_evaluation.helpers.language_metrics import BLEURTScore, QSquared
+from saga_llm_evaluation.helpers.llm_metrics import GEval, GPTScore, SelfCheckGPT
+from saga_llm_evaluation.helpers.utils import (
     MetadataExtractor,
     check_list_type,
     filter_class_input,
@@ -65,7 +65,7 @@ class LLMScorer:
     ) -> None:
 
         self.config = (
-            config if config else load_json("./saga_llm_evaluation_ml/scorer.json")
+            config if config else load_json("./saga_llm_evaluation/scorer.json")
         )
         assert isinstance(metrics, list), "metrics must be a list."
         assert isinstance(self.config, dict), "config file must be a dict."
