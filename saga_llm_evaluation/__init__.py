@@ -9,4 +9,4 @@ from .helpers.language_metrics import BLEURTScore, QSquared
 from .helpers.llm_metrics import GEval, GPTScore, SelfCheckGPT
 from .helpers.utils import MetadataExtractor, get_llama_model
 
-__version__ = "0.7.2"
+__version__ = "0.8.0"

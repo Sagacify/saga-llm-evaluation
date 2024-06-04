@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.0 (2024-06-04)
+
+### Feature
+
+* Make publishing public to PyPI ([`64fbb80`](https://github.com/Sagacify/saga-llm-evaluation/commit/64fbb809da59b3ec46c9d4845394717bc0adf862))
+
 ## v0.7.2 (2023-12-08)
 
 ### Fix
