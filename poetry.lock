@@ -1062,23 +1062,6 @@ files = [
 dev = ["coverage", "coveralls", "pytest"]
 
 [[package]]
-name = "en-core-web-sm"
-version = "3.7.0"
-description = "English pipeline optimized for CPU. Components: tok2vec, tagger, parser, senter, ner, attribute_ruler, lemmatizer."
-optional = false
-python-versions = "*"
-files = [
-    {file = "en_core_web_sm-3.7.0-py3-none-any.whl", hash = "sha256:6215d71a3212690e9aec49408a27e3fe6ad7cd6c715476e93d70dc784041e93e"},
-]
-
-[package.dependencies]
-spacy = ">=3.7.0,<3.8.0"
-
-[package.source]
-type = "url"
-url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.0/en_core_web_sm-3.7.0-py3-none-any.whl"
-
-[[package]]
 name = "evaluate"
 version = "0.4.1"
 description = "HuggingFace community-driven open-source library of evaluation"
@@ -1292,23 +1275,6 @@ files = [
     {file = "fqdn-1.5.1-py3-none-any.whl", hash = "sha256:3a179af3761e4df6eb2e026ff9e1a3033d3587bf980a0b1b2e1e5d08d7358014"},
     {file = "fqdn-1.5.1.tar.gz", hash = "sha256:105ed3677e767fb5ca086a0c1f4bb66ebc3c100be518f0e0d755d9eae164d89f"},
 ]
-
-[[package]]
-name = "fr-core-news-sm"
-version = "3.7.0"
-description = "French pipeline optimized for CPU. Components: tok2vec, morphologizer, parser, senter, ner, attribute_ruler, lemmatizer."
-optional = false
-python-versions = "*"
-files = [
-    {file = "fr_core_news_sm-3.7.0-py3-none-any.whl", hash = "sha256:37e9f1f6a278a5138fabdabcc92cc559da917f9b24c76f0adf6758720d7eab10"},
-]
-
-[package.dependencies]
-spacy = ">=3.7.0,<3.8.0"
-
-[package.source]
-type = "url"
-url = "https://github.com/explosion/spacy-models/releases/download/fr_core_news_sm-3.7.0/fr_core_news_sm-3.7.0-py3-none-any.whl"
 
 [[package]]
 name = "frozenlist"
@@ -6092,4 +6058,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.11"
-content-hash = "d275440a2667c250027f85147f1a09922700bb616c09d141333a48bdf8aa75d3"
+content-hash = "0a8b22fcb0f9755cb6993d77ed3410b12e8e908b65c4c7e90f34d409a8773b92"
