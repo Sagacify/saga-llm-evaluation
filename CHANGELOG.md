@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.9.0 (2024-06-27)
+
+### Feature
+
+* **cd:** Add token pypi to poetry in cd ([`0879230`](https://github.com/Sagacify/saga-llm-evaluation/commit/087923004d82420ab61d1ea4832609be76da93fd))
+
 ## v0.8.0 (2024-06-04)
 
 ### Feature
