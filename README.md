@@ -36,6 +36,10 @@ Moreover, to use BLEURTScore, you first need to install BLEURT from the official
 
 ```pip install git+https://github.com/google-research/bleurt.git```
 
+Finally, spaCy is required for some metrics. You can install spaCy language models as follows (as of now, only English and French are supported):
+
+```python -m spacy download en_core_web_sm fr-core-news-sm```
+
 ## Usage
 
 ### Default use of the Scorer
