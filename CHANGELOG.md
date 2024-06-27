@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.10.1 (2024-06-27)
+
+### Fix
+
+* **pyproject:** Remove spacy language models too ([`176b291`](https://github.com/Sagacify/saga-llm-evaluation/commit/176b291c7684946ba45948af60aaaef46d984a28))
+
 ## v0.10.0 (2024-06-27)
 
 ### Feature
