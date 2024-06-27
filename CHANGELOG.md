@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.10.0 (2024-06-27)
+
+### Feature
+
+* **pyproject:** Remove bleurt from dependencies, add it to readme ([`49ffac0`](https://github.com/Sagacify/saga-llm-evaluation/commit/49ffac01dbcd37978b567cb784b4844d6712c7b0))
+
 ## v0.9.0 (2024-06-27)
 
 ### Feature
