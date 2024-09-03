@@ -1,0 +1,2027 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>saga_llm_evaluation_ml.helpers.llm_metrics API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>saga_llm_evaluation_ml.helpers.llm_metrics</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import numpy as np
+from huggingface_hub import hf_hub_download
+from llama_cpp import Llama
+
+
+class SelfCheckGPT:
+    def __init__(
+        self,
+        model,
+        eval_model=False,
+        eval_model_name_or_path=&#34;TheBloke/Llama-2-7b-Chat-GGUF&#34;,
+        eval_model_basename=&#34;llama-2-7b-chat.Q4_K_M.gguf&#34;,
+    ):
+        &#34;&#34;&#34;
+        This class implements the self-check GPT evaluation metric for generative language models.
+        It is inspired by the self-check metric proposed in https://arxiv.org/pdf/2303.08896.pdf.
+        Args:
+            model (transformers.PreTrainedModel): GPT model to evaluate.
+            eval_model (LLama model, optional): Evaluation model. If False, the evaluation model is
+            downloaded from the HuggingFace Hub.
+            eval_model_name_or_path (str): Evaluation model name or path. Defaults to &#34;TheBloke/Llama-2-7b-Chat-GGUF&#34;.
+            eval_model_basename (str): Evaluation model basename. Defaults to &#34;llama-2-7b-chat.Q4_K_M.gguf&#34;.
+        &#34;&#34;&#34;
+        assert isinstance(
+            eval_model_name_or_path, str
+        ), &#34;eval_model_name_or_path must be a string.&#34;
+        assert isinstance(
+            eval_model_basename, str
+        ), &#34;eval_model_basename must be a string.&#34;
+
+        self.model = model
+        if not eval_model:
+            self.eval_model_path = hf_hub_download(
+                repo_id=eval_model_name_or_path, filename=eval_model_basename
+            )
+
+            self.eval_model = Llama(
+                model_path=self.eval_model_path, n_threads=2, verbose=False  # CPU cores
+            )
+        else:
+            self.eval_model = eval_model
+
+    def get_prompt(self, pred, sample, question):
+        &#34;&#34;&#34;
+        This method returns a prompt template given a candidate sentence, a sample sentence, and a question.
+        Args:
+            pred (str): Candidate sentence.
+            sample (str): Sample sentence.
+            question (str): Question asked to the model for which it generated $pred.
+
+        Returns:
+            str: Prompt template.
+        &#34;&#34;&#34;
+        system_prompt = &#34;You are a helpful, polite and concise assistant. Your task is to check if two texts provide the same answer to a given question. Always answer with a single word. The possible answers are either YES or NO.\n\n&#34;
+        question = &#34;###Question:\n&#34; + question
+        text1 = &#34;\n###Text 1: &#34; + sample
+        text2 = &#34;\n###Text 2: &#34; + pred
+
+        prompt_template = f&#34;&#34;&#34;SYSTEM: {system_prompt}
+        USER: {question + text1 + text2}
+        ASSISTANT (YES or NO):&#34;&#34;&#34;
+
+        return prompt_template
+
+    def get_prompts(self, pred, samples, question):
+        &#34;&#34;&#34;
+        This method returns a list of prompt templates given a candidate sentence, a list
+        of sample sentences, and a question.
+        Args:
+            pred (str): Candidate sentence.
+            samples (list of str): List of sample sentences.
+            question (str): Question asked to the model for which it generated $pred.
+
+        Returns:
+            list: List of prompt templates.
+        &#34;&#34;&#34;
+        return [self.get_prompt(pred, sample, question) for sample in samples]
+
+    def compute(self, question, pred, n_samples):
+        &#34;&#34;&#34;
+        Args:
+            question (str): Question asked to the model for which it generated $pred.
+            pred (str): Candidate sentence.
+            n_samples (int): Number of samples to generate.
+
+        Returns:
+            score (float): Score for the candidate sentence.
+        &#34;&#34;&#34;
+        assert isinstance(question, str), &#34;Prediction must be a string.&#34;
+        assert isinstance(pred, str), &#34;Prediction must be a string.&#34;
+        assert isinstance(n_samples, int), &#34;Number of samples must be an integer.&#34;
+        assert n_samples &gt; 0, &#34;Number of samples must be greater than 0.&#34;
+        assert question and pred, &#34;Question and prediction must be non-empty.&#34;
+
+        # Generate n_samples samples from the model
+        samples = []
+        for _ in range(n_samples):
+            system_prompt = &#34;You are a helpful, respectful and honest assistant. Always answer as helpfully as possible.&#34;
+            prompt_template = f&#34;&#34;&#34;SYSTEM: {system_prompt}
+            USER: {question}
+            ASSISTANT:&#34;&#34;&#34;
+
+            response = self.model(prompt_template, max_tokens=200)
+            sample = response[&#34;choices&#34;][0][&#34;text&#34;]
+            samples.append(sample)
+
+        # For each sample, ask evaluator model to evaluate the sample
+        prompts = self.get_prompts(pred, samples, question)
+        scores = []
+        for prompt in prompts:
+            answer = self.eval_model(prompt, max_tokens=200)[&#34;choices&#34;][0][&#34;text&#34;]
+            scores.append(answer)
+
+        # Compute the score: how often the sentence if supported by the sample
+        score = np.mean([1 if &#34;yes&#34; in score.lower() else 0 for score in scores])
+
+        return score
+
+
+class GEval:
+    def __init__(
+        self,
+        model=False,
+        model_name_or_path=&#34;TheBloke/Llama-2-7b-Chat-GGUF&#34;,
+        model_basename=&#34;llama-2-7b-chat.Q4_K_M.gguf&#34;,
+    ):
+        &#34;&#34;&#34;
+        This class implements the GEval evaluation metric for generative language models.
+        It is inspired by the GEval metric proposed in https://arxiv.org/pdf/2303.16634.pdf.
+        Args:
+            model (Llama model): model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.
+            model_name_or_path (str): Model name or path. Defaults to &#34;TheBloke/Llama-2-7b-Chat-GGUF&#34;.
+            model_basename (str): Model basename. Defaults to &#34;llama-2-7b-chat.Q4_K_M.gguf&#34;.
+        &#34;&#34;&#34;
+        assert isinstance(
+            model_name_or_path, str
+        ), &#34;model_name_or_path must be a string.&#34;
+        assert isinstance(model_basename, str), &#34;model_basename must be a string.&#34;
+
+        if not model:
+            self.model_path = hf_hub_download(
+                repo_id=model_name_or_path, filename=model_basename
+            )
+
+            self.lcpp_llm = Llama(
+                model_path=self.model_path,
+                n_threads=2,  # CPU cores
+                logits_all=True,
+                n_ctx=1000,
+            )
+        else:
+            self.lcpp_llm = model
+
+        self.tasks = {
+            &#34;summ&#34;: &#34;You will be given one summary written for a news article. Your task is to rate the summary on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.&#34;,
+            &#34;diag&#34;: &#34;You will be given a conversation between two individuals. You will then be given one potential response for the next turn in the conversation. The response concerns an interesting fact, which will be provided as well. Your task is to rate the responses on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.&#34;,
+        }
+        self.aspects = {
+            &#34;COH&#34;: {
+                &#34;name&#34;: &#34;Coherence&#34;,
+                &#34;prompt&#34;: &#34;Coherence (1-5) - the collective quality of all sentences. We align this dimension with the DUC quality question of structure and coherence whereby ”the summary should be well-structured and well-organized. The summary should not just be a heap of related information, but should build from sentence to sentence to a coherent body of information about a topic.”&#34;,
+            },
+            &#34;CON&#34;: {
+                &#34;name&#34;: &#34;Consistency&#34;,
+                &#34;prompt&#34;: &#34;Consistency (1-5) - the factual alignment between the summary and the summarized source. A factually consistent summary contains only statements that are entailed by the source document. Annotators were also asked to penalize summaries that contained hallucinated facts. &#34;,
+            },
+            &#34;ENG&#34;: {
+                &#34;name&#34;: &#34;Engagingness&#34;,
+                &#34;prompt&#34;: &#34;Engagingness (1-5) - Is the response dull/interesting? - A score of 1 indicates that the response is dull and uninteresting. A score of 5 indicates that the response is interesting and engaging.&#34;,
+            },
+            &#34;FLU&#34;: {
+                &#34;name&#34;: &#34;Fluency&#34;,
+                &#34;prompt&#34;: &#34;Fluency (1-5) - the quality of the summary in terms of grammar, spelling, punctuation, word choice, and sentence structure. - 1: Poor. The summary is difficult to read and understand. It contains many grammatical errors, spelling mistakes, and/or punctuation errors. - 2: Fair. The summary is somewhat difficult to read and understand. It contains some grammatical errors, spelling mistakes, and/or punctuation errors. - 3: Good. The summary is easy to read and understand. It contains few grammatical errors, spelling mistakes, and/or punctuation errors. - 4: Very Good. The summary is easy to read and understand. It contains no grammatical errors, spelling mistakes, and/or punctuation errors. - 5: Excellent. The summary is easy to read and understand. It contains no grammatical errors, spelling mistakes, and/or punctuation errors.&#34;,
+            },
+            &#34;REL&#34;: {
+                &#34;name&#34;: &#34;Relevance&#34;,
+                &#34;prompt&#34;: &#34;Relevance (1-5) - selection of important content from the source. The summary should include only important information from the source document. Annotators were instructed to penalize summaries which contained redundancies and excess information.&#34;,
+            },
+            &#34;POL&#34;: {
+                &#34;name&#34;: &#34;Politeness&#34;,
+                &#34;prompt&#34;: &#34;Politeness (1-5) - the degree to which the response is polite. - 1: Very impolite. The response is very impolite. - 2: Somewhat impolite. The response is somewhat impolite. - 3: Neutral. The response is neutral. - 4: Somewhat polite. The response is somewhat polite. - 5: Very polite. The response is very polite.&#34;,
+            },
+        }
+
+    def add_task(self, name, definition):
+        &#34;&#34;&#34;
+        This method adds a task to the list of pre-defined tasks.
+        Please try to follow the following example pattern to ensure consistency.
+        Example:
+        &#34;summ&#34;: &#34;You will be given one summary written for a news article. Your task is to rate the summary on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.&#34;,
+
+        Args:
+            name (str): Task name.
+            definition (str): Task description.
+        &#34;&#34;&#34;
+        assert isinstance(name, str), &#34;name must be a string.&#34;
+        assert isinstance(definition, str), &#34;definition must be a string.&#34;
+
+        self.tasks[name] = definition
+
+    def add_aspect(self, code, name, prompt):
+        &#34;&#34;&#34;
+        This method adds an aspect to the list of pre-defined aspects.
+        Please try to follow the following example pattern to ensure consistency.
+        Example:
+        &#34;COH&#34;: {
+            &#34;name&#34;: &#34;Coherence&#34;,
+            &#34;prompt&#34;: &#34;Coherence (1-5) - the collective quality of all sentences. We align this dimension with the DUC quality question of structure and coherence whereby ”the summary should be well-structured and well-organized. The summary should not just be a heap of related information, but should build from sentence to sentence to a coherent body of information about a topic.”&#34;,
+        },
+
+        Args:
+            code (str): Aspect code.
+            name (str): Aspect name.
+            prompt (str): Aspect prompt.
+        &#34;&#34;&#34;
+        assert isinstance(code, str), &#34;code must be a string.&#34;
+        assert isinstance(name, str), &#34;name must be a string.&#34;
+        assert isinstance(prompt, str), &#34;prompt must be a string.&#34;
+
+        self.aspects[code] = {&#34;name&#34;: name, &#34;prompt&#34;: prompt}
+
+    def get_prediction(self, prompt):
+        &#34;&#34;&#34;
+        This method returns a prediction given a prompt template.
+        Args:
+            prompt (str): Prompt template.
+
+        Returns:
+            response (dict): Response from the model.
+        &#34;&#34;&#34;
+        response = self.lcpp_llm.create_completion(
+            prompt=prompt,
+            max_tokens=250,
+            temperature=0.5,
+            top_p=0.95,
+            logprobs=5,
+            repeat_penalty=1.2,
+            top_k=50,
+            echo=True,
+        )
+        return response
+
+    def get_cot(self, prompt):
+        &#34;&#34;&#34;
+        This method returns a chain of thoughts given a prompt template.
+        Args:
+            prompt (str): Prompt template.
+
+        Returns:
+            cot (str): Chain of thoughts.
+        &#34;&#34;&#34;
+        title = &#34;\nEvaluation steps:\n&#34;
+        cot = self.get_prediction(prompt + title)[&#34;choices&#34;][0][&#34;text&#34;]
+        return cot
+
+    # pylint: disable=consider-iterating-dictionary
+    def get_prompt(self, src, pred, task, aspect, custom_prompt):
+        &#34;&#34;&#34;
+        Args:
+            src (str): Source text.
+            pred (str): Candidate sentence to evaluate.
+            task (str): Definition of the task.
+            aspect (str): Evaluation criterion code.
+            custom_prompt (dict): Custom prompt template.
+                Must contain the following keys: &#34;task&#34;, &#34;aspect&#34;, &#34;name&#34;.
+        &#34;&#34;&#34;
+        definition = (
+            &#34;\n Task definition:\n&#34; + self.tasks[task]
+            if task in self.tasks.keys()
+            else custom_prompt[&#34;task&#34;]
+        )
+        crit = (
+            &#34;\n Evaluation criteria:\n&#34; + self.aspects[aspect][&#34;prompt&#34;]
+            if aspect in self.aspects.keys()
+            else custom_prompt[&#34;aspect&#34;]
+        )
+        name = (
+            self.aspects[aspect][&#34;name&#34;]
+            if aspect in self.aspects.keys()
+            else custom_prompt[&#34;name&#34;]
+        )
+
+        prompt = f&#34;{definition} {crit}&#34;
+
+        # Chain of thoughts, set of intermediate instructions generated by llm detailing evaluation steps
+        auto_cot = self.get_cot(prompt)
+
+        return (
+            prompt
+            + auto_cot
+            + &#34;\n Example:\n Source Text:\n&#34;
+            + src
+            + &#34;\n Generated text:\n&#34;
+            + pred
+            + &#34;\n Evaluation Form (scores ONLY):\n&#34;
+            + name
+            + &#34;: &#34;
+        )
+
+    def get_score(self, prompt):
+        &#34;&#34;&#34;
+        Args:
+            prompt (str): Prompt template.
+
+        Returns:
+            score (float): Score for the candidate sentence.
+        &#34;&#34;&#34;
+        response = self.get_prediction(prompt)
+        tokens = response[&#34;choices&#34;][0][&#34;logprobs&#34;][&#34;tokens&#34;]
+        top_logprobs = response[&#34;choices&#34;][0][&#34;logprobs&#34;][&#34;top_logprobs&#34;]
+
+        # Extract evaluation form from tokens ()
+        template_tokens = [
+            &#34; E&#34;,
+            &#34;valu&#34;,
+            &#34;ation&#34;,
+            &#34; Form&#34;,
+            &#34; (&#34;,
+            &#34;sc&#34;,
+            &#34;ores&#34;,
+            &#34; ON&#34;,
+            &#34;LY&#34;,
+            &#34;):&#34;,
+        ]
+        start_index = tokens.index(template_tokens[-1]) + 1
+        # Extract number index from the remaining tokens
+        for token in tokens[start_index:]:
+            if token.isdigit():
+                number_index = tokens.index(token)
+                break
+
+        # Get logprobs associated with number
+        logprobs = top_logprobs[number_index]
+
+        # Compute score
+        # Get only keys that are numbers
+        number_keys = [int(key) for key in logprobs.keys() if key.isdigit()]
+        number_logprobs = [logprobs[str(key)] for key in number_keys]
+        number_probs = [np.exp(logprob) for logprob in number_logprobs]
+
+        score = np.sum(np.multiply(number_keys, number_probs)) / len(number_keys)
+
+        return score
+
+    def compute(self, source, pred, task=None, aspect=None, custom_prompt=None):
+        &#34;&#34;&#34;
+        This method computes the GEval score for a candidate sentence given a source text,
+        a prompt template, an aspect to evaluate, and a task description.
+        Args:
+            source (str): Source text.
+            pred (str): Candidate sentence to evaluate.
+            task (str, optional): Definition of the task.
+            aspect (str, optional): Evaluation criterion code.
+            custom_prompt (dict, optional): Custom prompt template. Defaults to None.
+
+        Returns:
+            score (float): Score for the candidate sentence.
+        &#34;&#34;&#34;
+        assert isinstance(source, str), &#34;source must be a string.&#34;
+        assert isinstance(pred, str), &#34;pred must be a string.&#34;
+        assert isinstance(task, str) or task is None, &#34;task must be a string or None.&#34;
+        assert (
+            isinstance(aspect, str) or aspect is None
+        ), &#34;aspect must be a string or None.&#34;
+        assert custom_prompt is None or isinstance(
+            custom_prompt, dict
+        ), &#34;custom_prompt must be a dict.&#34;
+        if aspect:
+            assert (
+                aspect in self.aspects.keys()
+            ), &#34;aspect is not in the list of criteria.&#34;
+        if not custom_prompt:
+            assert (
+                task and aspect
+            ), &#34;task and aspect must be given if no custom_prompt is given.&#34;
+        if not (task and aspect):
+            assert (
+                custom_prompt
+            ), &#34;custom_prompt must be given if task and aspect are not given.&#34;
+
+        prompt = self.get_prompt(source, pred, task, aspect, custom_prompt)
+        return self.get_score(prompt)
+
+
+class GPTScore:
+    # pylint: disable=f-string-without-interpolation
+    def __init__(
+        self,
+        model=False,
+        model_name_or_path=&#34;TheBloke/Llama-2-7b-Chat-GGUF&#34;,
+        model_basename=&#34;llama-2-7b-chat.Q4_K_M.gguf&#34;,
+    ):
+        &#34;&#34;&#34;
+        This class implements the GPTScore evaluation metric for generative language models.
+        It is inspired by the GPTScore metric proposed in https://arxiv.org/pdf/2302.04166.pdf.
+        Args:
+            model (Llama model): model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.
+            model_name_or_path (str): Model name or path. Defaults to &#34;TheBloke/Llama-2-7b-Chat-GGUF&#34;.
+            model_basename (str): Model basename. Defaults to &#34;llama-2-7b-chat.Q4_K_M.gguf&#34;.
+        &#34;&#34;&#34;
+        assert isinstance(
+            model_name_or_path, str
+        ), &#34;model_name_or_path must be a string.&#34;
+        assert isinstance(model_basename, str), &#34;model_basename must be a string.&#34;
+
+        self.templates = {
+            &#34;summ&#34;: {
+                &#34;FAC&#34;: f&#34;Generate a summary with consistent facts for the following text: {{src}}\n\nTl;dr{{pred}}&#34;,
+                &#34;COV&#34;: f&#34;Generate a summary with as much semantic coverage as possible for the following text: {{src}}\n\nTl;dr{{pred}}&#34;,
+                &#34;CON&#34;: f&#34;Generate factually consistent summary for the following text: {{src}}\n\nTl;dr{{pred}}&#34;,
+                &#34;INF&#34;: f&#34;Generate an informative summary that captures the key points of the following text:{{src}}\n\nTl;dr{{pred}}&#34;,
+                &#34;COH&#34;: f&#34;Generate a coherent summary for the following text: {{src}}\n\nTl;dr{{pred}}&#34;,
+                &#34;REL&#34;: f&#34;Generate a relevant summary with consistent details for the following text: {{src}}\n\nTl;dr{{pred}}&#34;,
+                &#34;FLU&#34;: f&#34;Generate a fluent and grammatical summary for the following text: {{src}}\n\nTl;dr{{pred}}&#34;,
+            },
+            &#34;MT&#34;: {
+                &#34;ACC&#34;: f&#34;Rewrite the following text with its core information and consistent facts:{{src}} In other words, {{pred}}&#34;,
+                &#34;FLU&#34;: f&#34;Rewrite the following text to make it more grammatical and well-written:{{src}} In other words,{{pred}}&#34;,
+                &#34;MQM&#34;: f&#34;Rewrite the following text into high-quality text with its core information:{{src}} In other words,{{pred}}&#34;,
+            },
+            &#34;D2T&#34;: {
+                &#34;INF&#34;: f&#34;Convert the following text to another expression that preserves key information:\n\n{{src}} In other words, {{pred}}&#34;,
+                &#34;NAT&#34;: f&#34;Convert the following text into another expression that is human-like and natural:\n\n{{src}} In other words, {{pred}}&#34;,
+                &#34;FLU&#34;: f&#34;Convert the following text into another expression that preserves key information and is human-like and natural:\n\n{{src}} In other words, {{pred}}&#34;,
+            },
+            &#34;diag&#34;: {
+                &#34;COH&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;DIV&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Is there diversity in the AI responses? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;FLE&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI flexible and adaptable to human and their interests? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;UND&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI seem to understand the human? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;INQ&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI inquisitive throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;CON&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Are the responses of AI consistent in the information it provides throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;INF&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Are the responses of AI informative throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;LIK&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI display a likeable personality? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;DEP&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI discuss topics in depth? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;ERR&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI able to recover from errors that it makes? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+            },
+        }
+
+        self.tasks = self.templates.keys()
+        self.aspects = list(
+            {aspect for task in self.tasks for aspect in self.templates[task]}
+        )
+
+        if not model:
+            self.model_path = hf_hub_download(
+                repo_id=model_name_or_path, filename=model_basename
+            )
+
+            self.lcpp_llm = Llama(
+                model_path=self.model_path,
+                n_threads=2,  # CPU cores
+                logits_all=True,
+            )
+        else:
+            self.lcpp_llm = model
+
+    def add_template(self, task, code, prompt):
+        &#34;&#34;&#34;
+        This method adds a template to the list of pre-defined template.
+        Please try to follow the following example pattern to ensure consistency.
+        Example:
+        &#34;diag&#34;: {
+            &#34;COH&#34;: f&#34;Answer the question based on the conversation between a human and AI.
+            \nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation?
+            (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+        }
+
+        Args:
+            task (str): Task name.
+            code (str): Aspect code.
+            prompt (str): Aspect prompt.
+        &#34;&#34;&#34;
+        assert isinstance(task, str), &#34;task must be a string.&#34;
+        assert isinstance(code, str), &#34;code must be a string.&#34;
+        assert isinstance(prompt, str), &#34;prompt must be a string.&#34;
+
+        self.templates[task][code] = prompt
+
+    def get_prompt(self, aspect, task, src, pred, custom_prompt):
+        &#34;&#34;&#34;
+        This method returns a prompt template given a task description, and an aspect to evaluate.
+        Args:
+            src (str): Source text.
+            pred (str): Candidate sentence.
+            aspect (str): Aspect to evaluate.
+            task (str): Task description.
+            custom_prompt (dict): Custom prompt template. Defaults to None.
+                Must contain the following keys: &#34;task&#34;, &#34;aspect&#34;.
+        Returns:
+            str: Prompt template.
+        &#34;&#34;&#34;
+        if aspect and task:
+            assert (
+                aspect in self.templates[task]
+            ), f&#34;Aspect {aspect} is not available for task {task}.&#34;
+            assert self.templates[task][
+                aspect
+            ], f&#34;Prompt template for aspect {aspect} and task {task} is non-existent. Please specify a prompt template.&#34;
+
+        template = (
+            self.templates[task][aspect]
+            if (aspect and task)
+            else str(custom_prompt[&#34;task&#34;])
+            + &#34;\nQuestion: &#34;
+            + str(custom_prompt[&#34;aspect&#34;])
+            + &#34;(a) Yes. (b) No.\nConversation:\nUser: {src}\nAI: {pred}\nAnswer:&#34;
+        )
+
+        # Replace placeholders with source and candidate sentence
+        template = template.replace(&#34;{src}&#34;, src)
+        template = template.replace(&#34;{pred}&#34;, pred)
+
+        return template
+
+    def compute(self, source, pred, prompt=None, aspect=None, task=None):
+        &#34;&#34;&#34;
+        This method computes the GPTScore for a candidate sentence given a source text,
+        a prompt template, an aspect to evaluate, and a task description.
+        Args:
+            source (str): Source text.
+            pred (str): Candidate sentence.
+            prompt (dict, optional): Custom prompt template. Defaults to None.
+                Must contain the following keys: &#34;task&#34;, &#34;aspect&#34;, &#34;name&#34;.
+            aspect (str, optional): Aspect to evaluate. Defaults to None.
+            task (str, optional): Task description. Defaults to None.
+        Returns:
+            score (float): Score for the candidate sentence.
+        &#34;&#34;&#34;
+        assert isinstance(source, str), &#34;Source must be a string.&#34;
+        assert isinstance(pred, str), &#34;Pred must be a string.&#34;
+
+        # If prompt is given, check that it is a string
+        if prompt:
+            assert isinstance(prompt, dict), &#34;prompt must be a dict.&#34;
+            assert not aspect, &#34;aspect must not be given if prompt is given.&#34;
+            assert not task, &#34;aspect must not be given if prompt is given.&#34;
+            assert (
+                &#34;task&#34; in prompt.keys() and &#34;aspect&#34; in prompt.keys()
+            ), &#34;prompt must contain the following keys: &#39;task&#39;, &#39;aspect&#39;&#34;
+        else:
+            # If prompt is not given, check that task and aspect are given
+            assert aspect, &#34;Aspect must be given if prompt is not given.&#34;
+            assert task, &#34;Task must be given if prompt is not given.&#34;
+
+        # If aspect is given, check that it is a string
+        if aspect:
+            assert isinstance(aspect, str), &#34;Aspect must be a string.&#34;
+            assert aspect in self.aspects, f&#34;Aspect must be one of {self.aspects}.&#34;
+
+        # If task is given, check that it is a string
+        if task:
+            assert isinstance(task, str), &#34;Task must be a string.&#34;
+            assert task in self.tasks, f&#34;Task must be one of {self.tasks}.&#34;
+
+        # Generative LLM is given a prompt template and some context information
+        prompt = self.get_prompt(aspect, task, source, pred, prompt)
+
+        response = self.lcpp_llm.create_completion(
+            prompt=prompt,
+            max_tokens=500,
+            temperature=0.5,
+            top_p=0.95,
+            logprobs=1,
+            repeat_penalty=1.2,
+            top_k=50,
+            echo=True,
+        )
+
+        # Compute logprobs
+        # Find the end position of the input...
+        i = response[&#34;choices&#34;][0][&#34;logprobs&#34;][&#34;text_offset&#34;].index(len(prompt))
+        if i == 0:
+            i = i + 1
+
+        # Get logprobs
+        loss = -sum(
+            response[&#34;choices&#34;][0][&#34;logprobs&#34;][&#34;token_logprobs&#34;][i:-1]
+        )  # ignore the last &#39;.&#39;
+        avg_loss = loss / (
+            len(response[&#34;choices&#34;][0][&#34;logprobs&#34;][&#34;text_offset&#34;]) - i - 1
+        )  # 1 is the last &#39;.&#39;
+
+        return avg_loss</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.GEval"><code class="flex name class">
+<span>class <span class="ident">GEval</span></span>
+<span>(</span><span>model=False, model_name_or_path='TheBloke/Llama-2-7b-Chat-GGUF', model_basename='llama-2-7b-chat.Q4_K_M.gguf')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class implements the GEval evaluation metric for generative language models.
+It is inspired by the GEval metric proposed in <a href="https://arxiv.org/pdf/2303.16634.pdf.">https://arxiv.org/pdf/2303.16634.pdf.</a></p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>model</code></strong> :&ensp;<code>Llama model</code></dt>
+<dd>model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.</dd>
+<dt><strong><code>model_name_or_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>Model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".</dd>
+<dt><strong><code>model_basename</code></strong> :&ensp;<code>str</code></dt>
+<dd>Model basename. Defaults to "llama-2-7b-chat.Q4_K_M.gguf".</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GEval:
+    def __init__(
+        self,
+        model=False,
+        model_name_or_path=&#34;TheBloke/Llama-2-7b-Chat-GGUF&#34;,
+        model_basename=&#34;llama-2-7b-chat.Q4_K_M.gguf&#34;,
+    ):
+        &#34;&#34;&#34;
+        This class implements the GEval evaluation metric for generative language models.
+        It is inspired by the GEval metric proposed in https://arxiv.org/pdf/2303.16634.pdf.
+        Args:
+            model (Llama model): model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.
+            model_name_or_path (str): Model name or path. Defaults to &#34;TheBloke/Llama-2-7b-Chat-GGUF&#34;.
+            model_basename (str): Model basename. Defaults to &#34;llama-2-7b-chat.Q4_K_M.gguf&#34;.
+        &#34;&#34;&#34;
+        assert isinstance(
+            model_name_or_path, str
+        ), &#34;model_name_or_path must be a string.&#34;
+        assert isinstance(model_basename, str), &#34;model_basename must be a string.&#34;
+
+        if not model:
+            self.model_path = hf_hub_download(
+                repo_id=model_name_or_path, filename=model_basename
+            )
+
+            self.lcpp_llm = Llama(
+                model_path=self.model_path,
+                n_threads=2,  # CPU cores
+                logits_all=True,
+                n_ctx=1000,
+            )
+        else:
+            self.lcpp_llm = model
+
+        self.tasks = {
+            &#34;summ&#34;: &#34;You will be given one summary written for a news article. Your task is to rate the summary on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.&#34;,
+            &#34;diag&#34;: &#34;You will be given a conversation between two individuals. You will then be given one potential response for the next turn in the conversation. The response concerns an interesting fact, which will be provided as well. Your task is to rate the responses on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.&#34;,
+        }
+        self.aspects = {
+            &#34;COH&#34;: {
+                &#34;name&#34;: &#34;Coherence&#34;,
+                &#34;prompt&#34;: &#34;Coherence (1-5) - the collective quality of all sentences. We align this dimension with the DUC quality question of structure and coherence whereby ”the summary should be well-structured and well-organized. The summary should not just be a heap of related information, but should build from sentence to sentence to a coherent body of information about a topic.”&#34;,
+            },
+            &#34;CON&#34;: {
+                &#34;name&#34;: &#34;Consistency&#34;,
+                &#34;prompt&#34;: &#34;Consistency (1-5) - the factual alignment between the summary and the summarized source. A factually consistent summary contains only statements that are entailed by the source document. Annotators were also asked to penalize summaries that contained hallucinated facts. &#34;,
+            },
+            &#34;ENG&#34;: {
+                &#34;name&#34;: &#34;Engagingness&#34;,
+                &#34;prompt&#34;: &#34;Engagingness (1-5) - Is the response dull/interesting? - A score of 1 indicates that the response is dull and uninteresting. A score of 5 indicates that the response is interesting and engaging.&#34;,
+            },
+            &#34;FLU&#34;: {
+                &#34;name&#34;: &#34;Fluency&#34;,
+                &#34;prompt&#34;: &#34;Fluency (1-5) - the quality of the summary in terms of grammar, spelling, punctuation, word choice, and sentence structure. - 1: Poor. The summary is difficult to read and understand. It contains many grammatical errors, spelling mistakes, and/or punctuation errors. - 2: Fair. The summary is somewhat difficult to read and understand. It contains some grammatical errors, spelling mistakes, and/or punctuation errors. - 3: Good. The summary is easy to read and understand. It contains few grammatical errors, spelling mistakes, and/or punctuation errors. - 4: Very Good. The summary is easy to read and understand. It contains no grammatical errors, spelling mistakes, and/or punctuation errors. - 5: Excellent. The summary is easy to read and understand. It contains no grammatical errors, spelling mistakes, and/or punctuation errors.&#34;,
+            },
+            &#34;REL&#34;: {
+                &#34;name&#34;: &#34;Relevance&#34;,
+                &#34;prompt&#34;: &#34;Relevance (1-5) - selection of important content from the source. The summary should include only important information from the source document. Annotators were instructed to penalize summaries which contained redundancies and excess information.&#34;,
+            },
+            &#34;POL&#34;: {
+                &#34;name&#34;: &#34;Politeness&#34;,
+                &#34;prompt&#34;: &#34;Politeness (1-5) - the degree to which the response is polite. - 1: Very impolite. The response is very impolite. - 2: Somewhat impolite. The response is somewhat impolite. - 3: Neutral. The response is neutral. - 4: Somewhat polite. The response is somewhat polite. - 5: Very polite. The response is very polite.&#34;,
+            },
+        }
+
+    def add_task(self, name, definition):
+        &#34;&#34;&#34;
+        This method adds a task to the list of pre-defined tasks.
+        Please try to follow the following example pattern to ensure consistency.
+        Example:
+        &#34;summ&#34;: &#34;You will be given one summary written for a news article. Your task is to rate the summary on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.&#34;,
+
+        Args:
+            name (str): Task name.
+            definition (str): Task description.
+        &#34;&#34;&#34;
+        assert isinstance(name, str), &#34;name must be a string.&#34;
+        assert isinstance(definition, str), &#34;definition must be a string.&#34;
+
+        self.tasks[name] = definition
+
+    def add_aspect(self, code, name, prompt):
+        &#34;&#34;&#34;
+        This method adds an aspect to the list of pre-defined aspects.
+        Please try to follow the following example pattern to ensure consistency.
+        Example:
+        &#34;COH&#34;: {
+            &#34;name&#34;: &#34;Coherence&#34;,
+            &#34;prompt&#34;: &#34;Coherence (1-5) - the collective quality of all sentences. We align this dimension with the DUC quality question of structure and coherence whereby ”the summary should be well-structured and well-organized. The summary should not just be a heap of related information, but should build from sentence to sentence to a coherent body of information about a topic.”&#34;,
+        },
+
+        Args:
+            code (str): Aspect code.
+            name (str): Aspect name.
+            prompt (str): Aspect prompt.
+        &#34;&#34;&#34;
+        assert isinstance(code, str), &#34;code must be a string.&#34;
+        assert isinstance(name, str), &#34;name must be a string.&#34;
+        assert isinstance(prompt, str), &#34;prompt must be a string.&#34;
+
+        self.aspects[code] = {&#34;name&#34;: name, &#34;prompt&#34;: prompt}
+
+    def get_prediction(self, prompt):
+        &#34;&#34;&#34;
+        This method returns a prediction given a prompt template.
+        Args:
+            prompt (str): Prompt template.
+
+        Returns:
+            response (dict): Response from the model.
+        &#34;&#34;&#34;
+        response = self.lcpp_llm.create_completion(
+            prompt=prompt,
+            max_tokens=250,
+            temperature=0.5,
+            top_p=0.95,
+            logprobs=5,
+            repeat_penalty=1.2,
+            top_k=50,
+            echo=True,
+        )
+        return response
+
+    def get_cot(self, prompt):
+        &#34;&#34;&#34;
+        This method returns a chain of thoughts given a prompt template.
+        Args:
+            prompt (str): Prompt template.
+
+        Returns:
+            cot (str): Chain of thoughts.
+        &#34;&#34;&#34;
+        title = &#34;\nEvaluation steps:\n&#34;
+        cot = self.get_prediction(prompt + title)[&#34;choices&#34;][0][&#34;text&#34;]
+        return cot
+
+    # pylint: disable=consider-iterating-dictionary
+    def get_prompt(self, src, pred, task, aspect, custom_prompt):
+        &#34;&#34;&#34;
+        Args:
+            src (str): Source text.
+            pred (str): Candidate sentence to evaluate.
+            task (str): Definition of the task.
+            aspect (str): Evaluation criterion code.
+            custom_prompt (dict): Custom prompt template.
+                Must contain the following keys: &#34;task&#34;, &#34;aspect&#34;, &#34;name&#34;.
+        &#34;&#34;&#34;
+        definition = (
+            &#34;\n Task definition:\n&#34; + self.tasks[task]
+            if task in self.tasks.keys()
+            else custom_prompt[&#34;task&#34;]
+        )
+        crit = (
+            &#34;\n Evaluation criteria:\n&#34; + self.aspects[aspect][&#34;prompt&#34;]
+            if aspect in self.aspects.keys()
+            else custom_prompt[&#34;aspect&#34;]
+        )
+        name = (
+            self.aspects[aspect][&#34;name&#34;]
+            if aspect in self.aspects.keys()
+            else custom_prompt[&#34;name&#34;]
+        )
+
+        prompt = f&#34;{definition} {crit}&#34;
+
+        # Chain of thoughts, set of intermediate instructions generated by llm detailing evaluation steps
+        auto_cot = self.get_cot(prompt)
+
+        return (
+            prompt
+            + auto_cot
+            + &#34;\n Example:\n Source Text:\n&#34;
+            + src
+            + &#34;\n Generated text:\n&#34;
+            + pred
+            + &#34;\n Evaluation Form (scores ONLY):\n&#34;
+            + name
+            + &#34;: &#34;
+        )
+
+    def get_score(self, prompt):
+        &#34;&#34;&#34;
+        Args:
+            prompt (str): Prompt template.
+
+        Returns:
+            score (float): Score for the candidate sentence.
+        &#34;&#34;&#34;
+        response = self.get_prediction(prompt)
+        tokens = response[&#34;choices&#34;][0][&#34;logprobs&#34;][&#34;tokens&#34;]
+        top_logprobs = response[&#34;choices&#34;][0][&#34;logprobs&#34;][&#34;top_logprobs&#34;]
+
+        # Extract evaluation form from tokens ()
+        template_tokens = [
+            &#34; E&#34;,
+            &#34;valu&#34;,
+            &#34;ation&#34;,
+            &#34; Form&#34;,
+            &#34; (&#34;,
+            &#34;sc&#34;,
+            &#34;ores&#34;,
+            &#34; ON&#34;,
+            &#34;LY&#34;,
+            &#34;):&#34;,
+        ]
+        start_index = tokens.index(template_tokens[-1]) + 1
+        # Extract number index from the remaining tokens
+        for token in tokens[start_index:]:
+            if token.isdigit():
+                number_index = tokens.index(token)
+                break
+
+        # Get logprobs associated with number
+        logprobs = top_logprobs[number_index]
+
+        # Compute score
+        # Get only keys that are numbers
+        number_keys = [int(key) for key in logprobs.keys() if key.isdigit()]
+        number_logprobs = [logprobs[str(key)] for key in number_keys]
+        number_probs = [np.exp(logprob) for logprob in number_logprobs]
+
+        score = np.sum(np.multiply(number_keys, number_probs)) / len(number_keys)
+
+        return score
+
+    def compute(self, source, pred, task=None, aspect=None, custom_prompt=None):
+        &#34;&#34;&#34;
+        This method computes the GEval score for a candidate sentence given a source text,
+        a prompt template, an aspect to evaluate, and a task description.
+        Args:
+            source (str): Source text.
+            pred (str): Candidate sentence to evaluate.
+            task (str, optional): Definition of the task.
+            aspect (str, optional): Evaluation criterion code.
+            custom_prompt (dict, optional): Custom prompt template. Defaults to None.
+
+        Returns:
+            score (float): Score for the candidate sentence.
+        &#34;&#34;&#34;
+        assert isinstance(source, str), &#34;source must be a string.&#34;
+        assert isinstance(pred, str), &#34;pred must be a string.&#34;
+        assert isinstance(task, str) or task is None, &#34;task must be a string or None.&#34;
+        assert (
+            isinstance(aspect, str) or aspect is None
+        ), &#34;aspect must be a string or None.&#34;
+        assert custom_prompt is None or isinstance(
+            custom_prompt, dict
+        ), &#34;custom_prompt must be a dict.&#34;
+        if aspect:
+            assert (
+                aspect in self.aspects.keys()
+            ), &#34;aspect is not in the list of criteria.&#34;
+        if not custom_prompt:
+            assert (
+                task and aspect
+            ), &#34;task and aspect must be given if no custom_prompt is given.&#34;
+        if not (task and aspect):
+            assert (
+                custom_prompt
+            ), &#34;custom_prompt must be given if task and aspect are not given.&#34;
+
+        prompt = self.get_prompt(source, pred, task, aspect, custom_prompt)
+        return self.get_score(prompt)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.GEval.add_aspect"><code class="name flex">
+<span>def <span class="ident">add_aspect</span></span>(<span>self, code, name, prompt)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This method adds an aspect to the list of pre-defined aspects.
+Please try to follow the following example pattern to ensure consistency.
+Example:
+"COH": {
+"name": "Coherence",
+"prompt": "Coherence (1-5) - the collective quality of all sentences. We align this dimension with the DUC quality question of structure and coherence whereby ”the summary should be well-structured and well-organized. The summary should not just be a heap of related information, but should build from sentence to sentence to a coherent body of information about a topic.”",
+},</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>code</code></strong> :&ensp;<code>str</code></dt>
+<dd>Aspect code.</dd>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Aspect name.</dd>
+<dt><strong><code>prompt</code></strong> :&ensp;<code>str</code></dt>
+<dd>Aspect prompt.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_aspect(self, code, name, prompt):
+    &#34;&#34;&#34;
+    This method adds an aspect to the list of pre-defined aspects.
+    Please try to follow the following example pattern to ensure consistency.
+    Example:
+    &#34;COH&#34;: {
+        &#34;name&#34;: &#34;Coherence&#34;,
+        &#34;prompt&#34;: &#34;Coherence (1-5) - the collective quality of all sentences. We align this dimension with the DUC quality question of structure and coherence whereby ”the summary should be well-structured and well-organized. The summary should not just be a heap of related information, but should build from sentence to sentence to a coherent body of information about a topic.”&#34;,
+    },
+
+    Args:
+        code (str): Aspect code.
+        name (str): Aspect name.
+        prompt (str): Aspect prompt.
+    &#34;&#34;&#34;
+    assert isinstance(code, str), &#34;code must be a string.&#34;
+    assert isinstance(name, str), &#34;name must be a string.&#34;
+    assert isinstance(prompt, str), &#34;prompt must be a string.&#34;
+
+    self.aspects[code] = {&#34;name&#34;: name, &#34;prompt&#34;: prompt}</code></pre>
+</details>
+</dd>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.GEval.add_task"><code class="name flex">
+<span>def <span class="ident">add_task</span></span>(<span>self, name, definition)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This method adds a task to the list of pre-defined tasks.
+Please try to follow the following example pattern to ensure consistency.
+Example:
+"summ": "You will be given one summary written for a news article. Your task is to rate the summary on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.",</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Task name.</dd>
+<dt><strong><code>definition</code></strong> :&ensp;<code>str</code></dt>
+<dd>Task description.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_task(self, name, definition):
+    &#34;&#34;&#34;
+    This method adds a task to the list of pre-defined tasks.
+    Please try to follow the following example pattern to ensure consistency.
+    Example:
+    &#34;summ&#34;: &#34;You will be given one summary written for a news article. Your task is to rate the summary on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.&#34;,
+
+    Args:
+        name (str): Task name.
+        definition (str): Task description.
+    &#34;&#34;&#34;
+    assert isinstance(name, str), &#34;name must be a string.&#34;
+    assert isinstance(definition, str), &#34;definition must be a string.&#34;
+
+    self.tasks[name] = definition</code></pre>
+</details>
+</dd>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.GEval.compute"><code class="name flex">
+<span>def <span class="ident">compute</span></span>(<span>self, source, pred, task=None, aspect=None, custom_prompt=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This method computes the GEval score for a candidate sentence given a source text,
+a prompt template, an aspect to evaluate, and a task description.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>source</code></strong> :&ensp;<code>str</code></dt>
+<dd>Source text.</dd>
+<dt><strong><code>pred</code></strong> :&ensp;<code>str</code></dt>
+<dd>Candidate sentence to evaluate.</dd>
+<dt><strong><code>task</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Definition of the task.</dd>
+<dt><strong><code>aspect</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Evaluation criterion code.</dd>
+<dt><strong><code>custom_prompt</code></strong> :&ensp;<code>dict</code>, optional</dt>
+<dd>Custom prompt template. Defaults to None.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>score (float): Score for the candidate sentence.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compute(self, source, pred, task=None, aspect=None, custom_prompt=None):
+    &#34;&#34;&#34;
+    This method computes the GEval score for a candidate sentence given a source text,
+    a prompt template, an aspect to evaluate, and a task description.
+    Args:
+        source (str): Source text.
+        pred (str): Candidate sentence to evaluate.
+        task (str, optional): Definition of the task.
+        aspect (str, optional): Evaluation criterion code.
+        custom_prompt (dict, optional): Custom prompt template. Defaults to None.
+
+    Returns:
+        score (float): Score for the candidate sentence.
+    &#34;&#34;&#34;
+    assert isinstance(source, str), &#34;source must be a string.&#34;
+    assert isinstance(pred, str), &#34;pred must be a string.&#34;
+    assert isinstance(task, str) or task is None, &#34;task must be a string or None.&#34;
+    assert (
+        isinstance(aspect, str) or aspect is None
+    ), &#34;aspect must be a string or None.&#34;
+    assert custom_prompt is None or isinstance(
+        custom_prompt, dict
+    ), &#34;custom_prompt must be a dict.&#34;
+    if aspect:
+        assert (
+            aspect in self.aspects.keys()
+        ), &#34;aspect is not in the list of criteria.&#34;
+    if not custom_prompt:
+        assert (
+            task and aspect
+        ), &#34;task and aspect must be given if no custom_prompt is given.&#34;
+    if not (task and aspect):
+        assert (
+            custom_prompt
+        ), &#34;custom_prompt must be given if task and aspect are not given.&#34;
+
+    prompt = self.get_prompt(source, pred, task, aspect, custom_prompt)
+    return self.get_score(prompt)</code></pre>
+</details>
+</dd>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.GEval.get_cot"><code class="name flex">
+<span>def <span class="ident">get_cot</span></span>(<span>self, prompt)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This method returns a chain of thoughts given a prompt template.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>prompt</code></strong> :&ensp;<code>str</code></dt>
+<dd>Prompt template.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>cot (str): Chain of thoughts.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_cot(self, prompt):
+    &#34;&#34;&#34;
+    This method returns a chain of thoughts given a prompt template.
+    Args:
+        prompt (str): Prompt template.
+
+    Returns:
+        cot (str): Chain of thoughts.
+    &#34;&#34;&#34;
+    title = &#34;\nEvaluation steps:\n&#34;
+    cot = self.get_prediction(prompt + title)[&#34;choices&#34;][0][&#34;text&#34;]
+    return cot</code></pre>
+</details>
+</dd>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.GEval.get_prediction"><code class="name flex">
+<span>def <span class="ident">get_prediction</span></span>(<span>self, prompt)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This method returns a prediction given a prompt template.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>prompt</code></strong> :&ensp;<code>str</code></dt>
+<dd>Prompt template.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>response (dict): Response from the model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_prediction(self, prompt):
+    &#34;&#34;&#34;
+    This method returns a prediction given a prompt template.
+    Args:
+        prompt (str): Prompt template.
+
+    Returns:
+        response (dict): Response from the model.
+    &#34;&#34;&#34;
+    response = self.lcpp_llm.create_completion(
+        prompt=prompt,
+        max_tokens=250,
+        temperature=0.5,
+        top_p=0.95,
+        logprobs=5,
+        repeat_penalty=1.2,
+        top_k=50,
+        echo=True,
+    )
+    return response</code></pre>
+</details>
+</dd>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.GEval.get_prompt"><code class="name flex">
+<span>def <span class="ident">get_prompt</span></span>(<span>self, src, pred, task, aspect, custom_prompt)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>src</code></strong> :&ensp;<code>str</code></dt>
+<dd>Source text.</dd>
+<dt><strong><code>pred</code></strong> :&ensp;<code>str</code></dt>
+<dd>Candidate sentence to evaluate.</dd>
+<dt><strong><code>task</code></strong> :&ensp;<code>str</code></dt>
+<dd>Definition of the task.</dd>
+<dt><strong><code>aspect</code></strong> :&ensp;<code>str</code></dt>
+<dd>Evaluation criterion code.</dd>
+<dt><strong><code>custom_prompt</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Custom prompt template.
+Must contain the following keys: "task", "aspect", "name".</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_prompt(self, src, pred, task, aspect, custom_prompt):
+    &#34;&#34;&#34;
+    Args:
+        src (str): Source text.
+        pred (str): Candidate sentence to evaluate.
+        task (str): Definition of the task.
+        aspect (str): Evaluation criterion code.
+        custom_prompt (dict): Custom prompt template.
+            Must contain the following keys: &#34;task&#34;, &#34;aspect&#34;, &#34;name&#34;.
+    &#34;&#34;&#34;
+    definition = (
+        &#34;\n Task definition:\n&#34; + self.tasks[task]
+        if task in self.tasks.keys()
+        else custom_prompt[&#34;task&#34;]
+    )
+    crit = (
+        &#34;\n Evaluation criteria:\n&#34; + self.aspects[aspect][&#34;prompt&#34;]
+        if aspect in self.aspects.keys()
+        else custom_prompt[&#34;aspect&#34;]
+    )
+    name = (
+        self.aspects[aspect][&#34;name&#34;]
+        if aspect in self.aspects.keys()
+        else custom_prompt[&#34;name&#34;]
+    )
+
+    prompt = f&#34;{definition} {crit}&#34;
+
+    # Chain of thoughts, set of intermediate instructions generated by llm detailing evaluation steps
+    auto_cot = self.get_cot(prompt)
+
+    return (
+        prompt
+        + auto_cot
+        + &#34;\n Example:\n Source Text:\n&#34;
+        + src
+        + &#34;\n Generated text:\n&#34;
+        + pred
+        + &#34;\n Evaluation Form (scores ONLY):\n&#34;
+        + name
+        + &#34;: &#34;
+    )</code></pre>
+</details>
+</dd>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.GEval.get_score"><code class="name flex">
+<span>def <span class="ident">get_score</span></span>(<span>self, prompt)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>prompt</code></strong> :&ensp;<code>str</code></dt>
+<dd>Prompt template.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>score (float): Score for the candidate sentence.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_score(self, prompt):
+    &#34;&#34;&#34;
+    Args:
+        prompt (str): Prompt template.
+
+    Returns:
+        score (float): Score for the candidate sentence.
+    &#34;&#34;&#34;
+    response = self.get_prediction(prompt)
+    tokens = response[&#34;choices&#34;][0][&#34;logprobs&#34;][&#34;tokens&#34;]
+    top_logprobs = response[&#34;choices&#34;][0][&#34;logprobs&#34;][&#34;top_logprobs&#34;]
+
+    # Extract evaluation form from tokens ()
+    template_tokens = [
+        &#34; E&#34;,
+        &#34;valu&#34;,
+        &#34;ation&#34;,
+        &#34; Form&#34;,
+        &#34; (&#34;,
+        &#34;sc&#34;,
+        &#34;ores&#34;,
+        &#34; ON&#34;,
+        &#34;LY&#34;,
+        &#34;):&#34;,
+    ]
+    start_index = tokens.index(template_tokens[-1]) + 1
+    # Extract number index from the remaining tokens
+    for token in tokens[start_index:]:
+        if token.isdigit():
+            number_index = tokens.index(token)
+            break
+
+    # Get logprobs associated with number
+    logprobs = top_logprobs[number_index]
+
+    # Compute score
+    # Get only keys that are numbers
+    number_keys = [int(key) for key in logprobs.keys() if key.isdigit()]
+    number_logprobs = [logprobs[str(key)] for key in number_keys]
+    number_probs = [np.exp(logprob) for logprob in number_logprobs]
+
+    score = np.sum(np.multiply(number_keys, number_probs)) / len(number_keys)
+
+    return score</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.GPTScore"><code class="flex name class">
+<span>class <span class="ident">GPTScore</span></span>
+<span>(</span><span>model=False, model_name_or_path='TheBloke/Llama-2-7b-Chat-GGUF', model_basename='llama-2-7b-chat.Q4_K_M.gguf')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class implements the GPTScore evaluation metric for generative language models.
+It is inspired by the GPTScore metric proposed in <a href="https://arxiv.org/pdf/2302.04166.pdf.">https://arxiv.org/pdf/2302.04166.pdf.</a></p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>model</code></strong> :&ensp;<code>Llama model</code></dt>
+<dd>model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.</dd>
+<dt><strong><code>model_name_or_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>Model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".</dd>
+<dt><strong><code>model_basename</code></strong> :&ensp;<code>str</code></dt>
+<dd>Model basename. Defaults to "llama-2-7b-chat.Q4_K_M.gguf".</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GPTScore:
+    # pylint: disable=f-string-without-interpolation
+    def __init__(
+        self,
+        model=False,
+        model_name_or_path=&#34;TheBloke/Llama-2-7b-Chat-GGUF&#34;,
+        model_basename=&#34;llama-2-7b-chat.Q4_K_M.gguf&#34;,
+    ):
+        &#34;&#34;&#34;
+        This class implements the GPTScore evaluation metric for generative language models.
+        It is inspired by the GPTScore metric proposed in https://arxiv.org/pdf/2302.04166.pdf.
+        Args:
+            model (Llama model): model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.
+            model_name_or_path (str): Model name or path. Defaults to &#34;TheBloke/Llama-2-7b-Chat-GGUF&#34;.
+            model_basename (str): Model basename. Defaults to &#34;llama-2-7b-chat.Q4_K_M.gguf&#34;.
+        &#34;&#34;&#34;
+        assert isinstance(
+            model_name_or_path, str
+        ), &#34;model_name_or_path must be a string.&#34;
+        assert isinstance(model_basename, str), &#34;model_basename must be a string.&#34;
+
+        self.templates = {
+            &#34;summ&#34;: {
+                &#34;FAC&#34;: f&#34;Generate a summary with consistent facts for the following text: {{src}}\n\nTl;dr{{pred}}&#34;,
+                &#34;COV&#34;: f&#34;Generate a summary with as much semantic coverage as possible for the following text: {{src}}\n\nTl;dr{{pred}}&#34;,
+                &#34;CON&#34;: f&#34;Generate factually consistent summary for the following text: {{src}}\n\nTl;dr{{pred}}&#34;,
+                &#34;INF&#34;: f&#34;Generate an informative summary that captures the key points of the following text:{{src}}\n\nTl;dr{{pred}}&#34;,
+                &#34;COH&#34;: f&#34;Generate a coherent summary for the following text: {{src}}\n\nTl;dr{{pred}}&#34;,
+                &#34;REL&#34;: f&#34;Generate a relevant summary with consistent details for the following text: {{src}}\n\nTl;dr{{pred}}&#34;,
+                &#34;FLU&#34;: f&#34;Generate a fluent and grammatical summary for the following text: {{src}}\n\nTl;dr{{pred}}&#34;,
+            },
+            &#34;MT&#34;: {
+                &#34;ACC&#34;: f&#34;Rewrite the following text with its core information and consistent facts:{{src}} In other words, {{pred}}&#34;,
+                &#34;FLU&#34;: f&#34;Rewrite the following text to make it more grammatical and well-written:{{src}} In other words,{{pred}}&#34;,
+                &#34;MQM&#34;: f&#34;Rewrite the following text into high-quality text with its core information:{{src}} In other words,{{pred}}&#34;,
+            },
+            &#34;D2T&#34;: {
+                &#34;INF&#34;: f&#34;Convert the following text to another expression that preserves key information:\n\n{{src}} In other words, {{pred}}&#34;,
+                &#34;NAT&#34;: f&#34;Convert the following text into another expression that is human-like and natural:\n\n{{src}} In other words, {{pred}}&#34;,
+                &#34;FLU&#34;: f&#34;Convert the following text into another expression that preserves key information and is human-like and natural:\n\n{{src}} In other words, {{pred}}&#34;,
+            },
+            &#34;diag&#34;: {
+                &#34;COH&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;DIV&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Is there diversity in the AI responses? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;FLE&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI flexible and adaptable to human and their interests? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;UND&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI seem to understand the human? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;INQ&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI inquisitive throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;CON&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Are the responses of AI consistent in the information it provides throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;INF&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Are the responses of AI informative throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;LIK&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI display a likeable personality? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;DEP&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI discuss topics in depth? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+                &#34;ERR&#34;: f&#34;Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI able to recover from errors that it makes? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+            },
+        }
+
+        self.tasks = self.templates.keys()
+        self.aspects = list(
+            {aspect for task in self.tasks for aspect in self.templates[task]}
+        )
+
+        if not model:
+            self.model_path = hf_hub_download(
+                repo_id=model_name_or_path, filename=model_basename
+            )
+
+            self.lcpp_llm = Llama(
+                model_path=self.model_path,
+                n_threads=2,  # CPU cores
+                logits_all=True,
+            )
+        else:
+            self.lcpp_llm = model
+
+    def add_template(self, task, code, prompt):
+        &#34;&#34;&#34;
+        This method adds a template to the list of pre-defined template.
+        Please try to follow the following example pattern to ensure consistency.
+        Example:
+        &#34;diag&#34;: {
+            &#34;COH&#34;: f&#34;Answer the question based on the conversation between a human and AI.
+            \nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation?
+            (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+        }
+
+        Args:
+            task (str): Task name.
+            code (str): Aspect code.
+            prompt (str): Aspect prompt.
+        &#34;&#34;&#34;
+        assert isinstance(task, str), &#34;task must be a string.&#34;
+        assert isinstance(code, str), &#34;code must be a string.&#34;
+        assert isinstance(prompt, str), &#34;prompt must be a string.&#34;
+
+        self.templates[task][code] = prompt
+
+    def get_prompt(self, aspect, task, src, pred, custom_prompt):
+        &#34;&#34;&#34;
+        This method returns a prompt template given a task description, and an aspect to evaluate.
+        Args:
+            src (str): Source text.
+            pred (str): Candidate sentence.
+            aspect (str): Aspect to evaluate.
+            task (str): Task description.
+            custom_prompt (dict): Custom prompt template. Defaults to None.
+                Must contain the following keys: &#34;task&#34;, &#34;aspect&#34;.
+        Returns:
+            str: Prompt template.
+        &#34;&#34;&#34;
+        if aspect and task:
+            assert (
+                aspect in self.templates[task]
+            ), f&#34;Aspect {aspect} is not available for task {task}.&#34;
+            assert self.templates[task][
+                aspect
+            ], f&#34;Prompt template for aspect {aspect} and task {task} is non-existent. Please specify a prompt template.&#34;
+
+        template = (
+            self.templates[task][aspect]
+            if (aspect and task)
+            else str(custom_prompt[&#34;task&#34;])
+            + &#34;\nQuestion: &#34;
+            + str(custom_prompt[&#34;aspect&#34;])
+            + &#34;(a) Yes. (b) No.\nConversation:\nUser: {src}\nAI: {pred}\nAnswer:&#34;
+        )
+
+        # Replace placeholders with source and candidate sentence
+        template = template.replace(&#34;{src}&#34;, src)
+        template = template.replace(&#34;{pred}&#34;, pred)
+
+        return template
+
+    def compute(self, source, pred, prompt=None, aspect=None, task=None):
+        &#34;&#34;&#34;
+        This method computes the GPTScore for a candidate sentence given a source text,
+        a prompt template, an aspect to evaluate, and a task description.
+        Args:
+            source (str): Source text.
+            pred (str): Candidate sentence.
+            prompt (dict, optional): Custom prompt template. Defaults to None.
+                Must contain the following keys: &#34;task&#34;, &#34;aspect&#34;, &#34;name&#34;.
+            aspect (str, optional): Aspect to evaluate. Defaults to None.
+            task (str, optional): Task description. Defaults to None.
+        Returns:
+            score (float): Score for the candidate sentence.
+        &#34;&#34;&#34;
+        assert isinstance(source, str), &#34;Source must be a string.&#34;
+        assert isinstance(pred, str), &#34;Pred must be a string.&#34;
+
+        # If prompt is given, check that it is a string
+        if prompt:
+            assert isinstance(prompt, dict), &#34;prompt must be a dict.&#34;
+            assert not aspect, &#34;aspect must not be given if prompt is given.&#34;
+            assert not task, &#34;aspect must not be given if prompt is given.&#34;
+            assert (
+                &#34;task&#34; in prompt.keys() and &#34;aspect&#34; in prompt.keys()
+            ), &#34;prompt must contain the following keys: &#39;task&#39;, &#39;aspect&#39;&#34;
+        else:
+            # If prompt is not given, check that task and aspect are given
+            assert aspect, &#34;Aspect must be given if prompt is not given.&#34;
+            assert task, &#34;Task must be given if prompt is not given.&#34;
+
+        # If aspect is given, check that it is a string
+        if aspect:
+            assert isinstance(aspect, str), &#34;Aspect must be a string.&#34;
+            assert aspect in self.aspects, f&#34;Aspect must be one of {self.aspects}.&#34;
+
+        # If task is given, check that it is a string
+        if task:
+            assert isinstance(task, str), &#34;Task must be a string.&#34;
+            assert task in self.tasks, f&#34;Task must be one of {self.tasks}.&#34;
+
+        # Generative LLM is given a prompt template and some context information
+        prompt = self.get_prompt(aspect, task, source, pred, prompt)
+
+        response = self.lcpp_llm.create_completion(
+            prompt=prompt,
+            max_tokens=500,
+            temperature=0.5,
+            top_p=0.95,
+            logprobs=1,
+            repeat_penalty=1.2,
+            top_k=50,
+            echo=True,
+        )
+
+        # Compute logprobs
+        # Find the end position of the input...
+        i = response[&#34;choices&#34;][0][&#34;logprobs&#34;][&#34;text_offset&#34;].index(len(prompt))
+        if i == 0:
+            i = i + 1
+
+        # Get logprobs
+        loss = -sum(
+            response[&#34;choices&#34;][0][&#34;logprobs&#34;][&#34;token_logprobs&#34;][i:-1]
+        )  # ignore the last &#39;.&#39;
+        avg_loss = loss / (
+            len(response[&#34;choices&#34;][0][&#34;logprobs&#34;][&#34;text_offset&#34;]) - i - 1
+        )  # 1 is the last &#39;.&#39;
+
+        return avg_loss</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.GPTScore.add_template"><code class="name flex">
+<span>def <span class="ident">add_template</span></span>(<span>self, task, code, prompt)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This method adds a template to the list of pre-defined template.
+Please try to follow the following example pattern to ensure consistency.
+Example:
+"diag": {
+"COH": f"Answer the question based on the conversation between a human and AI.</p>
+<p>Question: Is the AI coherent and maintains a good conversation flow throughout the conversation?
+(a) Yes. (b) No.
+Conversation:
+User: {{src}}
+AI: {{pred}}
+Answer:",
+}</p>
+<pre><code>    Args:
+        task (str): Task name.
+        code (str): Aspect code.
+        prompt (str): Aspect prompt.
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_template(self, task, code, prompt):
+    &#34;&#34;&#34;
+    This method adds a template to the list of pre-defined template.
+    Please try to follow the following example pattern to ensure consistency.
+    Example:
+    &#34;diag&#34;: {
+        &#34;COH&#34;: f&#34;Answer the question based on the conversation between a human and AI.
+        \nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation?
+        (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:&#34;,
+    }
+
+    Args:
+        task (str): Task name.
+        code (str): Aspect code.
+        prompt (str): Aspect prompt.
+    &#34;&#34;&#34;
+    assert isinstance(task, str), &#34;task must be a string.&#34;
+    assert isinstance(code, str), &#34;code must be a string.&#34;
+    assert isinstance(prompt, str), &#34;prompt must be a string.&#34;
+
+    self.templates[task][code] = prompt</code></pre>
+</details>
+</dd>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.GPTScore.compute"><code class="name flex">
+<span>def <span class="ident">compute</span></span>(<span>self, source, pred, prompt=None, aspect=None, task=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This method computes the GPTScore for a candidate sentence given a source text,
+a prompt template, an aspect to evaluate, and a task description.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>source</code></strong> :&ensp;<code>str</code></dt>
+<dd>Source text.</dd>
+<dt><strong><code>pred</code></strong> :&ensp;<code>str</code></dt>
+<dd>Candidate sentence.</dd>
+<dt><strong><code>prompt</code></strong> :&ensp;<code>dict</code>, optional</dt>
+<dd>Custom prompt template. Defaults to None.
+Must contain the following keys: "task", "aspect", "name".</dd>
+<dt><strong><code>aspect</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Aspect to evaluate. Defaults to None.</dd>
+<dt><strong><code>task</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Task description. Defaults to None.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>score (float): Score for the candidate sentence.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compute(self, source, pred, prompt=None, aspect=None, task=None):
+    &#34;&#34;&#34;
+    This method computes the GPTScore for a candidate sentence given a source text,
+    a prompt template, an aspect to evaluate, and a task description.
+    Args:
+        source (str): Source text.
+        pred (str): Candidate sentence.
+        prompt (dict, optional): Custom prompt template. Defaults to None.
+            Must contain the following keys: &#34;task&#34;, &#34;aspect&#34;, &#34;name&#34;.
+        aspect (str, optional): Aspect to evaluate. Defaults to None.
+        task (str, optional): Task description. Defaults to None.
+    Returns:
+        score (float): Score for the candidate sentence.
+    &#34;&#34;&#34;
+    assert isinstance(source, str), &#34;Source must be a string.&#34;
+    assert isinstance(pred, str), &#34;Pred must be a string.&#34;
+
+    # If prompt is given, check that it is a string
+    if prompt:
+        assert isinstance(prompt, dict), &#34;prompt must be a dict.&#34;
+        assert not aspect, &#34;aspect must not be given if prompt is given.&#34;
+        assert not task, &#34;aspect must not be given if prompt is given.&#34;
+        assert (
+            &#34;task&#34; in prompt.keys() and &#34;aspect&#34; in prompt.keys()
+        ), &#34;prompt must contain the following keys: &#39;task&#39;, &#39;aspect&#39;&#34;
+    else:
+        # If prompt is not given, check that task and aspect are given
+        assert aspect, &#34;Aspect must be given if prompt is not given.&#34;
+        assert task, &#34;Task must be given if prompt is not given.&#34;
+
+    # If aspect is given, check that it is a string
+    if aspect:
+        assert isinstance(aspect, str), &#34;Aspect must be a string.&#34;
+        assert aspect in self.aspects, f&#34;Aspect must be one of {self.aspects}.&#34;
+
+    # If task is given, check that it is a string
+    if task:
+        assert isinstance(task, str), &#34;Task must be a string.&#34;
+        assert task in self.tasks, f&#34;Task must be one of {self.tasks}.&#34;
+
+    # Generative LLM is given a prompt template and some context information
+    prompt = self.get_prompt(aspect, task, source, pred, prompt)
+
+    response = self.lcpp_llm.create_completion(
+        prompt=prompt,
+        max_tokens=500,
+        temperature=0.5,
+        top_p=0.95,
+        logprobs=1,
+        repeat_penalty=1.2,
+        top_k=50,
+        echo=True,
+    )
+
+    # Compute logprobs
+    # Find the end position of the input...
+    i = response[&#34;choices&#34;][0][&#34;logprobs&#34;][&#34;text_offset&#34;].index(len(prompt))
+    if i == 0:
+        i = i + 1
+
+    # Get logprobs
+    loss = -sum(
+        response[&#34;choices&#34;][0][&#34;logprobs&#34;][&#34;token_logprobs&#34;][i:-1]
+    )  # ignore the last &#39;.&#39;
+    avg_loss = loss / (
+        len(response[&#34;choices&#34;][0][&#34;logprobs&#34;][&#34;text_offset&#34;]) - i - 1
+    )  # 1 is the last &#39;.&#39;
+
+    return avg_loss</code></pre>
+</details>
+</dd>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.GPTScore.get_prompt"><code class="name flex">
+<span>def <span class="ident">get_prompt</span></span>(<span>self, aspect, task, src, pred, custom_prompt)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This method returns a prompt template given a task description, and an aspect to evaluate.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>src</code></strong> :&ensp;<code>str</code></dt>
+<dd>Source text.</dd>
+<dt><strong><code>pred</code></strong> :&ensp;<code>str</code></dt>
+<dd>Candidate sentence.</dd>
+<dt><strong><code>aspect</code></strong> :&ensp;<code>str</code></dt>
+<dd>Aspect to evaluate.</dd>
+<dt><strong><code>task</code></strong> :&ensp;<code>str</code></dt>
+<dd>Task description.</dd>
+<dt><strong><code>custom_prompt</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Custom prompt template. Defaults to None.
+Must contain the following keys: "task", "aspect".</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>Prompt template.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_prompt(self, aspect, task, src, pred, custom_prompt):
+    &#34;&#34;&#34;
+    This method returns a prompt template given a task description, and an aspect to evaluate.
+    Args:
+        src (str): Source text.
+        pred (str): Candidate sentence.
+        aspect (str): Aspect to evaluate.
+        task (str): Task description.
+        custom_prompt (dict): Custom prompt template. Defaults to None.
+            Must contain the following keys: &#34;task&#34;, &#34;aspect&#34;.
+    Returns:
+        str: Prompt template.
+    &#34;&#34;&#34;
+    if aspect and task:
+        assert (
+            aspect in self.templates[task]
+        ), f&#34;Aspect {aspect} is not available for task {task}.&#34;
+        assert self.templates[task][
+            aspect
+        ], f&#34;Prompt template for aspect {aspect} and task {task} is non-existent. Please specify a prompt template.&#34;
+
+    template = (
+        self.templates[task][aspect]
+        if (aspect and task)
+        else str(custom_prompt[&#34;task&#34;])
+        + &#34;\nQuestion: &#34;
+        + str(custom_prompt[&#34;aspect&#34;])
+        + &#34;(a) Yes. (b) No.\nConversation:\nUser: {src}\nAI: {pred}\nAnswer:&#34;
+    )
+
+    # Replace placeholders with source and candidate sentence
+    template = template.replace(&#34;{src}&#34;, src)
+    template = template.replace(&#34;{pred}&#34;, pred)
+
+    return template</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.SelfCheckGPT"><code class="flex name class">
+<span>class <span class="ident">SelfCheckGPT</span></span>
+<span>(</span><span>model, eval_model=False, eval_model_name_or_path='TheBloke/Llama-2-7b-Chat-GGUF', eval_model_basename='llama-2-7b-chat.Q4_K_M.gguf')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class implements the self-check GPT evaluation metric for generative language models.
+It is inspired by the self-check metric proposed in <a href="https://arxiv.org/pdf/2303.08896.pdf.">https://arxiv.org/pdf/2303.08896.pdf.</a></p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>model</code></strong> :&ensp;<code>transformers.PreTrainedModel</code></dt>
+<dd>GPT model to evaluate.</dd>
+<dt><strong><code>eval_model</code></strong> :&ensp;<code>LLama model</code>, optional</dt>
+<dd>Evaluation model. If False, the evaluation model is</dd>
+<dt>downloaded from the HuggingFace Hub.</dt>
+<dt><strong><code>eval_model_name_or_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>Evaluation model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".</dd>
+<dt><strong><code>eval_model_basename</code></strong> :&ensp;<code>str</code></dt>
+<dd>Evaluation model basename. Defaults to "llama-2-7b-chat.Q4_K_M.gguf".</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SelfCheckGPT:
+    def __init__(
+        self,
+        model,
+        eval_model=False,
+        eval_model_name_or_path=&#34;TheBloke/Llama-2-7b-Chat-GGUF&#34;,
+        eval_model_basename=&#34;llama-2-7b-chat.Q4_K_M.gguf&#34;,
+    ):
+        &#34;&#34;&#34;
+        This class implements the self-check GPT evaluation metric for generative language models.
+        It is inspired by the self-check metric proposed in https://arxiv.org/pdf/2303.08896.pdf.
+        Args:
+            model (transformers.PreTrainedModel): GPT model to evaluate.
+            eval_model (LLama model, optional): Evaluation model. If False, the evaluation model is
+            downloaded from the HuggingFace Hub.
+            eval_model_name_or_path (str): Evaluation model name or path. Defaults to &#34;TheBloke/Llama-2-7b-Chat-GGUF&#34;.
+            eval_model_basename (str): Evaluation model basename. Defaults to &#34;llama-2-7b-chat.Q4_K_M.gguf&#34;.
+        &#34;&#34;&#34;
+        assert isinstance(
+            eval_model_name_or_path, str
+        ), &#34;eval_model_name_or_path must be a string.&#34;
+        assert isinstance(
+            eval_model_basename, str
+        ), &#34;eval_model_basename must be a string.&#34;
+
+        self.model = model
+        if not eval_model:
+            self.eval_model_path = hf_hub_download(
+                repo_id=eval_model_name_or_path, filename=eval_model_basename
+            )
+
+            self.eval_model = Llama(
+                model_path=self.eval_model_path, n_threads=2, verbose=False  # CPU cores
+            )
+        else:
+            self.eval_model = eval_model
+
+    def get_prompt(self, pred, sample, question):
+        &#34;&#34;&#34;
+        This method returns a prompt template given a candidate sentence, a sample sentence, and a question.
+        Args:
+            pred (str): Candidate sentence.
+            sample (str): Sample sentence.
+            question (str): Question asked to the model for which it generated $pred.
+
+        Returns:
+            str: Prompt template.
+        &#34;&#34;&#34;
+        system_prompt = &#34;You are a helpful, polite and concise assistant. Your task is to check if two texts provide the same answer to a given question. Always answer with a single word. The possible answers are either YES or NO.\n\n&#34;
+        question = &#34;###Question:\n&#34; + question
+        text1 = &#34;\n###Text 1: &#34; + sample
+        text2 = &#34;\n###Text 2: &#34; + pred
+
+        prompt_template = f&#34;&#34;&#34;SYSTEM: {system_prompt}
+        USER: {question + text1 + text2}
+        ASSISTANT (YES or NO):&#34;&#34;&#34;
+
+        return prompt_template
+
+    def get_prompts(self, pred, samples, question):
+        &#34;&#34;&#34;
+        This method returns a list of prompt templates given a candidate sentence, a list
+        of sample sentences, and a question.
+        Args:
+            pred (str): Candidate sentence.
+            samples (list of str): List of sample sentences.
+            question (str): Question asked to the model for which it generated $pred.
+
+        Returns:
+            list: List of prompt templates.
+        &#34;&#34;&#34;
+        return [self.get_prompt(pred, sample, question) for sample in samples]
+
+    def compute(self, question, pred, n_samples):
+        &#34;&#34;&#34;
+        Args:
+            question (str): Question asked to the model for which it generated $pred.
+            pred (str): Candidate sentence.
+            n_samples (int): Number of samples to generate.
+
+        Returns:
+            score (float): Score for the candidate sentence.
+        &#34;&#34;&#34;
+        assert isinstance(question, str), &#34;Prediction must be a string.&#34;
+        assert isinstance(pred, str), &#34;Prediction must be a string.&#34;
+        assert isinstance(n_samples, int), &#34;Number of samples must be an integer.&#34;
+        assert n_samples &gt; 0, &#34;Number of samples must be greater than 0.&#34;
+        assert question and pred, &#34;Question and prediction must be non-empty.&#34;
+
+        # Generate n_samples samples from the model
+        samples = []
+        for _ in range(n_samples):
+            system_prompt = &#34;You are a helpful, respectful and honest assistant. Always answer as helpfully as possible.&#34;
+            prompt_template = f&#34;&#34;&#34;SYSTEM: {system_prompt}
+            USER: {question}
+            ASSISTANT:&#34;&#34;&#34;
+
+            response = self.model(prompt_template, max_tokens=200)
+            sample = response[&#34;choices&#34;][0][&#34;text&#34;]
+            samples.append(sample)
+
+        # For each sample, ask evaluator model to evaluate the sample
+        prompts = self.get_prompts(pred, samples, question)
+        scores = []
+        for prompt in prompts:
+            answer = self.eval_model(prompt, max_tokens=200)[&#34;choices&#34;][0][&#34;text&#34;]
+            scores.append(answer)
+
+        # Compute the score: how often the sentence if supported by the sample
+        score = np.mean([1 if &#34;yes&#34; in score.lower() else 0 for score in scores])
+
+        return score</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.SelfCheckGPT.compute"><code class="name flex">
+<span>def <span class="ident">compute</span></span>(<span>self, question, pred, n_samples)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>question</code></strong> :&ensp;<code>str</code></dt>
+<dd>Question asked to the model for which it generated $pred.</dd>
+<dt><strong><code>pred</code></strong> :&ensp;<code>str</code></dt>
+<dd>Candidate sentence.</dd>
+<dt><strong><code>n_samples</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of samples to generate.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>score (float): Score for the candidate sentence.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compute(self, question, pred, n_samples):
+    &#34;&#34;&#34;
+    Args:
+        question (str): Question asked to the model for which it generated $pred.
+        pred (str): Candidate sentence.
+        n_samples (int): Number of samples to generate.
+
+    Returns:
+        score (float): Score for the candidate sentence.
+    &#34;&#34;&#34;
+    assert isinstance(question, str), &#34;Prediction must be a string.&#34;
+    assert isinstance(pred, str), &#34;Prediction must be a string.&#34;
+    assert isinstance(n_samples, int), &#34;Number of samples must be an integer.&#34;
+    assert n_samples &gt; 0, &#34;Number of samples must be greater than 0.&#34;
+    assert question and pred, &#34;Question and prediction must be non-empty.&#34;
+
+    # Generate n_samples samples from the model
+    samples = []
+    for _ in range(n_samples):
+        system_prompt = &#34;You are a helpful, respectful and honest assistant. Always answer as helpfully as possible.&#34;
+        prompt_template = f&#34;&#34;&#34;SYSTEM: {system_prompt}
+        USER: {question}
+        ASSISTANT:&#34;&#34;&#34;
+
+        response = self.model(prompt_template, max_tokens=200)
+        sample = response[&#34;choices&#34;][0][&#34;text&#34;]
+        samples.append(sample)
+
+    # For each sample, ask evaluator model to evaluate the sample
+    prompts = self.get_prompts(pred, samples, question)
+    scores = []
+    for prompt in prompts:
+        answer = self.eval_model(prompt, max_tokens=200)[&#34;choices&#34;][0][&#34;text&#34;]
+        scores.append(answer)
+
+    # Compute the score: how often the sentence if supported by the sample
+    score = np.mean([1 if &#34;yes&#34; in score.lower() else 0 for score in scores])
+
+    return score</code></pre>
+</details>
+</dd>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.SelfCheckGPT.get_prompt"><code class="name flex">
+<span>def <span class="ident">get_prompt</span></span>(<span>self, pred, sample, question)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This method returns a prompt template given a candidate sentence, a sample sentence, and a question.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>pred</code></strong> :&ensp;<code>str</code></dt>
+<dd>Candidate sentence.</dd>
+<dt><strong><code>sample</code></strong> :&ensp;<code>str</code></dt>
+<dd>Sample sentence.</dd>
+<dt><strong><code>question</code></strong> :&ensp;<code>str</code></dt>
+<dd>Question asked to the model for which it generated $pred.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>Prompt template.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_prompt(self, pred, sample, question):
+    &#34;&#34;&#34;
+    This method returns a prompt template given a candidate sentence, a sample sentence, and a question.
+    Args:
+        pred (str): Candidate sentence.
+        sample (str): Sample sentence.
+        question (str): Question asked to the model for which it generated $pred.
+
+    Returns:
+        str: Prompt template.
+    &#34;&#34;&#34;
+    system_prompt = &#34;You are a helpful, polite and concise assistant. Your task is to check if two texts provide the same answer to a given question. Always answer with a single word. The possible answers are either YES or NO.\n\n&#34;
+    question = &#34;###Question:\n&#34; + question
+    text1 = &#34;\n###Text 1: &#34; + sample
+    text2 = &#34;\n###Text 2: &#34; + pred
+
+    prompt_template = f&#34;&#34;&#34;SYSTEM: {system_prompt}
+    USER: {question + text1 + text2}
+    ASSISTANT (YES or NO):&#34;&#34;&#34;
+
+    return prompt_template</code></pre>
+</details>
+</dd>
+<dt id="saga_llm_evaluation_ml.helpers.llm_metrics.SelfCheckGPT.get_prompts"><code class="name flex">
+<span>def <span class="ident">get_prompts</span></span>(<span>self, pred, samples, question)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This method returns a list of prompt templates given a candidate sentence, a list
+of sample sentences, and a question.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>pred</code></strong> :&ensp;<code>str</code></dt>
+<dd>Candidate sentence.</dd>
+<dt><strong><code>samples</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of sample sentences.</dd>
+<dt><strong><code>question</code></strong> :&ensp;<code>str</code></dt>
+<dd>Question asked to the model for which it generated $pred.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>list</code></dt>
+<dd>List of prompt templates.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_prompts(self, pred, samples, question):
+    &#34;&#34;&#34;
+    This method returns a list of prompt templates given a candidate sentence, a list
+    of sample sentences, and a question.
+    Args:
+        pred (str): Candidate sentence.
+        samples (list of str): List of sample sentences.
+        question (str): Question asked to the model for which it generated $pred.
+
+    Returns:
+        list: List of prompt templates.
+    &#34;&#34;&#34;
+    return [self.get_prompt(pred, sample, question) for sample in samples]</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="saga_llm_evaluation_ml.helpers" href="index.html">saga_llm_evaluation_ml.helpers</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.GEval" href="#saga_llm_evaluation_ml.helpers.llm_metrics.GEval">GEval</a></code></h4>
+<ul class="two-column">
+<li><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.GEval.add_aspect" href="#saga_llm_evaluation_ml.helpers.llm_metrics.GEval.add_aspect">add_aspect</a></code></li>
+<li><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.GEval.add_task" href="#saga_llm_evaluation_ml.helpers.llm_metrics.GEval.add_task">add_task</a></code></li>
+<li><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.GEval.compute" href="#saga_llm_evaluation_ml.helpers.llm_metrics.GEval.compute">compute</a></code></li>
+<li><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.GEval.get_cot" href="#saga_llm_evaluation_ml.helpers.llm_metrics.GEval.get_cot">get_cot</a></code></li>
+<li><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.GEval.get_prediction" href="#saga_llm_evaluation_ml.helpers.llm_metrics.GEval.get_prediction">get_prediction</a></code></li>
+<li><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.GEval.get_prompt" href="#saga_llm_evaluation_ml.helpers.llm_metrics.GEval.get_prompt">get_prompt</a></code></li>
+<li><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.GEval.get_score" href="#saga_llm_evaluation_ml.helpers.llm_metrics.GEval.get_score">get_score</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.GPTScore" href="#saga_llm_evaluation_ml.helpers.llm_metrics.GPTScore">GPTScore</a></code></h4>
+<ul class="">
+<li><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.GPTScore.add_template" href="#saga_llm_evaluation_ml.helpers.llm_metrics.GPTScore.add_template">add_template</a></code></li>
+<li><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.GPTScore.compute" href="#saga_llm_evaluation_ml.helpers.llm_metrics.GPTScore.compute">compute</a></code></li>
+<li><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.GPTScore.get_prompt" href="#saga_llm_evaluation_ml.helpers.llm_metrics.GPTScore.get_prompt">get_prompt</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.SelfCheckGPT" href="#saga_llm_evaluation_ml.helpers.llm_metrics.SelfCheckGPT">SelfCheckGPT</a></code></h4>
+<ul class="">
+<li><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.SelfCheckGPT.compute" href="#saga_llm_evaluation_ml.helpers.llm_metrics.SelfCheckGPT.compute">compute</a></code></li>
+<li><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.SelfCheckGPT.get_prompt" href="#saga_llm_evaluation_ml.helpers.llm_metrics.SelfCheckGPT.get_prompt">get_prompt</a></code></li>
+<li><code><a title="saga_llm_evaluation_ml.helpers.llm_metrics.SelfCheckGPT.get_prompts" href="#saga_llm_evaluation_ml.helpers.llm_metrics.SelfCheckGPT.get_prompts">get_prompts</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

@@ -23,6 +23,11 @@ elemeta = "1.0.7"
 huggingface-hub = "^0.18.0"
 llama-cpp-python = "^0.2.11"
 faiss-cpu = "^1.7.4"
+langchain = "^0.2.15"
+llama-index = "^0.11.3"
+langchain-openai = "^0.1.23"
+langchain-community = "^0.2.15"
+nltk = "^3.9.1"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.13"

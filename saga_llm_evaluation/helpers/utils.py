@@ -1,5 +1,6 @@
 import json
 import re
+import nltk
 import string
 from collections import Counter
 
@@ -14,6 +15,8 @@ from elemeta.nlp.extractors.low_level.abstract_metafeature_extractor import (
 from elemeta.nlp.metafeature_extractors_runner import MetafeatureExtractorsRunner
 from huggingface_hub import hf_hub_download
 from llama_cpp import Llama
+
+nltk.download("punkt_tab")
 
 NO_ANS = "[CLS]"
 INVALID_QUESTION = -1
