@@ -15,6 +15,9 @@ from elemeta.nlp.extractors.low_level.abstract_metafeature_extractor import (
 from elemeta.nlp.metafeature_extractors_runner import MetafeatureExtractorsRunner
 from huggingface_hub import hf_hub_download
 from llama_cpp import Llama
+from langchain_community.chat_models import ChatLlamaCpp
+
+from langchain_openai import ChatOpenAI
 
 nltk.download("punkt_tab")
 
@@ -162,6 +165,50 @@ def get_llama_model(
         )
 
     return lcpp_llm
+
+
+def get_langchain_llama_model(
+    repo_id: str = "TheBloke/Llama-2-7b-Chat-GGUF",
+    filename: str = "llama-2-7b-chat.Q2_K.gguf",
+    model_path=False,
+):
+    """
+    Download and return a LlamaCPP model from LangChain, loaded from the HuggingFace Hub.
+    Args:
+        repo_id (str) : HuggingFace Hub repo id
+        filename (str) : model filename
+        model_path (str) : path to the model locally
+    """
+    if not model_path:
+        model_path = hf_hub_download(repo_id, filename)
+
+    if torch.cuda.is_available():
+        lcpp_llm = ChatLlamaCpp(
+            model_path=model_path,
+            n_gpu_layers=40,  # check this
+            n_batch=1024,
+            logits_all=True,
+            logprobs=1,
+            n_ctx=1024,
+            device="cuda",
+        )
+    else:
+        lcpp_llm = ChatLlamaCpp(
+            model_path=model_path,
+            logits_all=True,
+            logprobs=1,
+            n_ctx=1024,
+        )
+    return lcpp_llm
+
+
+def get_langchain_gpt_model(version="gpt-3.5-turbo-0125"):
+    """
+    Return a GPT model from Langchain OpenAI.
+    Args:
+        version (str) : model version
+    """
+    return ChatOpenAI(model=version)
 
 
 def filter_class_input(args, python_function: object, drop=None):

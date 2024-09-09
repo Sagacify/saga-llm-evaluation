@@ -20,7 +20,6 @@ torch = "2.1.1"
 tensorflow = { version = "^2.14", markers = "sys_platform == 'linux'" }
 tensorflow-macos = { version = "^2.14", markers = "sys_platform == 'darwin' and platform_machine == 'arm64'" }
 elemeta = "1.0.7"
-huggingface-hub = "^0.18.0"
 llama-cpp-python = "^0.2.11"
 faiss-cpu = "^1.7.4"
 langchain = "^0.2.15"
@@ -28,6 +27,7 @@ llama-index = "^0.11.3"
 langchain-openai = "^0.1.23"
 langchain-community = "^0.2.15"
 nltk = "^3.9.1"
+langchain-huggingface = "^0.0.3"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.13"

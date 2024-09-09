@@ -1,10 +1,15 @@
 import numpy as np
 
-from huggingface_hub import hf_hub_download
-from llama_cpp import Llama
 from langchain.evaluation import load_evaluator
+from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.language_models.base import BaseLanguageModel
 
-from saga_llm_evaluation.helpers.utils import check_list_type
+
+from saga_llm_evaluation.helpers.utils import (
+    check_list_type,
+    get_langchain_gpt_model,
+    get_langchain_llama_model,
+)
 
 # pylint: disable=consider-iterating-dictionary
 # pylint: disable=too-many-locals
@@ -15,38 +20,30 @@ class SelfCheckGPT:
     def __init__(
         self,
         model,
-        eval_model=False,
-        eval_model_name_or_path="TheBloke/Llama-2-7b-Chat-GGUF",
-        eval_model_basename="llama-2-7b-chat.Q2_K.gguf",
+        eval_model=None,
     ):
         """
         This class implements the self-check GPT evaluation metric for generative language models.
         It is inspired by the self-check metric proposed in https://arxiv.org/pdf/2303.08896.pdf.
         Args:
-            model (transformers.PreTrainedModel): LLM model to evaluate.
-            eval_model (LLama model, optional): Evaluation model. If False, the evaluation model is
+            model (Langchain BaseChatModel): LLM model to evaluate.
+            eval_model (Langchain BaseChatModel, optional): Evaluation model. If False, the evaluation model is
             downloaded from the HuggingFace Hub.
-            eval_model_name_or_path (str): Evaluation model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
-            eval_model_basename (str): Evaluation model basename. Defaults to "llama-2-7b-chat.Q2_K.gguf".
-        """
-        assert isinstance(
-            eval_model_name_or_path, str
-        ), "eval_model_name_or_path must be a string."
-        assert isinstance(
-            eval_model_basename, str
-        ), "eval_model_basename must be a string."
+        #"""
+        # Check that provided model is indeed BaseChatModel from LangChain
+        assert model is not None and isinstance(
+            model, BaseChatModel
+        ), f"model must be a LangChain BaseChatModel. model is of type {type(model).__name__}"
+        assert eval_model is None or isinstance(
+            eval_model, BaseChatModel
+        ), f"eval_model must be a LangChain BaseChatModel. eval_model is of type {type(eval_model).__name__}"
 
         self.model = model
-        if not eval_model:
-            self.eval_model_path = hf_hub_download(
-                repo_id=eval_model_name_or_path, filename=eval_model_basename
-            )
 
-            self.eval_model = Llama(
-                model_path=self.eval_model_path, n_threads=2, verbose=False  # CPU cores
-            )
-        else:
+        if eval_model:
             self.eval_model = eval_model
+        else:  # Use Llama2 by default #TODO: do I let llama by default since this one works with it ?
+            self.eval_model = get_langchain_llama_model()
 
     def get_prompt(self, pred: str, sample: str, question: str):
         """
@@ -64,11 +61,12 @@ class SelfCheckGPT:
         text1 = "\n###Text 1: " + sample
         text2 = "\n###Text 2: " + pred
 
-        prompt_template = f"""SYSTEM: {system_prompt}
-        USER: {question + text1 + text2}
-        ASSISTANT (YES or NO):"""
+        message = [
+            ("system", system_prompt),
+            ("human", question + text1 + text2),
+        ]
 
-        return prompt_template
+        return message
 
     def get_prompts(self, pred: str, samples: str, question: str):
         """
@@ -119,19 +117,15 @@ class SelfCheckGPT:
             samples = []
             for _ in range(n_samples):
                 system_prompt = "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible."
-                prompt_template = f"""SYSTEM: {system_prompt}
-                USER: {user_prompt}
-                ASSISTANT:"""
-
-                response = self.model(prompt_template, max_tokens=200)
-                sample = response["choices"][0]["text"]
-                samples.append(sample)
+                messages = [("system", system_prompt), ("human", user_prompt)]
+                response = self.model.invoke(messages)
+                samples.append(response.content)
 
             # For each sample, ask evaluator model to evaluate the sample
             prompts = self.get_prompts(prediction, samples, user_prompt)
             sample_scores = []
             for prompt in prompts:
-                answer = self.eval_model(prompt, max_tokens=200)["choices"][0]["text"]
+                answer = self.eval_model.invoke(prompt).content
                 sample_scores.append(answer)
 
             # Compute the score: how often the sentence if supported by the sample
@@ -145,36 +139,24 @@ class SelfCheckGPT:
 class GEval:
     def __init__(
         self,
-        model=False,
-        model_name_or_path="TheBloke/Llama-2-7b-Chat-GGUF",
-        model_basename="llama-2-7b-chat.Q2_K.gguf",
+        model=None,
     ):
         """
         This class implements the GEval evaluation metric for generative language models.
         It is inspired by the GEval metric proposed in https://arxiv.org/pdf/2303.16634.pdf.
         Args:
-            model (Llama model): model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.
-            model_name_or_path (str): Model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
-            model_basename (str): Model basename. Defaults to "llama-2-7b-chat.Q2_K.gguf".
+            model (LangChain BaseChatModel): model used for evaluation. If False, the model is
+                downloaded from the HuggingFace Hub.
         """
-        assert isinstance(
-            model_name_or_path, str
-        ), "model_name_or_path must be a string."
-        assert isinstance(model_basename, str), "model_basename must be a string."
 
-        if not model:
-            self.model_path = hf_hub_download(
-                repo_id=model_name_or_path, filename=model_basename
-            )
-
-            self.lcpp_llm = Llama(
-                model_path=self.model_path,
-                n_threads=2,  # CPU cores
-                logits_all=True,
-                n_ctx=1000,
-            )
-        else:
-            self.lcpp_llm = model
+        # Check that provided model is indeed BaseChatModel from LangChain
+        assert model is None or isinstance(
+            model, BaseChatModel
+        ), f"model must be a LangChain BaseChatModel. model is of type {type(model).__name__}"
+        if model:
+            self.model = model
+        else:  # Use GPT 3.5 by default if no other model provided
+            self.model = get_langchain_gpt_model()
 
         self.tasks = {
             "summ": "You will be given one summary written for a news article. Your task is to rate the summary on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.",
@@ -253,16 +235,7 @@ class GEval:
         Returns:
             response (dict): Response from the model.
         """
-        response = self.lcpp_llm.create_completion(
-            prompt=prompt,
-            max_tokens=250,
-            temperature=0.5,
-            top_p=0.95,
-            logprobs=5,
-            repeat_penalty=1.2,
-            top_k=50,
-            echo=True,
-        )
+        response = self.model.invoke(prompt, top_p=0.95, logprobs=True)
         return response
 
     def get_cot(self, prompt: str):
@@ -275,7 +248,15 @@ class GEval:
             cot (str): Chain of thoughts.
         """
         title = "\nEvaluation steps:\n"
-        cot = self.get_prediction(prompt + title)["choices"][0]["text"]
+
+        message = (
+            ("system", prompt + title),
+            (
+                "human",
+                "Please provide a step-by-step chain of thoughts. Be concise: Reply with only the steps.",
+            ),
+        )
+        cot = self.get_prediction(message).content
         return cot
 
     def get_prompt(
@@ -305,11 +286,6 @@ class GEval:
             if aspect in self.aspects.keys()
             else custom_prompt["aspect"]
         )
-        name = (
-            self.aspects[aspect]["name"]
-            if aspect in self.aspects.keys()
-            else custom_prompt["name"]
-        )
 
         # get geval_prompt with chain of thoughts, set of intermediate instructions generated
         # by llm detailing evaluation steps
@@ -318,17 +294,19 @@ class GEval:
 
         geval_prompts = []
         for prompt, prediction in zip(prompts, predictions):
-            geval_prompts.append(
-                geval_prompt
-                + auto_cot
-                + "\n Example:\n Source Text:\n"
-                + prompt
-                + "\n Generated text:\n"
-                + prediction
-                + "\n Evaluation Form (scores ONLY):\n"
-                + name
-                + ": "
-            )
+            message = [
+                ("system", geval_prompt + auto_cot),
+                (
+                    "human",
+                    "Input Text:\n"
+                    + prompt
+                    + "\n Output text:\n"
+                    + prediction
+                    + "\n What is the score ? (answer score only)",
+                ),
+            ]
+            geval_prompts.append(message)
+
         return geval_prompts
 
     def get_score(self, prompts: list):
@@ -342,31 +320,28 @@ class GEval:
         scores = []
         for prompt in prompts:
             response = self.get_prediction(prompt)
-            tokens = response["choices"][0]["logprobs"]["tokens"]
-            top_logprobs = response["choices"][0]["logprobs"]["top_logprobs"]
 
-            # Extract evaluation form from tokens ()
-            template_tokens = [
-                " E",
-                "valu",
-                "ation",
-                " Form",
-                " (",
-                "sc",
-                "ores",
-                " ON",
-                "LY",
-                "):",
+            response_metadata = response.response_metadata
+            tokens = [
+                entry["token"] for entry in response_metadata["logprobs"]["content"]
             ]
-            start_index = tokens.index(template_tokens[-1]) + 1
+            top_logprobs = [
+                entry["logprob"] for entry in response_metadata["logprobs"]["content"]
+            ]
+
             # Extract number index from the remaining tokens
-            for token in tokens[start_index:]:
+            number_index = None
+            for token in tokens:
                 if token.isdigit():
                     number_index = tokens.index(token)
                     break
+            if number_index is None:
+                raise ValueError("Number not found in the tokens.")
 
-            # Get logprobs associated with number
-            logprobs = top_logprobs[number_index]
+            # Get logprobs associated with number in a dictionary
+            logprobs = {
+                tokens[i]: top_logprobs[i] for i in range(number_index, len(tokens))
+            }
 
             # Compute score
             # Get only keys that are numbers
@@ -471,96 +446,103 @@ class GPTScore:
     # pylint: disable=f-string-without-interpolation
     def __init__(
         self,
-        model=False,
-        model_name_or_path="TheBloke/Llama-2-7b-Chat-GGUF",
-        model_basename="llama-2-7b-chat.Q2_K.gguf",
+        model=None,
     ):
         """
         This class implements the GPTScore evaluation metric for generative language models.
         It is inspired by the GPTScore metric proposed in https://arxiv.org/pdf/2302.04166.pdf.
-        Args:
-            model (Llama model): model used for evaluation. If False, the model is downloaded from the HuggingFace Hub.
-            model_name_or_path (str): Model name or path. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
-            model_basename (str): Model basename. Defaults to "llama-2-7b-chat.Q2_K.gguf".
-        """
-        assert isinstance(
-            model_name_or_path, str
-        ), "model_name_or_path must be a string."
-        assert isinstance(model_basename, str), "model_basename must be a string."
+        The GPTScore from the paper is always gonna be calculated as the average log-likelihood
+        of the tokens in the sentence.
+        However, since the probability of each token is always gonna be between 0 and 1,
+        the average log-likelihood is always gonna be negative.
+        Thus, the bigger the GPTScore, the better the sentence.
+        The GPTScore is always gonna be negative.
 
-        self.templates = {
+        Args:
+            model (LangChain BaseChatModel): model used for evaluation. If False, the model
+                is downloaded from the HuggingFace Hub.
+        """
+
+        assert model is None or isinstance(
+            model, BaseChatModel
+        ), f"model must be a LangChain BaseChatModel. model is of type {type(model).__name__}"
+
+        self.criteria = {
             "summ": {
-                "FAC": f"Generate a summary with consistent facts for the following text: {{src}}\n\nTl;dr{{pred}}",
-                "COV": f"Generate a summary with as much semantic coverage as possible for the following text: {{src}}\n\nTl;dr{{pred}}",
-                "CON": f"Generate factually consistent summary for the following text: {{src}}\n\nTl;dr{{pred}}",
-                "INF": f"Generate an informative summary that captures the key points of the following text:{{src}}\n\nTl;dr{{pred}}",
-                "COH": f"Generate a coherent summary for the following text: {{src}}\n\nTl;dr{{pred}}",
-                "REL": f"Generate a relevant summary with consistent details for the following text: {{src}}\n\nTl;dr{{pred}}",
-                "FLU": f"Generate a fluent and grammatical summary for the following text: {{src}}\n\nTl;dr{{pred}}",
+                "FAC": f"Generate a summary with consistent facts for the following text::\nSource:\n{{src}}:\nSummary:\n{{pred}}. This is a factually consistent summary.",
+                "COV": f"Generate a summary with as much semantic coverage as possible for the following text::\nSource:\n{{src}}\nSummary:\n{{pred}}. This is a semantically comprehensive summary.",
+                "CON": f"Generate factually consistent summary for the following text::\nSource:\n{{src}}\nSummary:\n{{pred}}. This is a factually consistent summary.",
+                "INF": f"Generate an informative summary that captures the key points of the following text::\nSource:\n{{src}}\nSummary:\n{{pred}}. This is an informative summary.",
+                "COH": f"Generate a coherent summary for the following text::\nSource:\n{{src}}\nSummary:\n{{pred}}. This is a coherent summary.",
+                "REL": f"Generate a relevant summary with consistent details for the following text::\nSource:\n{{src}}\nSummary:\n{{pred}}. This is a relevant summary.",
+                "FLU": f"Generate a fluent and grammatical summary for the following text::\nSource:\n{{src}}\nSummary:\n{{pred}}. This is a fluent summary.",
             },
-            "MT": {
-                "ACC": f"Rewrite the following text with its core information and consistent facts:{{src}} In other words, {{pred}}",
-                "FLU": f"Rewrite the following text to make it more grammatical and well-written:{{src}} In other words,{{pred}}",
-                "MQM": f"Rewrite the following text into high-quality text with its core information:{{src}} In other words,{{pred}}",
+            "machine_translation": {
+                "ACC": f"Translate the following text with its core information and consistent facts:\nSource:\n{{src}}\nTranslation:\n{{pred}}. This is a factually consistent translation.",
+                "FLU": f"Translate the following text to make it more grammatical and well-written:\nSource:\n{{src}}\nTranslation:\n{{pred}}. This is a fluent translation.",
+                "MQM": f"Translate the following text into high-quality text with its core information:\nSource:\n{{src}}\nTranslation:\n{{pred}}. This is a high-quality translation.",
             },
-            "D2T": {
-                "INF": f"Convert the following text to another expression that preserves key information:\n\n{{src}} In other words, {{pred}}",
-                "NAT": f"Convert the following text into another expression that is human-like and natural:\n\n{{src}} In other words, {{pred}}",
-                "FLU": f"Convert the following text into another expression that preserves key information and is human-like and natural:\n\n{{src}} In other words, {{pred}}",
+            "data_to_text": {
+                "INF": f"Convert the following text to another expression that preserves key information:\nSource:\n{{src}}\nConversion:\n{{pred}}. This is an informative conversion.",
+                "NAT": f"Convert the following text into another expression that is human-like and natural:\nSource:\n{{src}}\nConversion:\n{{pred}}. This is a natural conversion.",
+                "FLU": f"Convert the following text into another expression that preserves key information and is human-like and natural:\nSource:\n{{src}}\nConversion:\n{{pred}}. This is a fluent conversion.",
             },
             "diag": {
-                "COH": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
-                "DIV": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is there diversity in the AI responses? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
-                "FLE": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI flexible and adaptable to human and their interests? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
-                "UND": f"Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI seem to understand the human? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
-                "INQ": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI inquisitive throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
-                "CON": f"Answer the question based on the conversation between a human and AI.\nQuestion: Are the responses of AI consistent in the information it provides throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
-                "INF": f"Answer the question based on the conversation between a human and AI.\nQuestion: Are the responses of AI informative throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
-                "LIK": f"Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI display a likeable personality? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
-                "DEP": f"Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI discuss topics in depth? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
-                "ERR": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI able to recover from errors that it makes? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
+                "COH": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer: Yes.",
+                "DIV": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is there diversity in the AI responses? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer: Yes.",
+                "FLE": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI flexible and adaptable to human and their interests? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer: Yes.",
+                "UND": f"Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI seem to understand the human? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer: Yes.",
+                "INQ": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI inquisitive throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer: Yes.",
+                "CON": f"Answer the question based on the conversation between a human and AI.\nQuestion: Are the responses of AI consistent in the information it provides throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer: Yes.",
+                "INF": f"Answer the question based on the conversation between a human and AI.\nQuestion: Are the responses of AI informative throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer: Yes.",
+                "LIK": f"Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI display a likeable personality? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer: Yes.",
+                "DEP": f"Answer the question based on the conversation between a human and AI.\nQuestion: Does the AI discuss topics in depth? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer: Yes.",
+                "ERR": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI able to recover from errors that it makes? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer: Yes.",
             },
         }
-
-        self.tasks = self.templates.keys()
+        self.tasks = self.criteria.keys()
         self.aspects = list(
-            {aspect for task in self.tasks for aspect in self.templates[task]}
+            {aspect for task in self.tasks for aspect in self.criteria[task]}
         )
 
-        if not model:
-            self.model_path = hf_hub_download(
-                repo_id=model_name_or_path, filename=model_basename
-            )
+        if model:
+            self.model = model
+        else:  # Use GPT 3.5 by default if no other model provided
+            self.model = get_langchain_gpt_model()
 
-            self.lcpp_llm = Llama(
-                model_path=self.model_path,
-                n_threads=2,  # CPU cores
-                logits_all=True,
-            )
-        else:
-            self.lcpp_llm = model
-
-    def add_template(self, task: str, code: str, prompt: str):
+    def add_criterion(self, task: str, code: str, desc: str):
         """
-        This method adds a template to the list of pre-defined template.
+        This method adds a criterion to the list of pre-defined criteria.
         Please try to follow the following example pattern to ensure consistency.
+
         Example:
         "diag": {
-            "COH": f"Answer the question based on the conversation between a human and AI.
-            \nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation?
-            (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
+            "COH": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer: Yes.",
         }
 
         Args:
-            task (str): Task name.
-            code (str): Aspect code.
-            prompt (str): Aspect prompt.
+            task (str): Task name. (Example: "diag")
+            code (str): Aspect code. (Example: "COH")
+            desc (str): Aspect description.
         """
+
         assert isinstance(task, str), "task must be a string."
         assert isinstance(code, str), "code must be a string."
-        assert isinstance(prompt, str), "prompt must be a string."
+        assert isinstance(desc, str), "prompt must be a string."
 
-        self.templates[task][code] = prompt
+        assert "{pred}" in desc  # Check that the template has the correct placeholder
+        assert "{src}" in desc  # Check that the template has the correct placeholder
+
+        # Add the criterion to the list of criteria
+        if task not in self.criteria.keys():
+            self.criteria[task] = {}
+        self.criteria[task][code] = desc
+
+        # Update the aspects and tasks lists
+        self.tasks = self.criteria.keys()
+        self.aspects = list(
+            {aspect for task in self.tasks for aspect in self.criteria[task]}
+        )
 
     def get_prompt(
         self,
@@ -582,33 +564,34 @@ class GPTScore:
         Returns:
             list: (list of) Prompt templates.
         """
-        # define aspet and task
+        # define aspect and task
         if aspect and task:
             assert (
-                aspect in self.templates[task]
+                aspect in self.criteria[task]
             ), f"Aspect {aspect} is not available for task {task}."
-            assert self.templates[task][
+            assert self.criteria[task][
                 aspect
             ], f"Prompt template for aspect {aspect} and task {task} is non-existent. Please specify a prompt template."
 
         # set general template
         template = (
-            self.templates[task][aspect]
-            if (aspect and task)
-            else str(custom_prompt["task"])
-            + "\nQuestion: "
-            + str(custom_prompt["aspect"])
-            + "(a) Yes. (b) No.\nConversation:\nUser: {src}\nAI: {pred}\nAnswer:"
+            self.criteria[task][aspect] if (aspect and task) else str(custom_prompt)
         )
 
         # get final prompt for each pair of prompt and candidate sentence
-        templates = []
+        messages = []
         for prompt, prediction in zip(prompts, predictions):
+
             template = template.replace("{src}", prompt)
             template = template.replace("{pred}", prediction)
-            templates.append(template)
 
-        return templates
+            message = [
+                ("system", "Explain your reasoning in the following statement."),
+                ("human", template),
+            ]
+            messages.append(message)
+
+        return messages
 
     def get_score(self, prompts: list):
         """
@@ -620,31 +603,22 @@ class GPTScore:
         """
         scores = []
         for prompt in prompts:
-            response = self.lcpp_llm.create_completion(
-                prompt=prompt,
-                max_tokens=500,
-                temperature=0.5,
-                top_p=0.95,
-                logprobs=1,
-                repeat_penalty=1.2,
-                top_k=50,
-                echo=True,
-            )
+            self.model = self.model.bind(logprobs=True)
+            response = self.model.invoke(prompt)
+            response_metadata = response.response_metadata
 
-            # Compute logprobs
-            # Find the end position of the input...
-            i = response["choices"][0]["logprobs"]["text_offset"].index(len(prompt))
-            if i == 0:
-                i = i + 1
+            logprobs = [
+                entry["logprob"] for entry in response_metadata["logprobs"]["content"]
+            ]
 
-            # Get logprobs
-            loss = -sum(
-                response["choices"][0]["logprobs"]["token_logprobs"][i:-1]
-            )  # ignore the last '.'
-            avg_loss = loss / (
-                len(response["choices"][0]["logprobs"]["text_offset"]) - i - 1
-            )  # 1 is the last '.'
+            # multiply logprob of token with weight of token
+            loss = sum(logprobs)
+            if len(logprobs) == 0:
+                avg_loss = None
+            else:
+                avg_loss = loss / len(logprobs)
             scores.append(avg_loss)
+
         return scores
 
     def compute(
@@ -739,6 +713,20 @@ class GPTScore:
 
 
 class Relevance:
+    def __init__(self, llm=None) -> None:
+        assert llm is None or isinstance(
+            llm, BaseLanguageModel
+        ), f"llm must be a LangChain BaseLanguageModel. model is of type {type(llm).__name__}"
+
+        self.llm = llm if llm else None
+        self.criterion = {
+            "relevance": "Does the submission refer to or accurately convey the information from the input text, \
+                even if it is not an exact quote?"
+        }
+        self.evaluator = load_evaluator(
+            "criteria", criteria=self.criterion, llm=self.llm
+        )
+
     def compute(self, user_prompts: list, predictions: list):
         """
         This method computes the relevance score for a candidate sentence given a source text.
@@ -755,17 +743,33 @@ class Relevance:
                     that the sentence is irrelevant.
                 - "reasoning": Reasoning for the relevance score.
         """
-        custom_criterion = {
-            "relevance": "Does the submission refer to or accurately convey the information from the input text, \
-                even if it is not an exact quote?"
-        }
-        evaluator = load_evaluator("criteria", criteria=custom_criterion)
-        result = evaluator.evaluate_strings(prediction=predictions, input=user_prompts)
+        assert isinstance(user_prompts, list), "user_prompts must be a list."
+        assert isinstance(predictions, list), "predictions must be a list."
+        assert all(
+            isinstance(prompt, str) for prompt in user_prompts
+        ), "All elements in user_prompts must be strings."
+        assert all(
+            isinstance(pred, str) for pred in predictions
+        ), "All elements in predictions must be strings."
+
+        result = self.evaluator.evaluate_strings(
+            prediction=predictions, input=user_prompts
+        )
 
         return result
 
 
 class Correctness:
+    def __init__(self, llm=None) -> None:
+        assert llm is None or isinstance(
+            llm, BaseLanguageModel
+        ), f"llm must be a LangChain BaseLanguageModel. model is of type {type(llm).__name__}"
+
+        self.llm = llm if llm else None
+        self.evaluator = load_evaluator(
+            "labeled_criteria", criteria="correctness", llm=self.llm
+        )
+
     def compute(self, user_prompts: list, predictions: list, references: list):
         """
         This method computes the correctness score for a candidate sentence given a source text and a reference.
@@ -781,8 +785,20 @@ class Correctness:
                     that the sentence is incorrect.
                 - "reasoning": Reasoning for the correctness score.
         """
-        evaluator = load_evaluator("labeled_criteria", criteria="correctness")
-        result = evaluator.evaluate_strings(
+        assert isinstance(user_prompts, list), "user_prompts must be a list."
+        assert isinstance(predictions, list), "predictions must be a list."
+        assert isinstance(references, list), "references must be a list."
+        assert all(
+            isinstance(prompt, str) for prompt in user_prompts
+        ), "All elements in user_prompts must be strings."
+        assert all(
+            isinstance(pred, str) for pred in predictions
+        ), "All elements in predictions must be strings."
+        assert all(
+            isinstance(ref, str) for ref in references
+        ), "All elements in references must be strings."
+
+        result = self.evaluator.evaluate_strings(
             prediction=predictions, input=user_prompts, reference=references
         )
 
@@ -790,6 +806,19 @@ class Correctness:
 
 
 class Faithfulness:
+    def __init__(self, llm=None) -> None:
+        assert llm is None or isinstance(
+            llm, BaseLanguageModel
+        ), f"llm must be a LangChain BaseLanguageModel. model is of type {type(llm).__name__}"
+
+        self.llm = llm if llm else None
+        self.criterion = {
+            "faithfulness": "Does this submission contain information not present in the input or reference?",
+        }
+        self.evaluator = load_evaluator(
+            "labeled_criteria", criteria=self.criterion, llm=self.llm
+        )
+
     def compute(self, user_prompts: list, predictions: list, references: list):
         """
         This method computes the faithfulness score for a candidate sentence given a source text and a reference.
@@ -805,12 +834,20 @@ class Faithfulness:
                     that the sentence is not faithful.
                 - "reasoning": Reasoning for the faithfulness score.
         """
-        custom_criterion = {
-            "faithfulness": "Does this submission contain information not present in the input or reference?",
-        }
+        assert isinstance(user_prompts, list), "user_prompts must be a list."
+        assert isinstance(predictions, list), "predictions must be a list."
+        assert isinstance(references, list), "references must be a list."
+        assert all(
+            isinstance(prompt, str) for prompt in user_prompts
+        ), "All elements in user_prompts must be strings."
+        assert all(
+            isinstance(pred, str) for pred in predictions
+        ), "All elements in predictions must be strings."
+        assert all(
+            isinstance(ref, str) for ref in references
+        ), "All elements in references must be strings."
 
-        evaluator = load_evaluator("labeled_criteria", criteria=custom_criterion)
-        result = evaluator.evaluate_strings(
+        result = self.evaluator.evaluate_strings(
             prediction=predictions, input=user_prompts, reference=references
         )
 
@@ -818,6 +855,19 @@ class Faithfulness:
 
 
 class NegativeRejection:
+    def __init__(self, llm=None) -> None:
+        assert llm is None or isinstance(
+            llm, BaseLanguageModel
+        ), f"llm must be a LangChain BaseLanguageModel. model is of type {type(llm).__name__}"
+
+        self.llm = llm if llm else None
+        self.criterion = {
+            "negative_rejection": "Does this submission refuse to answer when the answer is not present in the input or reference?",
+        }
+        self.evaluator = load_evaluator(
+            "labeled_criteria", criteria=self.criterion, llm=self.llm
+        )
+
     # measures the ability of the system to refuse to andwer in the absence of evidences (F1, exact match, LLM as judge)
     def compute(self, user_prompts: list, predictions: list, references: list):
         """
@@ -835,13 +885,23 @@ class NegativeRejection:
                     and N indicates that the sentence is not a refusal to answer.
                 - "reasoning": Reasoning for the negative rejection score.
         """
+        assert isinstance(user_prompts, list), "user_prompts must be a list."
+        assert isinstance(predictions, list), "predictions must be a list."
+        assert isinstance(references, list), "references must be a list."
+        assert all(
+            isinstance(prompt, str) for prompt in user_prompts
+        ), "All elements in user_prompts must be strings."
+        assert all(
+            isinstance(pred, str) for pred in predictions
+        ), "All elements in predictions must be strings."
+        assert all(
+            isinstance(ref, str) for ref in references
+        ), "All elements in references must be strings."
+        assert len(predictions) == len(
+            references
+        ), "Predictions and references must be of the same length."
 
-        custom_criterion = {
-            "negative_rejection": "Does this submission refuse to answer when the answer is not present in the input or reference?",
-        }
-
-        evaluator = load_evaluator("labeled_criteria", criteria=custom_criterion)
-        result = evaluator.evaluate_strings(
+        result = self.evaluator.evaluate_strings(
             prediction=predictions, input=user_prompts, reference=references
         )
 
@@ -861,9 +921,17 @@ class HallucinationScore:
                 - "exact_match": Binary integer value (0 or 1), where 1 indicates that the prediction exactly matches
                   the reference and 0 indicates it does not.
         """
+        assert isinstance(predictions, list), "predictions must be a list."
+        assert isinstance(references, list), "references must be a list."
         assert len(predictions) == len(
             references
         ), "Predictions and references must be of the same length."
+        assert all(
+            isinstance(pred, str) for pred in predictions
+        ), "All elements in predictions must be strings."
+        assert all(
+            isinstance(ref, str) for ref in references
+        ), "All elements in references must be strings."
 
         total_f1 = 0.0
         exact_matches = 0
