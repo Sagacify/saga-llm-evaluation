@@ -2,6 +2,7 @@ import unittest
 
 from unittest.mock import MagicMock, patch
 from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.language_models.base import BaseLanguageModel
 
 from saga_llm_evaluation.helpers.llm_metrics import (
     GEval,
@@ -112,21 +113,34 @@ class TestGPTScoreWithMockedModel(unittest.TestCase):
 
 class TestRelevanceWithMockedModel(unittest.TestCase):
     def setUp(self):
+        # Patch load_evaluator
         patcher = patch("langchain.evaluation.load_evaluator")
         mock_load_evaluator = patcher.start()
 
+        # Patch the ChatOpenAI model
+        self.llm_patcher = patch(
+            "langchain_core.language_models.base.BaseLanguageModel"
+        )
+        self.mock_llm = self.llm_patcher.start()
+
+        # Mock the LLM (ChatOpenAI) so it doesn't try to connect to OpenAI
+        self.mock_llm_model = MagicMock(spec=BaseLanguageModel)
+        self.mock_llm.return_value = self.mock_llm_model
+
         self.mock_evaluator = MagicMock()
         mock_load_evaluator.return_value = self.mock_evaluator
+
         self.mock_evaluator.evaluate_strings.return_value = {
             "score": 1,
             "value": "Y",
             "reasoning": "OK.",
         }
 
-        self.relevance = Relevance()
+        self.relevance = Relevance(llm=self.mock_llm_model)
         self.relevance.evaluator = self.mock_evaluator
 
         self.addCleanup(patcher.stop)
+        self.addCleanup(self.llm_patcher.stop)
 
     def test_compute_with_mock_model(self):
         user_prompts = ["What is the capital of France?"]
@@ -143,18 +157,31 @@ class TestCorrectnessWithMockedModel(unittest.TestCase):
         patcher = patch("langchain.evaluation.load_evaluator")
         mock_load_evaluator = patcher.start()
 
+        # Patch the llm model
+        self.llm_patcher = patch(
+            "langchain_core.language_models.base.BaseLanguageModel"
+        )
+        self.mock_llm = self.llm_patcher.start()
+
+        # Mock the LLM (ChatOpenAI) so it doesn't try to connect to OpenAI
+        self.mock_llm_model = MagicMock(spec=BaseLanguageModel)
+        self.mock_llm.return_value = self.mock_llm_model
+
+        # Mock the evaluator
         self.mock_evaluator = MagicMock()
         mock_load_evaluator.return_value = self.mock_evaluator
+
         self.mock_evaluator.evaluate_strings.return_value = {
             "score": 1,
             "value": "Y",
             "reasoning": "OK.",
         }
 
-        self.correctness = Correctness()
+        self.correctness = Correctness(llm=self.mock_llm_model)
         self.correctness.evaluator = self.mock_evaluator
 
         self.addCleanup(patcher.stop)
+        self.addCleanup(self.llm_patcher.stop)
 
     def test_compute_with_mock_model(self):
         user_prompts = ["What is the capital of France?"]
@@ -169,9 +196,22 @@ class TestCorrectnessWithMockedModel(unittest.TestCase):
 
 class TestFaithfulnessWithMockedModel(unittest.TestCase):
     def setUp(self):
+
+        # Patch load_evaluator
         patcher = patch("langchain.evaluation.load_evaluator")
         mock_load_evaluator = patcher.start()
 
+        # Patch the llm model
+        self.llm_patcher = patch(
+            "langchain_core.language_models.base.BaseLanguageModel"
+        )
+        self.mock_llm = self.llm_patcher.start()
+
+        # Mock the LLM (ChatOpenAI) so it doesn't try to connect to OpenAI
+        self.mock_llm_model = MagicMock(spec=BaseLanguageModel)
+        self.mock_llm.return_value = self.mock_llm_model
+
+        # Mock the evaluator
         self.mock_evaluator = MagicMock()
         mock_load_evaluator.return_value = self.mock_evaluator
         self.mock_evaluator.evaluate_strings.return_value = {
@@ -180,10 +220,11 @@ class TestFaithfulnessWithMockedModel(unittest.TestCase):
             "reasoning": "OK.",
         }
 
-        self.faithfulness = Faithfulness()
+        self.faithfulness = Faithfulness(llm=self.mock_llm_model)
         self.faithfulness.evaluator = self.mock_evaluator
 
         self.addCleanup(patcher.stop)
+        self.addCleanup(self.llm_patcher.stop)
 
     def test_compute_with_mock_model(self):
         user_prompts = ["What is the capital of France?"]
@@ -198,9 +239,21 @@ class TestFaithfulnessWithMockedModel(unittest.TestCase):
 
 class TestNegativeRejectionWithMockedModel(unittest.TestCase):
     def setUp(self):
+        # Patch load_evaluator
         patcher = patch("langchain.evaluation.load_evaluator")
         mock_load_evaluator = patcher.start()
 
+        # Patch the llm model
+        self.llm_patcher = patch(
+            "langchain_core.language_models.base.BaseLanguageModel"
+        )
+        self.mock_llm = self.llm_patcher.start()
+
+        # Mock the LLM (ChatOpenAI) so it doesn't try to connect to OpenAI
+        self.mock_llm_model = MagicMock(spec=BaseLanguageModel)
+        self.mock_llm.return_value = self.mock_llm_model
+
+        # Mock the evaluator
         self.mock_evaluator = MagicMock()
         mock_load_evaluator.return_value = self.mock_evaluator
         self.mock_evaluator.evaluate_strings.return_value = {
@@ -209,10 +262,11 @@ class TestNegativeRejectionWithMockedModel(unittest.TestCase):
             "reasoning": "OK.",
         }
 
-        self.negative_rejection = NegativeRejection()
+        self.negative_rejection = NegativeRejection(llm=self.mock_llm_model)
         self.negative_rejection.evaluator = self.mock_evaluator
 
         self.addCleanup(patcher.stop)
+        self.addCleanup(self.llm_patcher.stop)
 
     def test_compute_with_mock_model(self):
         user_prompts = ["Tell me about unicorns."]
