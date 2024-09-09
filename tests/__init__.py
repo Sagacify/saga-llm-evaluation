@@ -11,7 +11,8 @@ sys.path.append(MODULE_ROOT)
 PROJ_ROOT = os.path.abspath("/www/app")
 sys.path.append(PROJ_ROOT)
 
-# load gpt model
-LANGCHAIN_GPT_MODEL = get_langchain_gpt_model(version="gpt-3.5-turbo")
-
-# TODO: see how to not load these at the initiation of CI but do so locally
+# load gpt model if keys detected
+if os.getenv("OPENAI_API_KEY"):
+    LANGCHAIN_GPT_MODEL = get_langchain_gpt_model(version="gpt-3.5-turbo")
+else:
+    LANGCHAIN_GPT_MODEL = None
