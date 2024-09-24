@@ -1,0 +1,24 @@
+FROM sagacify/docker-base-tensorflow-gpu-image:v5831148473
+
+# Args for Sagacify's private PyPI
+ARG POETRY_HTTP_BASIC_SAGACIFY_USERNAME
+ARG POETRY_HTTP_BASIC_SAGACIFY_PASSWORD
+
+ENV PYTHONPATH="${PYTHONPATH}:/home/jovyan"
+
+# Put "apt-get update" or "apt-get install" here
+
+WORKDIR /home/jovyan
+
+COPY pyproject.toml poetry.lock ./
+
+RUN poetry install --no-interaction && rm -rf $POETRY_CACHE_DIR/artifacts $POETRY_CACHE_DIR/cache
+
+COPY .pylintrc ./
+COPY config/ config/
+COPY src/ src/
+COPY tests/ tests/
+COPY notebooks/ notebooks/
+COPY docker-entrypoint.sh ./
+
+ENTRYPOINT ["./docker-entrypoint.sh"]

@@ -1,5 +1,6 @@
 import json
 import re
+import nltk
 import string
 from collections import Counter
 
@@ -14,6 +15,11 @@ from elemeta.nlp.extractors.low_level.abstract_metafeature_extractor import (
 from elemeta.nlp.metafeature_extractors_runner import MetafeatureExtractorsRunner
 from huggingface_hub import hf_hub_download
 from llama_cpp import Llama
+from langchain_community.chat_models import ChatLlamaCpp
+
+from langchain_openai import ChatOpenAI
+
+nltk.download("punkt_tab")
 
 NO_ANS = "[CLS]"
 INVALID_QUESTION = -1
@@ -22,6 +28,14 @@ INVALID_QUESTION = -1
 
 
 def load_json(path):
+    """
+    Load a json file from a given path.
+
+    Args:
+        path (str) : path to the json file
+    Returns:
+        dict: dictionary of the json file
+    """
     with open(path) as json_file:
         o_file = json_file.read()
     return json.loads(o_file)
@@ -29,12 +43,13 @@ def load_json(path):
 
 def filter_questions(exp_ans, pred_ans):
     """
-    check if the expected answer and the predicted answer are the same.
+    Check if the expected answer and the predicted answer are the same.
+
     Args:
         exp_ans (str) : expected answer
         pred_ans (str) : predicted answer
     Returns:
-        str : "VALID" if the answers are the same, "NO MATCH" otherwise
+        str: "VALID" if the answers are the same, "NO MATCH" otherwise
     """
     if pred_ans == NO_ANS:
         return "NO MATCH"
@@ -45,11 +60,12 @@ def filter_questions(exp_ans, pred_ans):
 
 def clean_text(text):
     """
-    clean a text by removing punctuation and (some) stopwords.
+    Clean a text by removing punctuation and (some) stopwords.
+
     Args:
         text (str) : text to clean
     Returns:
-        str : cleaned text
+        str: cleaned text
     """
     # TODO: improve
     # TODO: add support to french language
@@ -61,7 +77,8 @@ def clean_text(text):
 
 def raw_f1_score(a_gold, a_pred):
     """
-    compute the raw F1 score between two answers.
+    Compute the raw F1 score between two answers.
+
     Args:
         a_gold (str) : expected answer
         a_pred (str) : predicted answer
@@ -84,12 +101,15 @@ def raw_f1_score(a_gold, a_pred):
 
 def non_personal(question, nlp, lan="en"):
     """
-    check if a question contains personal pronouns.
+    Check if a question contains personal pronouns.
+
     Args:
         question (str) : question to check
         nlp (spacy.lang) : spacy language model
+        lan (str) : language of the question. Defaults to "en".
+
     Returns:
-        bool : True if the question does not contain personal pronouns, False otherwise
+        bool: True if the question does not contain personal pronouns, False otherwise
     """
     question_tok = nlp(question)
     for tok in question_tok:
@@ -133,10 +153,14 @@ def get_llama_model(
 ):
     """
     Download and return a Llama model from HuggingFace Hub.
+
     Args:
-        repo_id (str) : HuggingFace Hub repo id
-        filename (str) : model filename
-        model_path (str) : path to the model locally
+        repo_id (str) : HuggingFace Hub repo id of the model. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
+        filename (str) : model filename to download. Defaults to "llama-2-7b-chat.Q2_K.gguf".
+        model_path (str) : path to the model locally to avoid downloading. Defaults to False.
+
+    Returns:
+        llama_cpp.Llama: Llama model
     """
     if not model_path:
         model_path = hf_hub_download(repo_id, filename)
@@ -161,9 +185,62 @@ def get_llama_model(
     return lcpp_llm
 
 
+def get_langchain_llama_model(
+    repo_id: str = "TheBloke/Llama-2-7b-Chat-GGUF",
+    filename: str = "llama-2-7b-chat.Q2_K.gguf",
+    model_path=False,
+):
+    """
+    Download and return a LlamaCPP model from LangChain, loaded from the HuggingFace Hub.
+
+    Args:
+        repo_id (str) : HuggingFace Hub repo id of the model. Defaults to "TheBloke/Llama-2-7b-Chat-GGUF".
+        filename (str) : model filename to download. Defaults to "llama-2-7b-chat.Q2_K.gguf".
+        model_path (str) : path to the model locally to avoid downloading. Defaults to False.
+
+    Returns:
+        langchain_community.chat_models.ChatLlamaCpp: LlamaCPP model from LangChain.
+    """
+    if not model_path:
+        model_path = hf_hub_download(repo_id, filename)
+
+    if torch.cuda.is_available():
+        lcpp_llm = ChatLlamaCpp(
+            model_path=model_path,
+            n_gpu_layers=40,  # check this
+            n_batch=1024,
+            logits_all=True,
+            logprobs=1,
+            n_ctx=1024,
+            device="cuda",
+        )
+    else:
+        lcpp_llm = ChatLlamaCpp(
+            model_path=model_path,
+            logits_all=True,
+            logprobs=1,
+            n_ctx=1024,
+        )
+    return lcpp_llm
+
+
+def get_langchain_gpt_model(version="gpt-3.5-turbo-0125"):
+    """
+    Return a GPT model from Langchain OpenAI.
+
+    Args:
+        version (str) : model version
+
+    Returns:
+        langchain_openai.ChatOpenAI: GPT model from LangChain OpenAI.
+    """
+    return ChatOpenAI(model=version)
+
+
 def filter_class_input(args, python_function: object, drop=None):
     """
     Filters input arguments for a given class.
+
     Args:
         args (dict): dictionary of arguments
         python_class (object): class to filter arguments for
@@ -181,9 +258,11 @@ def filter_class_input(args, python_function: object, drop=None):
 def check_list_type(array: list, list_type: type):
     """
     Check if an array is a list of a given type.
+
     Args:
         array (list): array to check
         list_type (type): type to check
+
     Returns:
         bool: True if the array is a list of the given type, False otherwise
     """
@@ -195,6 +274,9 @@ def check_list_type(array: list, list_type: type):
 # pylint:disable=invalid-name
 class MetadataExtractor:
     def __init__(self):
+        """
+        Initializes the metadata extractor.
+        """
         self.metadata_extractor = MetafeatureExtractorsRunner()
 
     def add_word_regex_matches_count(self, regex_rule, name=None):

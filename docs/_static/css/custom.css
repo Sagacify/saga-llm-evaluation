@@ -1,0 +1,125 @@
+/* Reduce the padding and space around the logo */
+/* Adjust the logo */
+.wy-side-nav-search img {
+    width: 80% !important;  /* Adjust the width of the logo */
+    padding: 0 !important;  /* Remove padding around the logo */
+    margin: 0 auto !important;  /* Center the logo and remove space below */
+    display: block;
+}
+
+/* Adjust the spacing and position for the search bar container */
+.wy-side-nav-search {
+    background-color: #69eda2 !important;  /* Green background */
+    margin: 0px !important;   /* Remove all margins */
+    padding-bottom: 5px !important;  /* Optional: Add slight space below the logo */
+    padding-top: 5px !important;  /* Optional: Add slight space above the search bar */
+}
+
+/* Specific adjustment for the search form container */
+.wy-side-nav-search div[role="search"] {
+    margin-top: -20px !important;  /* Move the search bar up by reducing the top margin */
+    margin-bottom: 5px !important;  /* Remove space below the search bar */
+}
+
+/* Search box styles */
+.wy-side-nav-search input[type="text"] {
+    width: 100%;  /* Adjust the search box width */
+    margin: 0 auto !important;  /* Center the search box */
+    padding: 5px;  /* Add internal padding to the input */
+    display: block;
+    border: 1px solid #34E27E !important;  /* Green border */
+    background-color: #f8f9fa;  /* Light background for input box */
+    color: #000000 !important;  /* Black text in input */
+}
+
+/* Sidebar menu background */
+.wy-menu-vertical {
+    background-color: #0C1153 !important;  /* Dark blue background */
+}
+
+/* Force sidebar background for the nav-side */
+.wy-nav-side {
+    background: #0C1153;  /* Dark blue */
+}
+
+/* Sidebar header and top bar for mobile */
+.wy-side-nav-search, .wy-nav-top {
+    background: #34E27E;  /* Green background for both */
+}
+
+/* Change the text color of "Contents" */
+.wy-menu-vertical .caption-text {
+    color: #34E27E !important;  /* Green color for "Contents" */
+}
+
+
+
+/* Sidebar Link Styles */
+/* Default sidebar links */
+/* Top-level links */
+.wy-menu-vertical .toctree-l1 > a {
+    color: #f8f9fa !important;  /* Default link color */
+    background-color: #0C1153 !important;  /* Dark blue background */
+    display: block;
+    padding: 5px 20px !important;  /* Add padding for hover effect */
+}
+
+/* Second-level links */
+.wy-menu-vertical .toctree-l2 > a {
+    color: #f8f9fa !important;  /* Default link color */
+    background-color:  #0C1153 !important;  /* Dark blue background */
+    display: block;
+}
+
+/* Third-level links */
+.wy-menu-vertical .toctree-l3 > a {
+    color: #f8f9fa !important;  /* Default link color */
+    background-color:  #0C1153 !important;  /* Dark blue background */
+    display: block;
+}
+
+/* Fourth-level links */
+.wy-menu-vertical .toctree-l4 > a {
+    color: #f8f9fa !important;  /* Default link color */
+    background-color:  #0C1153 !important;  /* Dark blue background */
+    display: block;
+}
+
+/* Active (clicked) state background for all levels */
+.wy-menu-vertical .toctree-l1.current > a,
+.wy-menu-vertical .toctree-l2.current > a,
+.wy-menu-vertical .toctree-l3.current > a {
+    color: #ffffff !important;  /* White text color for active links */
+    border: transparent !important;  /* Remove border for active links */
+}
+
+.wy-menu-vertical .toctree-l1 > a:hover,
+.wy-menu-vertical .toctree-l2 > a:hover,
+.wy-menu-vertical .toctree-l3 > a:hover {
+    background-color: #69eda2 !important;  /* Green background on hover */
+    color: #f8f9fa !important;  /* Dark blue text color on hover */
+    border-radius: 5px !important;  /* Rounded corners for better effect */
+    border: transparent !important;  /* Remove border on hover */
+}
+
+/* Hide the expand/collapse icons in the sidebar (toctree) */
+.wy-menu-vertical .toctree-expand {
+    display: none !important;  /* Completely hide the icons */
+}
+
+
+/* Optional: Change any icon colors in the sidebar */
+.wy-side-nav-search .icon-home:before {
+    color: #f8f9fa !important;  /* White home icon */
+}
+
+/* Main Content Link Styles */
+/* Main content link colors */
+.wy-nav-content a {
+    color: #34E27E !important;  /* Green for links in content */
+}
+
+/* Main content link hover state */
+.wy-nav-content a:hover {
+    color: #34E27E !important;  /* Darker green on hover in content */
+}

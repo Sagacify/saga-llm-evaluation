@@ -1,0 +1,44 @@
+version: "2.3"
+
+services:
+  notebooks:
+    build:
+      context: .
+      args:
+        - POETRY_HTTP_BASIC_SAGACIFY_USERNAME
+        - POETRY_HTTP_BASIC_SAGACIFY_PASSWORD
+    command: poetry run jupyter lab --ip=0.0.0.0 --allow-root --NotebookApp.custom_display_url=http://$TRUE_HOSTNAME.sagacify.com:$TRUE_PORT
+    ports:
+      - "${TRUE_PORT}:8888" # ${TRUE_PORT} is defined in `.env`
+    volumes:
+      - ./.pylintrc:/app/.pylintrc
+      - ./config:/home/jovyan/config
+      - /media/data/Sagacify/saga-llm-evaluation:/home/jovyan/data
+      - ./notebooks:/home/jovyan/notebooks
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      S3_BUCKET: my-s3-bucket
+      TRUE_HOSTNAME: ${TRUE_HOSTNAME}
+      TRUE_PORT: ${TRUE_PORT}
+
+
+  gpu:
+    build:
+      context: .
+      args:
+        - POETRY_HTTP_BASIC_SAGACIFY_USERNAME
+        - POETRY_HTTP_BASIC_SAGACIFY_PASSWORD
+      dockerfile: Dockerfile
+    runtime: nvidia
+    volumes:
+      - ./config:/home/jovyan/config
+      - /media/data/Sagacify/saga-llm-evaluation:/home/jovyan/data
+      - ./notebooks:/home/jovyan/notebooks
+      - ./src:/home/jovyan/src
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      S3_BUCKET: sagavision-images-prod

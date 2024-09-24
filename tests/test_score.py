@@ -4,7 +4,8 @@ import pytest
 
 from saga_llm_evaluation.helpers.utils import load_json
 from saga_llm_evaluation.score import LLMScorer
-from tests import LLAMA_MODEL
+
+from tests import LANGCHAIN_GPT_MODEL as MODEL
 
 # skip it for github actions, too many resources needed. Test locally
 pytest.skip(allow_module_level=True)
@@ -13,7 +14,7 @@ pytest.skip(allow_module_level=True)
 class TestLLMScorer(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.scorer = LLMScorer(model=LLAMA_MODEL, eval_model=LLAMA_MODEL)
+        self.scorer = LLMScorer(model=MODEL, eval_model=MODEL)
 
     def test_init(self):
         bad_config = {"metrics": {"bert_score": {"lang": "en"}}}

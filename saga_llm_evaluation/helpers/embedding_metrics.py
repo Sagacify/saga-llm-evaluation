@@ -9,10 +9,10 @@ class BERTScore:
         The final score is the average of the similarity scores of all tokens in the candidate sentence.
 
         Args:
-            lang (str, optional): language to use. Defaults to "en", If another language is used, a
-            multilingual model is used.
-            model_type (sr, optional): Model to use. Defaults to None. If None, a default model is
-            used depending on the language (see above).
+            lang (str, optional): language to use. Defaults to "en", If another language is used, a \
+                multilingual model is used.
+            model_type (str, optional): Model to use. Defaults to None. If None, a default model is \
+                used depending on the language (see above).
         """
         if lang == "en":
             self.model_type = (
@@ -26,6 +26,8 @@ class BERTScore:
 
     def compute(self, references, predictions, **kwargs):
         """
+        This function computes the BERTScore for each candidate sentence in the list of predictions.
+
         Args:
             references (list): List of reference sentences.
             predictions (list): List of candidate sentences.
@@ -52,11 +54,11 @@ class MAUVE:
     def __init__(self, featurize_model_name="gpt2"):
         """
         MAUVE score computes the difference between the candidate sentence distribution
-        and the reference sentence distribution.
-        The bigger the MAUVE score, the better.
+        and the reference sentence distribution. The bigger the MAUVE score, the better.
+        
         Args:
-            featurize_model_name (str, optional): Model to use to featurize the sentences.
-            Defaults to "gpt2". Check https://huggingface.co/spaces/evaluate-metric/mauve for
+            featurize_model_name (str, optional): Model to use to featurize the sentences.\
+            Defaults to "gpt2". Check https://huggingface.co/spaces/evaluate-metric/mauve for\
             more options.
         """
         self.metric = load("mauve")
@@ -64,6 +66,8 @@ class MAUVE:
 
     def compute(self, references, predictions, **kwargs):
         """
+        This function computes the MAUVE score for each candidate sentence in the list of predictions.
+
         Args:
             references (list): List of reference sentences.
             predictions (list): List of candidate sentences.

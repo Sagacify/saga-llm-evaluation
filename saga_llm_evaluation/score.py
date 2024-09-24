@@ -16,6 +16,19 @@ from saga_llm_evaluation.helpers.utils import (
 
 
 def get_model(config: dict, model=None, eval_model=None, key: str = "bert_score"):
+    """
+    Get the evaluation metric model.
+
+    Args:
+        config (dict): Config file.
+        model (object, optional): Model to evaluate. Defaults to None.
+        eval_model (object, optional): Evaluation model. Defaults to None.
+        key (str, optional): Evaluation metric to use. Defaults to "bert_score".
+
+    Returns:
+        object: Evaluation metric model.
+    """
+
     if key == "bert_score":
         # filter out keys that are not supported by BERTScore class
         args = filter_class_input(config[key], BERTScore.__init__)
@@ -63,6 +76,19 @@ class LLMScorer:
         eval_model=None,
         config=None,
     ) -> None:
+        """
+        Initialize the LLMScorer class. This class is used to evaluate the performance of a language model\
+        using a set of evaluation metrics.\
+        The evaluation metrics are defined in the config file or can be passed as an input parameter.\
+        The model to evaluate and the evaluation model can be passed as input parameters.
+
+        Args:
+            metrics (list, optional): List of evaluation metrics to use.\
+                Defaults to ["bert_score", "mauve", "bleurt", "q_squared", "selfcheckgpt", "geval", "gptscore"].
+            model (object, optional): Model to evaluate. Defaults to None.
+            eval_model (object, optional): Evaluation model. Defaults to None.
+            config (dict, optional): Config file. Defaults to None.
+        """
 
         self.config = (
             config if config else load_json("./saga_llm_evaluation/scorer.json")
@@ -85,13 +111,18 @@ class LLMScorer:
 
     def add_geval_task(self, name: str, definition: str):
         """
-        This function adds a task to the GEval metric.
-        Please try to follow the following example pattern to ensure consistency.
+        This function adds a new task to the GEval metric.
+        Please follow the example pattern below to ensure consistency.
+
         Example:
-        "summ": "You will be given one summary written for a news article.
-            Your task is to rate the summary on one metric.
-            Please make sure you read and understand these instructions carefully.
-            Please keep this document open while reviewing, and refer to it as needed.",
+
+        .. code-block:: python
+
+            "summ": "You will be given one summary written for a news article.\\n"
+                    "Your task is to rate the summary on one metric.\\n"
+                    "Please make sure you read and understand these instructions carefully.\\n"
+                    "Please keep this document open while reviewing, and refer to it as needed."
+
         Args:
             name (str): Name of the task.
             definition (str): Definition of the task.
@@ -106,17 +137,21 @@ class LLMScorer:
 
     def add_geval_aspect(self, code: str, name: str, prompt: str):
         """
-        This function adds an aspect to the GEval metric.
-        Please try to follow the following example pattern to ensure consistency.
+        This function adds a new aspect to the GEval metric.
+        Please follow the example pattern below to ensure consistency.
+
         Example:
-        "COH": {
-            "name": "Coherence",
-            "prompt": "Coherence (1-5) - the collective quality of all sentences.
-                We align this dimension with the DUC quality question of structure and coherence
-                whereby ”the summary should be well-structured and well-organized.
-                The summary should not just be a heap of related information,
-                but should build from sentence to sentence to a coherent body of information about a topic.”",
-        },
+
+        .. code-block:: python
+
+            "COH": {
+                "name": "Coherence",
+                "prompt": "Coherence (1-5) - the overall quality and logical flow of all sentences.\\
+                    This dimension aligns with the DUC quality question of structure and coherence, which states that\\
+                    the summary should be well-structured and well-organized. It should not just be\\
+                    a collection of related information, but should build from sentence to sentence\\
+                    to form a coherent body of information about a topic."
+            }
 
         Args:
             code (str): Code of the aspect.
@@ -135,13 +170,20 @@ class LLMScorer:
     def add_gptscore_template(self, task: str, code: str, prompt: str):
         """
         This function adds a template to the GPTScore metric.
-        Please try to follow the following example pattern to ensure consistency.
+        Please follow the example pattern below to ensure consistency.
+
         Example:
-        "diag": {
-            "COH": f"Answer the question based on the conversation between a human and AI.
-            \nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation?
-            (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer:",
-        }
+
+        .. code-block:: python
+
+            "diag": {
+                "COH": (
+                    f"Answer the question based on the conversation between a human and AI.\\n"
+                    "Question: Is the AI coherent and maintains a good conversation flow throughout the conversation? (a) Yes. (b) No.\\n"
+                    "Conversation:\\nUser: {{src}}\\nAI: {{pred}}\\nAnswer: Yes."
+                ),
+            }
+
         Args:
             task (str): Task of the template.
             code (str): Code of the aspect.
@@ -165,12 +207,17 @@ class LLMScorer:
         config: dict = None,
     ):
         """
+        This function computes the evaluation metrics for a given user prompt and prediction.
+
         Args:
             user_prompt (str): user prompt to the model
             prediction (str): Prediction of the model.
             knowledge (str, optional): Source text that the model used to generate the prediction. Defaults to None.
             reference (str, optional): Reference of the prediction. Defaults to None.
             config (dict, optional): Config file. Defaults to None.
+
+        Returns:
+            dict: Dictionary containing the metadata and evaluation metrics.
         """
         # TODO: add support to custom_prompt for geval and gptscore thruogh the config file
         # Custom prompt template. Defaults to None.

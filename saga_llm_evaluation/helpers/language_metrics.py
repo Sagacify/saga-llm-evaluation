@@ -27,7 +27,7 @@ class BLEURTScore:
         in the candidate sentence with each token in the reference sentence.
 
         Args:
-            checkpoint (str, optional): Checkpoint to use. Defaults to BLEURT-tiny if not specified.
+            checkpoint (str, optional): Checkpoint to use. Defaults to BLEURT-tiny if not specified.\
             Check https://huggingface.co/spaces/evaluate-metric/bleurt for more checkpoints.
         """
         self.checkpoint = checkpoint
@@ -35,6 +35,8 @@ class BLEURTScore:
 
     def compute(self, references, predictions, **kwargs):
         """
+        This function computes the BLEURT score for each candidate sentence in the list of predictions.
+
         Args:
             references (list): List of reference sentences.
             predictions (list): List of candidate sentences.
@@ -63,14 +65,14 @@ class QSquared:
         lang="en",
     ) -> None:
         """
-        Q² is a reference-free metric that aims to evaluate the factual consistency of knowledge-grounded
-        dialogue systems. The approach is based on automatic question generation and question answering
+        Q² is a reference-free metric that aims to evaluate the factual consistency of knowledge-grounded\
+        dialogue systems. The approach is based on automatic question generation and question answering.\
         Source: https://github.com/orhonovich/q-squared
 
         Args:
             qa_model (str): Huggingface question answering model to use
             qg_model (str): Huggingface question generation model to use
-            lan (str, optional): Language to use. Defaults to "en", It may also be "fr".
+            lan (str, optional): Language to use. Defaults to "en", it may also be "fr".
         """
         self.qa_tokenizer = AutoTokenizer.from_pretrained(qa_model)
         self.qa_model = AutoModelForQuestionAnswering.from_pretrained(qa_model)
@@ -93,11 +95,12 @@ class QSquared:
     ):  # Code taken from https://huggingface.co/transformers/task_summary.html
         """
         Search for the answer in the text given the question.
+
         Args:
             question (str) : question to ask
             text (str) : text to search in
         Returns:
-            answer (str) : answer to the question
+            str: answer to the question
         """
         inputs = self.qa_tokenizer.encode_plus(
             question, text, add_special_tokens=True, return_tensors="pt"
@@ -123,10 +126,11 @@ class QSquared:
     def get_answer_candidates(self, text: str):
         """
         Look for candidate aswers that could be answered by the text.
+
         Args:
             text (str) : text to search in
         Returns:
-            candidates (str) : candidates answers
+            str: candidates answers
         """
         doc = self.nlp(text)
         candidates = [ent.text for ent in list(doc.ents)]
@@ -151,8 +155,9 @@ class QSquared:
         num_return: int = 5,
     ):
         """
-        Get the n best questions for a given answer, given the context. "Beam" is the name of the
-        approach
+        Get the n best questions for a given answer, given the context. "Beam" is the name of the\
+        approach.
+
         Args:
             answer (str) : answer to the question
             context (str) : context to search in
@@ -160,7 +165,7 @@ class QSquared:
             beam_size (int, optional) : beam size. Defaults to 5.
             num_return (int, optional) : number of questions to return. Defaults to 5.
         Returns:
-            all_questions (list) : n best questions
+            list: n best questions
         """
         all_questions = []
         input_text = f"answer: {answer}  context: {context} </s>"
@@ -189,10 +194,11 @@ class QSquared:
         self, question: str, answer: str, response: str, knowledge: str
     ):
         """
-        Given a candidate pair of question and answer (generated from the candidate text), get the
-        score of the aswer given by taking as a context the knowledge that the LLM was given.
-        The higher the F1-score, the more the model we are trying to evaluate is consistent
+        Given a candidate pair of question and answer (generated from the candidate text), get the\
+        score of the aswer given by taking as a context the knowledge that the LLM was given.\
+        The higher the F1-score, the more the model we are trying to evaluate is consistent\
         with the knowledge.
+
         Args:
             question (str) : cadidate question (generated from the candidate text)
             answer (str) : candidate answer (generated from the candidate text)
@@ -200,7 +206,7 @@ class QSquared:
             knowledge (str) : knowledge given as a context to the LLM
 
         Returns:
-            score, answer (tuple) : bert-score of the knowledge answer, knowledge answer
+            tuple: bert-score of the knowledge answer, knowledge answer
         """
 
         pred_ans = self.get_answer(question, response)
@@ -226,16 +232,19 @@ class QSquared:
     ):
         """
         Compute the Q² score for a given response and knowledge.
+
         Args:
             references (list or str) : (list of) candidate text generated by the LLM
             knowledges (list or str) : (list of) knowledge given as a context to the LLM for each candidate text
-            single (bool) : if True, only one question is generated for each candidate answer.
-                            Defaults to False.
-            remove_personal (bool) : if True, remove questions that contain personal pronouns.
-                                     Defaults to True.
+            single (bool) : if True, only one question is generated for each candidate answer.\
+                Defaults to False.
+            remove_personal (bool) : if True, remove questions that contain personal pronouns.\
+                Defaults to True.
         Returns:
-            dictionary with the following keys:
-                avg_f1 (float) : avg F1-score Q² score among all the questions
+            dict: dictionary containing the following keys:
+
+                - avg_f1 (float) : list of average F1-scores for each candidate
+        
         """
         assert check_list_type(
             predictions, str
