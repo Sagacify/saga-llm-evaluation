@@ -2,6 +2,23 @@
 
 <!--next-version-placeholder-->
 
+## v0.11.0 (2024-09-24)
+
+### Feature
+
+* **metrics:** Add gpt support and change to default ([`7db90e9`](https://github.com/Sagacify/saga-llm-evaluation/commit/7db90e9a3ccc61d3ea9989debc4d287434200304))
+* **metrics:** Add langchain powered metrics for retrieval and generation ([`d74efd3`](https://github.com/Sagacify/saga-llm-evaluation/commit/d74efd39ad895971e47e95d1cdbe74a5f9ec7383))
+
+### Fix
+
+* **ci:** Poetry install ([`86b8a85`](https://github.com/Sagacify/saga-llm-evaluation/commit/86b8a85f8d1ce488365b7256be0c437b8f5ae8bb))
+* **model:** Add condition to not use gpt if no keys ([`5fd3372`](https://github.com/Sagacify/saga-llm-evaluation/commit/5fd3372e03e1a0635cf517f81be27204631e8beb))
+
+### Documentation
+
+* **appearance:** Pimp the doc ([`0b31fc9`](https://github.com/Sagacify/saga-llm-evaluation/commit/0b31fc914179a3d492b9e14f8288e283a40c1caa))
+* **project:** Add documentation of the library ([`d69834f`](https://github.com/Sagacify/saga-llm-evaluation/commit/d69834fa7569cdfd33dd11e3455bcd11118f98ad))
+
 ## v0.10.1 (2024-06-27)
 
 ### Fix
