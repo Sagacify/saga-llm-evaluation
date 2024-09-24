@@ -39,7 +39,7 @@ jobs:
       - name: Install packages & build
         run: |
           poetry install
-          
+
       - name: Run formatter
         run: |
           poetry run black --check saga_llm_evaluation tests
@@ -51,3 +51,20 @@ jobs:
       - name: Run tests
         run: |
           poetry run pytest
+
+      - name: Build documentation
+        working-directory: docs
+        run: |
+          poetry run sphinx-build -b html . _build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: 'docs/_build'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v3
