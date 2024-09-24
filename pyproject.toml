@@ -28,6 +28,8 @@ langchain-openai = "^0.1.23"
 langchain-community = "^0.2.15"
 nltk = "^3.9.1"
 langchain-huggingface = "^0.0.3"
+sphinx-rtd-theme = "^2.0.0"
+sphinx-markdown-builder = "^0.6.7"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.13"

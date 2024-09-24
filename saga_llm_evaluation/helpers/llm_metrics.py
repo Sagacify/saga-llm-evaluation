@@ -25,11 +25,12 @@ class SelfCheckGPT:
         """
         This class implements the self-check GPT evaluation metric for generative language models.
         It is inspired by the self-check metric proposed in https://arxiv.org/pdf/2303.08896.pdf.
+
         Args:
             model (Langchain BaseChatModel): LLM model to evaluate.
-            eval_model (Langchain BaseChatModel, optional): Evaluation model. If False, the evaluation model is
-            downloaded from the HuggingFace Hub.
-        #"""
+            eval_model (Langchain BaseChatModel, optional): Evaluation model. If None, the model used\
+                is "llama" by default.
+        """
         # Check that provided model is indeed BaseChatModel from LangChain
         assert model is not None and isinstance(
             model, BaseChatModel
@@ -48,10 +49,11 @@ class SelfCheckGPT:
     def get_prompt(self, pred: str, sample: str, question: str):
         """
         This method returns a prompt template given a candidate sentence, a sample sentence, and a question.
+
         Args:
             pred (str): Candidate sentence.
             sample (str): Sample sentence.
-            question (str): Question asked to the model for which it generated $pred.
+            question (str): Question asked to the model for which it generated the candidate sentence.
 
         Returns:
             str: Prompt template.
@@ -70,12 +72,13 @@ class SelfCheckGPT:
 
     def get_prompts(self, pred: str, samples: str, question: str):
         """
-        This method returns a list of prompt templates given a candidate sentence, a list
+        This method returns a list of prompt templates given a candidate sentence, a list\
         of sample sentences, and a question.
+
         Args:
             pred (str): Candidate sentence.
             samples (list of str): List of sample sentences.
-            question (str): Question asked to the model for which it generated $pred.
+            question (str): Question asked to the model for which it generated the candidate sentence.
 
         Returns:
             list: List of prompt templates.
@@ -84,13 +87,16 @@ class SelfCheckGPT:
 
     def compute(self, user_prompts: list, predictions: list, n_samples=5):
         """
+        This method computes the self-check GPT score for a candidate sentence given a source text,\
+        a prompt template, and a question.
+
         Args:
-            user_prompts (str): Question asked to the model for which it generated $pred.
+            user_prompts (str): Question asked to the model for which it generated the candidate sentence.
             predictions (str): Candidate sentence.
             n_samples (int): Number of samples to generate.
 
         Returns:
-            score (float): Score for the candidate sentence.
+            float: Score for the candidate sentence.
         """
         assert isinstance(user_prompts, str) or check_list_type(
             user_prompts, str
@@ -144,9 +150,10 @@ class GEval:
         """
         This class implements the GEval evaluation metric for generative language models.
         It is inspired by the GEval metric proposed in https://arxiv.org/pdf/2303.16634.pdf.
+
         Args:
-            model (LangChain BaseChatModel): model used for evaluation. If False, the model is
-                downloaded from the HuggingFace Hub.
+            model (LangChain BaseChatModel): model used for evaluation. If False, the model used\
+                is "gpt-3.5-turbo" by default.
         """
 
         # Check that provided model is indeed BaseChatModel from LangChain
@@ -194,7 +201,13 @@ class GEval:
         This method adds a task to the list of pre-defined tasks.
         Please try to follow the following example pattern to ensure consistency.
         Example:
-        "summ": "You will be given one summary written for a news article. Your task is to rate the summary on one metric. Please make sure you read and understand these instructions carefully. Please keep this document open while reviewing, and refer to it as needed.",
+
+        .. code-block:: python
+
+            "summ": "You will be given one summary written for a news article.\\n"
+                    "Your task is to rate the summary on one metric.\\n"
+                    "Please make sure you read and understand these instructions carefully.\\n"
+                    "Please keep this document open while reviewing, and refer to it as needed."
 
         Args:
             name (str): Task name.
@@ -209,11 +222,19 @@ class GEval:
         """
         This method adds an aspect to the list of pre-defined aspects.
         Please try to follow the following example pattern to ensure consistency.
+        
         Example:
-        "COH": {
-            "name": "Coherence",
-            "prompt": "Coherence (1-5) - the collective quality of all sentences. We align this dimension with the DUC quality question of structure and coherence whereby ”the summary should be well-structured and well-organized. The summary should not just be a heap of related information, but should build from sentence to sentence to a coherent body of information about a topic.”",
-        },
+        
+        .. code-block:: python
+
+            "COH": {
+                "name": "Coherence",
+                "prompt": "Coherence (1-5) - the overall quality and logical flow of all sentences.\\
+                    This dimension aligns with the DUC quality question of structure and coherence, which states that\\
+                    the summary should be well-structured and well-organized. It should not just be\\
+                    a collection of related information, but should build from sentence to sentence\\
+                    to form a coherent body of information about a topic."
+            }
 
         Args:
             code (str): Aspect code.
@@ -229,11 +250,12 @@ class GEval:
     def get_prediction(self, prompt: str):
         """
         This method returns a prediction given a prompt template.
+
         Args:
             prompt (str): Prompt template.
 
         Returns:
-            response (dict): Response from the model.
+            dict: Response from the model.
         """
         response = self.model.invoke(prompt, top_p=0.95, logprobs=True)
         return response
@@ -241,11 +263,12 @@ class GEval:
     def get_cot(self, prompt: str):
         """
         This method returns a chain of thoughts given a prompt template.
+
         Args:
             prompt (str): Prompt template.
 
         Returns:
-            cot (str): Chain of thoughts.
+            str: Chain of thoughts.
         """
         title = "\nEvaluation steps:\n"
 
@@ -268,13 +291,19 @@ class GEval:
         custom_prompt: dict = None,
     ):
         """
+        This method returns a prompt template given a source text, a candidate sentence, an aspect to evaluate,
+        and a task description.
+
         Args:
             prompts (list): list of source text.
             predictions (list): list of candidate sentence to evaluate.
             task (str): Definition of the task.
             aspect (str): Evaluation criterion code.
-            custom_prompt (dict): Custom prompt template.
+            custom_prompt (dict): Custom prompt template.\
                 Must contain the following keys: "task", "aspect", "name".
+
+        Returns:
+            list: List of prompt templates
         """
         definition = (
             "\n Task definition:\n" + self.tasks[task]
@@ -311,11 +340,13 @@ class GEval:
 
     def get_score(self, prompts: list):
         """
+        This method returns the GEval score given a prompt template.
+
         Args:
             prompts (list): List of prompt template.
 
         Returns:
-            scors (list): list of scores for each candidate sentence.
+            list: List of scores for each candidate sentence.
         """
         scores = []
         for prompt in prompts:
@@ -365,6 +396,7 @@ class GEval:
         """
         This method computes the GEval score for a candidate sentence given a source text,
         a prompt template, an aspect to evaluate, and a task description.
+
         Args:
             user_prompts (list or str): Source text generated by the user.
             pred (str): Candidate sentence to evaluate.
@@ -373,7 +405,7 @@ class GEval:
             custom_prompt (dict, optional): Custom prompt template. Defaults to None.
 
         Returns:
-            score (float): Score for the candidate sentence.
+            float: Score for the candidate sentence.
         """
         # prompts and predictions must be either a list of string or a string
         # convert to list if string
@@ -459,8 +491,8 @@ class GPTScore:
         The GPTScore is always gonna be negative.
 
         Args:
-            model (LangChain BaseChatModel): model used for evaluation. If False, the model
-                is downloaded from the HuggingFace Hub.
+            model (LangChain BaseChatModel): model used for evaluation. If None, the model used\
+                is "gpt-3.5-turbo" by default.
         """
 
         assert model is None or isinstance(
@@ -516,9 +548,16 @@ class GPTScore:
         Please try to follow the following example pattern to ensure consistency.
 
         Example:
-        "diag": {
-            "COH": f"Answer the question based on the conversation between a human and AI.\nQuestion: Is the AI coherent and maintains a good conversation flow throughout the conversation? (a) Yes. (b) No.\nConversation:\nUser: {{src}}\nAI: {{pred}}\nAnswer: Yes.",
-        }
+
+        .. code-block:: python
+
+            "diag": {
+                "COH": (
+                    f"Answer the question based on the conversation between a human and AI.\\n"
+                    "Question: Is the AI coherent and maintains a good conversation flow throughout the conversation? (a) Yes. (b) No.\\n"
+                    "Conversation:\\nUser: {{src}}\\nAI: {{pred}}\\nAnswer: Yes."
+                ),
+            }
 
         Args:
             task (str): Task name. (Example: "diag")
@@ -554,13 +593,15 @@ class GPTScore:
     ):
         """
         This method returns a prompt template given a task description, and an aspect to evaluate.
+
         Args:
             prompts (str): list of source texts.
             pred (str): list of candidate sentences.
             aspect (str): Aspect to evaluate.
             task (str): Task description.
-            custom_prompt (dict): Custom prompt template. Defaults to None.
+            custom_prompt (dict): Custom prompt template. Defaults to None.\
                 Must contain the following keys: "task", "aspect".
+
         Returns:
             list: (list of) Prompt templates.
         """
@@ -596,10 +637,11 @@ class GPTScore:
     def get_score(self, prompts: list):
         """
         This method returns the GPTScore given a prompt template.
+
         Args:
             prompt (list): list of Prompt templates.
         Returns:
-            avg_loss (float): GPTScore of the candidate sentence.
+            float: GPTScore of the candidate sentence.
         """
         scores = []
         for prompt in prompts:
@@ -632,6 +674,7 @@ class GPTScore:
         """
         This method computes the GPTScore for a candidate sentence given a source text,
         a system_prompt template, a user_prompt source text, an aspect to evaluate, and a task description.
+
         Args:
             user_prompts (list or str): (list of) Source text generated by the user.
             pred (list or str): (list of) Candidate sentence.
@@ -639,8 +682,9 @@ class GPTScore:
                 Must contain the following keys: "task", "aspect", "name".
             aspect (str or list, optional): (List of) Aspect(s) to evaluate. Defaults to None.
             task (str, optional): Task description. Defaults to None.
+
         Returns:
-            score (dict): (list of) Score for (each of) the candidate sentence per aspect.
+            dict: (list of) Score for (each of) the candidate sentence per aspect.
         """
         # prompts and predictions must be either a list of string or a string
         # convert to list if string
@@ -714,6 +758,16 @@ class GPTScore:
 
 class Relevance:
     def __init__(self, llm=None) -> None:
+        """
+        This class implements the relevance evaluation metric for generative language models.
+        The relevance metric evaluates if the submission refers to or accurately conveys the\
+        information from the input text,
+        even if it is not an exact quote.
+        
+        Args:
+            llm (LangChain BaseLanguageModel): model used for evaluation. If None,\
+                the model is chosen as "gpt-4" by default.
+        """
         assert llm is None or isinstance(
             llm, BaseLanguageModel
         ), f"llm must be a LangChain BaseLanguageModel. model is of type {type(llm).__name__}"
@@ -732,16 +786,19 @@ class Relevance:
         This method computes the relevance score for a candidate sentence given a source text.
         In other words, it validates that the candidate sentence (response) is related to the query topic,
         and meets the query requirements.
+
         Args:
             user_prompts (list): Source text generated by the user.
             pred (list): Candidate sentence.
+
         Returns:
-            result (dict): Relevance score for the candidate sentence. The dictionary contains the following keys:
-                - "score": Relevance score. Binary integer value (0 or 1), where 1 indicates that the sentence is
+            dict: Relevance score for the candidate sentence. The dictionary contains the following keys:
+
+                - score (int): Relevance score. Binary integer value (0 or 1), where 1 indicates that the sentence is\
                     relevant and 0 indicates that the sentence is irrelevant.
-                - "value": Relevance value. Y or N, where Y indicates that the sentence is relevant and N indicates
+                - value (str): Relevance value. Y or N, where Y indicates that the sentence is relevant and N indicates\
                     that the sentence is irrelevant.
-                - "reasoning": Reasoning for the relevance score.
+                - reasoning (str): Reasoning for the relevance score.
         """
         assert isinstance(user_prompts, list), "user_prompts must be a list."
         assert isinstance(predictions, list), "predictions must be a list."
@@ -761,6 +818,16 @@ class Relevance:
 
 class Correctness:
     def __init__(self, llm=None) -> None:
+        """
+        This class implements the correctness evaluation metric for generative language models.
+        The correctness metric evaluates if the submission is correct, accurate, and factual.
+        This definition is based on LangChain's `labeled_criteria evaluator \
+            <https://python.langchain.com/v0.2/api_reference/_modules/langchain/evaluation/criteria/eval_chain.html#Criteria>`_.
+        
+        Args:
+            llm (LangChain BaseLanguageModel): model used for evaluation. If None,\
+                the model is chosen as "gpt-4" by default.
+        """
         assert llm is None or isinstance(
             llm, BaseLanguageModel
         ), f"llm must be a LangChain BaseLanguageModel. model is of type {type(llm).__name__}"
@@ -773,17 +840,19 @@ class Correctness:
     def compute(self, user_prompts: list, predictions: list, references: list):
         """
         This method computes the correctness score for a candidate sentence given a source text and a reference.
+
         Args:
             user_prompts (list): Source text generated by the user.
             pred (list): Candidate sentence.
             references (list): Reference sentence.
         Returns:
-            result (dict): Correctness score for the candidate sentence. The dictionary contains the following keys:
-                - "score": Correctness score. Binary integer value (0 or 1), where 1 indicates that the sentence is
-                    correct and 0 indicates that the sentence is incorrect.
-                - "value": Correctness value. Y or N, where Y indicates that the sentence is correct and N indicates
-                    that the sentence is incorrect.
-                - "reasoning": Reasoning for the correctness score.
+            dict: Correctness score for the candidate sentence. The dictionary contains the following keys:
+
+                - score (int) : Correctness score. Binary integer value (0 or 1), where 1 indicates that the sentence\
+                    is correct and 0 indicates that the sentence is incorrect.
+                - value (str) : Correctness value. Y or N, where Y indicates that the sentence is correct and N\
+                    indicates that the sentence is incorrect.
+                - reasoning (str) : Reasoning for the correctness score.
         """
         assert isinstance(user_prompts, list), "user_prompts must be a list."
         assert isinstance(predictions, list), "predictions must be a list."
@@ -807,6 +876,14 @@ class Correctness:
 
 class Faithfulness:
     def __init__(self, llm=None) -> None:
+        """
+        This class implements the faithfulness evaluation metric for generative language models.
+        The faithfulness metric evaluates if the submission contains information not present in the input or reference.
+
+        Args:
+            llm (LangChain BaseLanguageModel): model used for evaluation. If None,\
+                the model is chosen as "gpt-4" by default.
+        """
         assert llm is None or isinstance(
             llm, BaseLanguageModel
         ), f"llm must be a LangChain BaseLanguageModel. model is of type {type(llm).__name__}"
@@ -822,17 +899,20 @@ class Faithfulness:
     def compute(self, user_prompts: list, predictions: list, references: list):
         """
         This method computes the faithfulness score for a candidate sentence given a source text and a reference.
+
         Args:
             user_prompts (list): Source text generated by the user.
             pred (list): Candidate sentence.
             references (list): Reference sentence.
         Returns:
-            result (dict): Faithfulness score for the candidate sentence. The dictionary contains the following keys:
-                - "score": Faithfulness score. Binary integer value (0 or 1), where 1 indicates that the sentence is
-                    faithful and 0 indicates that the sentence is not faithful (i.e. it contains hallucinations).
-                - "value": Faithfulness value. Y or N, where Y indicates that the sentence is faithful and N indicates
-                    that the sentence is not faithful.
-                - "reasoning": Reasoning for the faithfulness score.
+            dict: Faithfulness score for the candidate sentence. The dictionary contains the following keys:
+
+                - score (int) : Faithfulness score. Binary integer value (0 or 1), where 1 indicates that\
+                    the sentence is faithful and 0 indicates that the sentence is not faithful\
+                    (i.e. it contains hallucinations).
+                - value (str) : Faithfulness value. Y or N, where Y indicates that the sentence is faithful and\
+                    N indicates that the sentence is not faithful.
+                - reasoning (str): Reasoning for the faithfulness score.
         """
         assert isinstance(user_prompts, list), "user_prompts must be a list."
         assert isinstance(predictions, list), "predictions must be a list."
@@ -856,6 +936,15 @@ class Faithfulness:
 
 class NegativeRejection:
     def __init__(self, llm=None) -> None:
+        """
+        This class implements the negative rejection evaluation metric for generative language models.
+        The negative rejection metric evaluates if the submission refuses to answer when the answer\
+            is not present in the input or reference.
+
+        Args:
+            llm (LangChain BaseLanguageModel): model used for evaluation. If None,\
+                the model is chosen as "gpt-4" by default.
+        """
         assert llm is None or isinstance(
             llm, BaseLanguageModel
         ), f"llm must be a LangChain BaseLanguageModel. model is of type {type(llm).__name__}"
@@ -872,18 +961,23 @@ class NegativeRejection:
     def compute(self, user_prompts: list, predictions: list, references: list):
         """
         This class computes the ability of the system to refuse to answer in the absence of evidence.
+
         Args:
             user_prompts (list): Source text generated by the user.
             pred (list): Candidate sentence.
             references (list): Reference sentence.
+
         Returns:
-            result (dict): Negative rejection score for the candidate sentence.
+            dict: Negative rejection score for the candidate sentence.\
                 The dictionary contains the following keys:
-                - "score": Negative rejection score. Binary integer value (0 or 1), where 1 indicates that the sentence
-                    is a refusal to answer and 0 indicates that the sentence is not a refusal to answer.
-                - "value": Negative rejection value. Y or N, where Y indicates that the sentence is a refusal to answer
-                    and N indicates that the sentence is not a refusal to answer.
-                - "reasoning": Reasoning for the negative rejection score.
+
+                - score (int): Negative rejection score. Binary integer value (0 or 1), where 1 indicates\
+                    that the sentence is a refusal to answer and 0 indicates that the sentence\
+                        is not a refusal to answer.
+                - value (str): Negative rejection value. Y or N, where Y indicates\
+                    that the sentence is a refusal to answer and N indicates that the sentence\
+                        is not a refusal to answer.
+                - reasoning (str): Reasoning for the negative rejection score.
         """
         assert isinstance(user_prompts, list), "user_prompts must be a list."
         assert isinstance(predictions, list), "predictions must be a list."
@@ -912,14 +1006,17 @@ class HallucinationScore:
     def compute(self, predictions: list, references: list):
         """
         This method computes the hallucination scores for a candidate sentence given a reference sentence.
+
         Args:
             predictions (list): Candidate sentences (e.g., model outputs).
             references (list): Reference sentences (e.g., ground truth).
+
         Returns:
-            result (dict): Hallucination detection score. The dictionary contains the following keys:
-                - "f1_score": F1 score, representing the overlap between the prediction and the reference.
-                - "exact_match": Binary integer value (0 or 1), where 1 indicates that the prediction exactly matches
-                  the reference and 0 indicates it does not.
+            dict: Hallucination detection score. The dictionary contains the following keys:
+
+                - f1_score (float): F1 score, representing the overlap between the prediction and the reference.
+                - exact_match (int): Binary integer value (0 or 1), where 1 indicates that the prediction exactly\
+                    matches the reference and 0 indicates it does not.
         """
         assert isinstance(predictions, list), "predictions must be a list."
         assert isinstance(references, list), "references must be a list."
