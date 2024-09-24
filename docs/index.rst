@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-🔮 Sagacify LLM Evaluation ML Library 🔮
-========================================
+LLM Evaluation ML Library 🔮
+===============================
 
 Welcome to the Saga LLM Evaluation ML library, a versatile Python library designed for evaluating the performance of large language models in 
 Natural Language Processing (NLP) tasks. Whether you're developing language models, chatbots, or other NLP applications, 

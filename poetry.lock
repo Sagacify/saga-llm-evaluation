@@ -5679,6 +5679,26 @@ lint = ["flake8 (>=6.0)", "importlib-metadata (>=6.0)", "mypy (==1.10.1)", "pyte
 test = ["cython (>=3.0)", "defusedxml (>=0.7.1)", "pytest (>=8.0)", "setuptools (>=70.0)", "typing_extensions (>=4.9)"]
 
 [[package]]
+name = "sphinx-emoji-favicon"
+version = "0.2"
+description = "A simple sphinx extension to add emoji favicons to html pages."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "sphinx_emoji_favicon-0.2-py3-none-any.whl", hash = "sha256:89faaa1814f753b20661c3b893d05e4144a1c0eedd37e8c702d9e18f06be105b"},
+    {file = "sphinx_emoji_favicon-0.2.tar.gz", hash = "sha256:e66aafcf679e5f7fb2c086a81d22463475135cdbe3057e9f136529a75afdfe90"},
+]
+
+[package.dependencies]
+docutils = "*"
+emoji = "*"
+sphinx = "*"
+
+[package.extras]
+dev = ["emoji", "tqdm"]
+test = ["emoji", "tqdm"]
+
+[[package]]
 name = "sphinx-markdown-builder"
 version = "0.6.7"
 description = "A Sphinx extension to add markdown generation support."
@@ -7309,4 +7329,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.11"
-content-hash = "4e1a333ea8ab2ad1a68a6c8a994985f9c6472530c5f9aa5c3a5142d6bc26e8a1"
+content-hash = "dbc17aff904ee22bcada020e0f62b1732f92035405e22f75d13089068a4e6c18"

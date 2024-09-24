@@ -17,8 +17,8 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Sagacify LLM Evaluation Library'
-copyright = '2023, Leonardo Remondini (leonardo.remondini@sagacify.com), Lucie Navez de Lamotte (lucie.navez@sagacify.com)'
+project = 'LLM Evaluation Library'
+copyright = '2024, Sagacify, Leonardo Remondini (leonardo.remondini@sagacify.com), Lucie Navez de Lamotte (lucie.navez@sagacify.com)'
 author = 'Leonardo Remondini (leonardo.remondini@sagacify.com), Lucie Navez de Lamotte (lucie.navez@sagacify.com)'
 release = '0.7.2'
 
@@ -32,19 +32,22 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.duration",
     "sphinx.ext.doctest",
-    'sphinx_markdown_builder'
+    'sphinx_markdown_builder',
+    'sphinx_emoji_favicon'
 ]
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 root_doc = "index"
 autoclass_content = 'both'
 
-
-
-
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_rtd_theme'
+html_logo = "_static/sagacify_logo.png"
+html_favicon = '_static/logo.png'
 html_static_path = ['_static']
-html_title = "Sagacify LLM Evaluation Library"
+html_title = "LLM Evaluation Library"
+html_css_files = [
+    'css/custom.css',
+]

@@ -30,6 +30,7 @@ nltk = "^3.9.1"
 langchain-huggingface = "^0.0.3"
 sphinx-rtd-theme = "^2.0.0"
 sphinx-markdown-builder = "^0.6.7"
+sphinx-emoji-favicon = "^0.2"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.13"
