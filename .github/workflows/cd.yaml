@@ -66,7 +66,7 @@ jobs:
       - name: Build documentation
         working-directory: docs
         run: |
-          poetry run sphinx-build -b html . _build
+          poetry run sphinx-build -b html docs/ docs/_build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
