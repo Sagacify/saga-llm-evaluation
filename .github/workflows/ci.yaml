@@ -38,8 +38,8 @@ jobs:
 
       - name: Install packages & build
         run: |
-          poetry install -E docs
-
+          poetry install
+          
       - name: Run formatter
         run: |
           poetry run black --check saga_llm_evaluation tests
