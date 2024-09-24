@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.11.1 (2024-09-24)
+
+### Fix
+
+* **ci:** Change docs folder ([`0ad8cd6`](https://github.com/Sagacify/saga-llm-evaluation/commit/0ad8cd6734ab9f394bdfeea494fcd3754f961e69))
+
 ## v0.11.0 (2024-09-24)
 
 ### Feature
