@@ -11,10 +11,12 @@ jobs:
       pull-requests: read
       id-token: write
       pages: write
+
     timeout-minutes: 30
     env:
       POETRY_HTTP_BASIC_SAGACIFY_USERNAME: ${{ secrets.POETRY_HTTP_BASIC_SAGACIFY_USERNAME }}
       POETRY_HTTP_BASIC_SAGACIFY_PASSWORD: ${{ secrets.POETRY_HTTP_BASIC_SAGACIFY_PASSWORD }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -63,3 +65,23 @@ jobs:
           poetry config pypi-token.pypi ${POETRY_PYPI_TOKEN_PYPI}
           poetry publish
 
+      - name: Install packages & build
+        run: |
+          poetry install
+
+      - name: Build documentation
+        working-directory: docs
+        run: |
+          poetry run sphinx-build -b html . _build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: 'docs/_build'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v3
