@@ -2,18 +2,12 @@ name: Continuous Integration
 
 on:
   pull_request:
-
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
       POETRY_HTTP_BASIC_SAGACIFY_USERNAME: ${{ secrets.POETRY_HTTP_BASIC_SAGACIFY_USERNAME }}
       POETRY_HTTP_BASIC_SAGACIFY_PASSWORD: ${{ secrets.POETRY_HTTP_BASIC_SAGACIFY_PASSWORD }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -23,53 +17,36 @@ jobs:
 
       - uses: actions/setup-python@v2
         with:
-          python-version: 3.10.5
+          python-version: 3.8
 
       - name: Validate commit messages
         if: ${{ github.ref != 'refs/heads/master' }}
         uses: wagoid/commitlint-github-action@v3
 
-      - name: Cache poetry install
+      - name: cache poetry install
         uses: actions/cache@v2
         with:
           path: ~/.local
-          key: poetry-1.7.1-0
+          key: poetry-1.3.2-0
 
       - uses: snok/install-poetry@v1
         with:
-          version: 1.7.1
+          version: 1.3.2
           virtualenvs-create: true
           virtualenvs-in-project: true
 
       - name: Install packages & build
         run: |
-          poetry install
+          poetry install -E docs
 
       - name: Run formatter
         run: |
-          poetry run black --check saga_llm_evaluation tests
+          poetry run black --check sagacify_llm_evaluation tests
 
       - name: Run linter
         run: |
-          poetry run pylint saga_llm_evaluation tests
+          poetry run pylint sagacify_llm_evaluation tests
 
       - name: Run tests
         run: |
           poetry run pytest
-
-      - name: Build documentation
-        working-directory: docs
-        run: |
-          poetry run sphinx-build -b html . _build
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: 'docs/_build'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v3
