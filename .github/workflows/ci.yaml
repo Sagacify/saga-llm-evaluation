@@ -37,7 +37,7 @@ jobs:
 
       - name: Install packages & build
         run: |
-          poetry install -E docs
+          poetry install
 
       - name: Run formatter
         run: |
