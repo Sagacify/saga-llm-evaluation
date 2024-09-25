@@ -2,13 +2,18 @@ name: Continuous Integration
 
 on:
   pull_request:
+
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
       POETRY_HTTP_BASIC_SAGACIFY_USERNAME: ${{ secrets.POETRY_HTTP_BASIC_SAGACIFY_USERNAME }}
       POETRY_HTTP_BASIC_SAGACIFY_PASSWORD: ${{ secrets.POETRY_HTTP_BASIC_SAGACIFY_PASSWORD }}
-      
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -24,7 +29,7 @@ jobs:
         if: ${{ github.ref != 'refs/heads/master' }}
         uses: wagoid/commitlint-github-action@v3
 
-      - name: cache poetry install
+      - name: Cache poetry install
         uses: actions/cache@v2
         with:
           path: ~/.local
