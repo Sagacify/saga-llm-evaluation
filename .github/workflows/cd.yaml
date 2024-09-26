@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: cache poetry install
+      - name: Cache poetry install
         uses: actions/cache@v2
         with:
           path: ~/.local
@@ -67,7 +67,7 @@ jobs:
 
       - name: Install packages & build
         run: |
-          poetry install
+          poetry install --with docs
 
       - name: Build documentation
         working-directory: docs
