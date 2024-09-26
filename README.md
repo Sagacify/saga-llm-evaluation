@@ -5,6 +5,8 @@ contain the root `toctree` directive. -->
 
 # 🔮 Sagacify LLM Evaluation ML Library 🔮
 
+![Python Version](https://img.shields.io/pypi/pyversions/saga-llm-evaluation) [![PyPI](https://img.shields.io/pypi/v/saga-llm-evaluation)](https://pypi.org/project/saga-llm-evaluation/) [![Documentation](https://img.shields.io/badge/Documentation-View-blue)](https://sagacify.github.io/saga-llm-evaluation/index.html#) [![Visit Sagacify!](https://img.shields.io/badge/Visit%20Sagacify!-green)](https://www.sagacify.com/)
+
 Welcome to the Saga LLM Evaluation ML library, a versatile Python library designed for evaluating the performance of large language models in
 Natural Language Processing (NLP) tasks. Whether you’re developing language models, chatbots, or other NLP applications,
 our library provides a comprehensive suite of metrics to help you assess the quality of your language models.
@@ -40,26 +42,7 @@ Developed by [Sagacify](https://www.sagacify.com/).
   : - **Accuracy**: A metric that evaluates the accuracy of the retrieved information. It uses another LLM to evaluate the accuracy of the retrieved information.
     - **Relevance**: A metric that evaluates the relevance of the retrieved information. It uses another LLM to evaluate the relevance of the retrieved information.
 
-Each of these metrics uses either ChatGPT or a quantized LLAMA model by default to evaluate the generated text, but you can define yourself which model you want to use for evaluation, see the [Usage](usage.md#usage-section) section for more information.
+Each of these metrics uses either ChatGPT or a quantized LLAMA model by default to evaluate the generated text, but you can define yourself which model you want to use for evaluation, see the Usage section for more information.
 
-Feel free to contribute and make this library even more powerful!
+Feel free to contribute and make this library even more powerful! <br>
 We appreciate your support. 💻💪🏻
-
-## Contents
-
-* [Installation](installation.md)
-* [Usage](usage.md)
-  * [Default use of the Scorer](usage.md#default-use-of-the-scorer)
-  * [Standalone use of the metrics](usage.md#standalone-use-of-the-metrics)
-    * [Embedding-based metrics](usage.md#embedding-based-metrics)
-    * [Language-Model-based metrics](usage.md#language-model-based-metrics)
-    * [LLM-based metrics](usage.md#llm-based-metrics)
-    * [Retrieval-based metrics](usage.md#retrieval-based-metrics)
-    * [Using a different LangChain model as evaluator](usage.md#using-a-different-langchain-model-as-evaluator)
-* [API Reference](saga_llm_evaluation.md)
-  * [Helpers Module](saga_llm_evaluation.md#helpers-module)
-    * [Metrics](saga_llm_evaluation.helpers.md)
-    * [Utils](saga_llm_evaluation.helpers.md#module-saga_llm_evaluation.helpers.utils)
-  * [Scorer Module](saga_llm_evaluation.md#module-saga_llm_evaluation.score)
-    * [`LLMScorer`](saga_llm_evaluation.md#saga_llm_evaluation.score.LLMScorer)
-    * [`get_model()`](saga_llm_evaluation.md#saga_llm_evaluation.score.get_model)
