@@ -5,7 +5,7 @@ contain the root `toctree` directive. -->
 
 # 🔮 Sagacify LLM Evaluation ML Library 🔮
 
-![Python Version](https://img.shields.io/pypi/pyversions/saga-llm-evaluation) [![PyPI](https://img.shields.io/pypi/v/saga-llm-evaluation)](https://pypi.org/project/saga-llm-evaluation/) [![Documentation](https://img.shields.io/badge/Documentation-View-blue)](https://sagacify.github.io/saga-llm-evaluation/index.html#) [![Visit Sagacify!](https://img.shields.io/badge/Visit%20Sagacify!-green)](https://www.sagacify.com/)
+![Python Version](https://img.shields.io/pypi/pyversions/saga-llm-evaluation?logo=python&logoColor=white) [![PyPI](https://img.shields.io/pypi/v/saga-llm-evaluation?logo=pypi&logoColor=white)](https://pypi.org/project/saga-llm-evaluation/) [![Documentation](https://img.shields.io/badge/Documentation-View-purple?logo=readthedocs&logoColor=white)](https://sagacify.github.io/saga-llm-evaluation/index.html#) [![GitHub](https://img.shields.io/badge/GitHub-View-pink?logo=github&logoColor=white)](https://github.com/Sagacify/saga-llm-evaluation?tab=readme-ov-file) [![Visit Sagacify!](https://img.shields.io/badge/Visit%20Sagacify!-green)](https://www.sagacify.com/)
 
 Welcome to the Saga LLM Evaluation ML library, a versatile Python library designed for evaluating the performance of large language models in
 Natural Language Processing (NLP) tasks. Whether you’re developing language models, chatbots, or other NLP applications,
