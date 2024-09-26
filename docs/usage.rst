@@ -307,6 +307,6 @@ Accuracy
     )
 
 Using a different LangChain model as evaluator
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------------------------
 
 You can use a different model as evaluator by using any model that inherits from LangChain `BaseLanguageModel <https://api.python.langchain.com/en/latest/language_models/langchain_core.language_models.chat_models.BaseChatModel.html>`_. This is the preffered way to use the metrics. LangChain offers a wide range of models that can be used as evaluator. However, if a model you want to use is not available, you can still define your own evaluator model, see this `tutorial <https://python.langchain.com/docs/how_to/custom_chat_model/>`_. 
