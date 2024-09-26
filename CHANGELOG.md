@@ -2,6 +2,19 @@
 
 <!--next-version-placeholder-->
 
+## v0.11.2 (2024-09-25)
+
+### Fix
+
+* **cd:** Switch doc build to cd ([`b2f3579`](https://github.com/Sagacify/saga-llm-evaluation/commit/b2f3579425f6f58911d747fa5e8b0d995e9a9db6))
+* **ci:** Change permissions for github token ([`8c3aae4`](https://github.com/Sagacify/saga-llm-evaluation/commit/8c3aae4052a5f9d5c5d6e6134b6a3f9d061244ac))
+* **ci:** Change project name ([`0099d05`](https://github.com/Sagacify/saga-llm-evaluation/commit/0099d05b24a6c6f2125e10646eca96d4cf75b3e1))
+* **ci:** Poetry install ([`8dd77a6`](https://github.com/Sagacify/saga-llm-evaluation/commit/8dd77a6d449597e76a7c41da61c2ae673789648c))
+* **ci:** Use leorem file ([`42546b8`](https://github.com/Sagacify/saga-llm-evaluation/commit/42546b8c1d5f48efb54b5eb81cbf86d0bae96763))
+* **ci:** Set permissions ([`d47accd`](https://github.com/Sagacify/saga-llm-evaluation/commit/d47accd72f0043be7ce35233b492ba772a233a0c))
+* **cd:** Change to ci ([`a074974`](https://github.com/Sagacify/saga-llm-evaluation/commit/a074974d62adf4351ac6d1065c2648642fe185d8))
+* **cd:** Install dependencies ([`eea0dd2`](https://github.com/Sagacify/saga-llm-evaluation/commit/eea0dd2a1fb6389711bfd0ad27887f726802a1be))
+
 ## v0.11.1 (2024-09-24)
 
 ### Fix
