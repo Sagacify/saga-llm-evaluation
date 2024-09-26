@@ -33,7 +33,8 @@ extensions = [
     "sphinx.ext.duration",
     "sphinx.ext.doctest",
     'sphinx_markdown_builder',
-    'sphinx_emoji_favicon'
+    'sphinx_emoji_favicon', 
+    'sphinx_copybutton',
 ]
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
