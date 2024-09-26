@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v0.11.4 (2024-09-26)
+
+### Fix
+
+* **poetry:** Generate poetry lock ([`e0d9d7d`](https://github.com/Sagacify/saga-llm-evaluation/commit/e0d9d7dae936d5aa7532756699793ed39ad7283b))
+* **poetry:** Group doc generation dependencies ([`041e086`](https://github.com/Sagacify/saga-llm-evaluation/commit/041e0863dfb0b7a88c0377b1e1303ed4de66cff2))
+
+### Documentation
+
+* **readme:** Fix indentations of lists ([`b34314f`](https://github.com/Sagacify/saga-llm-evaluation/commit/b34314fd0a3122ae147cc1e8303d4514b1c78f3f))
+
 ## v0.11.3 (2024-09-26)
 
 ### Fix
