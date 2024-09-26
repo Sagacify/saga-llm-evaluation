@@ -7,14 +7,12 @@ contain the root `toctree` directive. -->
 
 ![Python Version](https://img.shields.io/pypi/pyversions/saga-llm-evaluation?logo=python&logoColor=white) [![PyPI](https://img.shields.io/pypi/v/saga-llm-evaluation?logo=pypi&logoColor=white)](https://pypi.org/project/saga-llm-evaluation/) [![Documentation](https://img.shields.io/badge/Documentation-View-purple?logo=readthedocs&logoColor=white)](https://sagacify.github.io/saga-llm-evaluation/index.html#) [![GitHub](https://img.shields.io/badge/GitHub-View-pink?logo=github&logoColor=white)](https://github.com/Sagacify/saga-llm-evaluation?tab=readme-ov-file) [![Visit Sagacify!](https://img.shields.io/badge/Visit%20Sagacify!-green)](https://www.sagacify.com/)
 
-Welcome to the Saga LLM Evaluation ML library, a versatile Python library designed for evaluating the performance of large language models in
-Natural Language Processing (NLP) tasks. Whether you’re developing language models, chatbots, or other NLP applications,
+Welcome to the Saga LLM Evaluation ML library, a versatile Python library designed for evaluating the performance of large language models in Natural Language Processing (NLP) tasks. Whether you’re developing language models, chatbots, or other NLP applications,
 our library provides a comprehensive suite of metrics to help you assess the quality of your language models.
 
 We divided the metrics into three categories: embedding-based, language-model-based, and LLM-based metrics.
 It is built on top of multiple libraries such as the [Hugging Face Transformers library](https://github.com/huggingface/transformers), or [LangChain](https://www.langchain.com/), with some additional metrics and features.
-You can use the metrics individually or all at once using the Scorer provided by this library, depending on the availability of references,
-context, and other parameters.
+You can use the metrics individually or all at once using the Scorer provided by this library, depending on the availability of references, context, and other parameters.
 
 Moreover, the Scorer function provides metafeatures that are extracted from the prompt, prediction, and knowledge via the [Elemeta Library](https://docs.elemeta.ai/index.html).
 This allows you to monitor the performance of your model based on the structure of the prompt, prediction, and knowledge.
