@@ -6,6 +6,26 @@
 LLM Evaluation ML Library 🔮
 ===============================
 
+.. image:: https://img.shields.io/pypi/pyversions/saga-llm-evaluation?logo=python&logoColor=white
+   :alt: Python Version
+
+.. image:: https://img.shields.io/pypi/v/saga-llm-evaluation?logo=pypi&logoColor=white
+    :alt: PyPI
+    :target: https://pypi.org/project/saga-llm-evaluation/
+
+.. image:: https://img.shields.io/badge/Documentation-View-purple?logo=readthedocs&logoColor=white
+    :alt: Documentation
+    :target: https://sagacify.github.io/saga-llm-evaluation/index.html#
+
+.. image:: https://img.shields.io/badge/GitHub-View-pink?logo=github&logoColor=white
+    :alt: GitHub
+    :target: https://github.com/Sagacify/saga-llm-evaluation?tab=readme-ov-file
+
+.. image:: https://img.shields.io/badge/Visit%20Sagacify!-green
+    :alt: Visit Sagacify!
+    :target: https://www.sagacify.com/
+
+
 Welcome to the Saga LLM Evaluation ML library, a versatile Python library designed for evaluating the performance of large language models in 
 Natural Language Processing (NLP) tasks. Whether you're developing language models, chatbots, or other NLP applications, 
 our library provides a comprehensive suite of metrics to help you assess the quality of your language models.
@@ -48,7 +68,8 @@ Available Metrics
 
 Each of these metrics uses either ChatGPT or a quantized LLAMA model by default to evaluate the generated text, but you can define yourself which model you want to use for evaluation, see the :ref:`usage_section` section for more information.
 
-Feel free to contribute and make this library even more powerful! 
+Feel free to contribute and make this library even more powerful!
+
 We appreciate your support. 💻💪🏻
 
 

@@ -91,15 +91,20 @@
 .wy-menu-vertical .toctree-l3.current > a {
     color: #ffffff !important;  /* White text color for active links */
     border: transparent !important;  /* Remove border for active links */
+    background-color:  #0C1153 !important;  /* Dark blue background */
 }
 
+/* Hover state background for all levels */
 .wy-menu-vertical .toctree-l1 > a:hover,
 .wy-menu-vertical .toctree-l2 > a:hover,
 .wy-menu-vertical .toctree-l3 > a:hover {
     background-color: #69eda2 !important;  /* Green background on hover */
     color: #f8f9fa !important;  /* Dark blue text color on hover */
-    border-radius: 5px !important;  /* Rounded corners for better effect */
     border: transparent !important;  /* Remove border on hover */
+}
+
+.wy-menu-vertical .toctree-l4 > a:hover { /* make text in bold on hover */
+    font-weight: bold;
 }
 
 /* Hide the expand/collapse icons in the sidebar (toctree) */
