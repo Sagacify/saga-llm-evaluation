@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v0.11.6 (2024-09-26)
+
+### Fix
+
+* **cd:** Install all dependencies for autodoc ([`140c7cb`](https://github.com/Sagacify/saga-llm-evaluation/commit/140c7cb46d381ccfa4af8ead953fe6f83cba1c11))
+
+### Documentation
+
+* **readme:** Improve badges ([`2e73549`](https://github.com/Sagacify/saga-llm-evaluation/commit/2e73549b2b6bfcb4118751bebbb58bec9c4fde51))
+* **doc:** Fix details ([`a322c3e`](https://github.com/Sagacify/saga-llm-evaluation/commit/a322c3eb839562a6fcf6d50f751170be1f93f475))
+
 ## v0.11.5 (2024-09-26)
 
 ### Fix
