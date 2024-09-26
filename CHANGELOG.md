@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v0.11.3 (2024-09-26)
+
+### Fix
+
+* **ci:** Upgrade poetry version ([`277171a`](https://github.com/Sagacify/saga-llm-evaluation/commit/277171a7f00ad43ddee94ae498cde205fe40a81c))
+
+### Documentation
+
+* **readme:** Add copy code buttons in code cells ([`a35b732`](https://github.com/Sagacify/saga-llm-evaluation/commit/a35b732bd1b9d3962b30137052a742bb8ddf3085))
+* **readme:** Modify readme for better render ([`f09a639`](https://github.com/Sagacify/saga-llm-evaluation/commit/f09a639cb73b87736b1ed34bfd1c781b28a7428e))
+
 ## v0.11.2 (2024-09-25)
 
 ### Fix
