@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.11.5 (2024-09-26)
+
+### Fix
+
+* **cd:** Install only docs dependencies ([`d26748c`](https://github.com/Sagacify/saga-llm-evaluation/commit/d26748cf56186605f55f1c3357e090c8b2b25e95))
+
 ## v0.11.4 (2024-09-26)
 
 ### Fix
