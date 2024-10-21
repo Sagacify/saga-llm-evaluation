@@ -5,7 +5,7 @@ description = "Versatile Python library designed for evaluating the performance 
 readme = "README.md"
 authors = [
     "Leonardo Remondini <leonardo.remondini@sagacify.com>",
-    "Lucie Navez <lucie.navez@sagacify.com>",
+    "Lucie Navez de Lamotte <lucie.navez@sagacify.com>",
 ]
 
 [tool.poetry.dependencies]
@@ -17,8 +17,6 @@ evaluate = "^0.4.1"
 mauve-text = "^0.3.0"
 bert-score = "^0.3.13"
 torch = "2.1.1"
-tensorflow = { version = "^2.14", markers = "sys_platform == 'linux'" }
-tensorflow-macos = { version = "^2.14", markers = "sys_platform == 'darwin' and platform_machine == 'arm64'" }
 elemeta = "1.0.7"
 llama-cpp-python = "^0.2.11"
 faiss-cpu = "^1.7.4"
@@ -28,6 +26,7 @@ langchain-openai = "^0.1.23"
 langchain-community = "^0.2.15"
 nltk = "^3.9.1"
 langchain-huggingface = "^0.0.3"
+tensorflow = "^2.17.0"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.13"
