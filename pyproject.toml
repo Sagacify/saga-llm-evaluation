@@ -17,9 +17,6 @@ evaluate = "^0.4.1"
 mauve-text = "^0.3.0"
 bert-score = "^0.3.13"
 torch = "2.1.1"
-tensorflow = { version = "^2.14", markers = "sys_platform == 'linux'" }
-tensorflow-macos = { version = "^2.14", markers = "sys_platform == 'darwin' and platform_machine == 'arm64'" }
-elemeta = "1.0.7"
 llama-cpp-python = "^0.2.11"
 faiss-cpu = "^1.7.4"
 langchain = "^0.2.15"
@@ -45,6 +42,10 @@ sphinx-rtd-theme = "^2.0.0"
 sphinx-markdown-builder = "^0.6.7"
 sphinx-emoji-favicon = "^0.2"
 sphinx-copybutton = "^0.5.2"
+
+
+[tool.poetry.group.scorer.dependencies]
+elemeta = "1.0.7"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

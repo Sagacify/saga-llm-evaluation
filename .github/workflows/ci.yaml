@@ -44,7 +44,7 @@ jobs:
 
       - name: Install packages & build
         run: |
-          poetry install --without docs
+          poetry install --without docs --with scorer
 
       - name: Run formatter
         run: |
