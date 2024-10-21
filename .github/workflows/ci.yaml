@@ -58,18 +58,7 @@ jobs:
         run: |
           poetry run pytest
 
-      - name: Capture current version
-        id: current_version
-        if: ${{ github.ref == 'refs/heads/master' }}
-        run: echo "::set-output name=version::$(poetry version -s)"
-
-      - name: Capture new version
-        id: new_version
-        if: ${{ github.ref == 'refs/heads/master' }}
-        run: echo "::set-output name=version::$(poetry version -s)"
-
       - name: Push to private PyPI registry
-        if: ${{ steps.new_version.outputs.version != steps.current_version.outputs.version }}
         env:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.POETRY_PYPI_TOKEN_PYPI }}
         run: |
