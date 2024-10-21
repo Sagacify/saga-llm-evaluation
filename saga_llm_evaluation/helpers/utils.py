@@ -5,14 +5,7 @@ import string
 from collections import Counter
 
 import torch
-from elemeta.nlp.extractors.high_level.regex_match_count import RegexMatchCount
-from elemeta.nlp.extractors.high_level.word_regex_matches_count import (
-    WordRegexMatchesCount,
-)
-from elemeta.nlp.extractors.low_level.abstract_metafeature_extractor import (
-    AbstractMetafeatureExtractor,
-)
-from elemeta.nlp.metafeature_extractors_runner import MetafeatureExtractorsRunner
+
 from huggingface_hub import hf_hub_download
 from llama_cpp import Llama
 from langchain_community.chat_models import ChatLlamaCpp
@@ -271,13 +264,32 @@ def check_list_type(array: list, list_type: type):
     return all(isinstance(item, list_type) for item in array)
 
 
-# pylint:disable=invalid-name
+# pylint:disable=invalid-name, import-outside-toplevel
 class MetadataExtractor:
     def __init__(self):
         """
         Initializes the metadata extractor.
         """
+        try:
+            from elemeta.nlp.extractors.high_level.regex_match_count import (
+                RegexMatchCount,
+            )
+            from elemeta.nlp.extractors.high_level.word_regex_matches_count import (
+                WordRegexMatchesCount,
+            )
+            from elemeta.nlp.metafeature_extractors_runner import (
+                MetafeatureExtractorsRunner,
+            )
+
+        except ImportError as exc:
+            raise ImportError(
+                "The 'elemeta' library is required to use Scorer."
+                "Please install it with: poetry install saga-llm-evaluation --extras scorer or pip install saga-llm-evaluation[scorer]"
+            ) from exc
+
         self.metadata_extractor = MetafeatureExtractorsRunner()
+        self.regex_match_count = RegexMatchCount()
+        self.word_regex_matches_count = WordRegexMatchesCount()
 
     def add_word_regex_matches_count(self, regex_rule, name=None):
         """
@@ -288,7 +300,7 @@ class MetadataExtractor:
             regex_rule (str): regex rule to add
         """
         self.metadata_extractor.add_metafeature_extractor(
-            WordRegexMatchesCount(regex=regex_rule, name=name)
+            self.word_regex_matches_count(regex=regex_rule, name=name)
         )
 
     def add_regex_match_count(self, regex_rule, name=None):
@@ -300,10 +312,10 @@ class MetadataExtractor:
             regex_rule (str): regex rule to add
         """
         self.metadata_extractor.add_metafeature_extractor(
-            RegexMatchCount(regex=regex_rule, name=name)
+            self.regex_match_count(regex=regex_rule, name=name)
         )
 
-    def add_custom_extractor(self, extractor: AbstractMetafeatureExtractor):
+    def add_custom_extractor(self, extractor):
         """
         Adds a custom extractor to the metadata extractor.
 

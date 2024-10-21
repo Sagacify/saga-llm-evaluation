@@ -9,24 +9,30 @@ authors = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.11"
-transformers = "^4.21.1"
-numpy = "^1.21.2"
-spacy = "^3.1.3"
-evaluate = "^0.4.1"
-mauve-text = "^0.3.0"
-bert-score = "^0.3.13"
-torch = "2.1.1"
-elemeta = "1.0.7"
-llama-cpp-python = "^0.2.11"
-faiss-cpu = "^1.7.4"
-langchain = "^0.2.15"
-llama-index = "^0.11.3"
-langchain-openai = "^0.1.23"
-langchain-community = "^0.2.15"
+python = ">=3.10,<3.11"
+evaluate = "^0.4.3"
+spacy = ">=3.8.2"
+torch = "^2.5.0"
+transformers = "^4.45.2"
+numpy = ">=1, <2"
+langchain = "^0.3.4"
+langchain-core = "^0.3.12"
+llama-index = "^0.11.19"
 nltk = "^3.9.1"
-langchain-huggingface = "^0.0.3"
-tensorflow = "^2.17.0"
+huggingface-hub = "^0.26.0"
+langchain-community = "^0.3.3"
+langchain-openai = "^0.2.3"
+llama-cpp-python = "^0.2.11"
+bert-score = "^0.3.13"
+faiss-cpu = "^1.9.0"
+scikit-learn = "^1.5.2"
+mauve-text = "^0.4.0"
+
+[tool.poetry.group.scorer]
+optional = true
+
+[tool.poetry.group.scorer.dependencies]
+elemeta = "^1.3.2"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.13"
@@ -38,6 +44,9 @@ pytest-env = "^0.8.1"
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"
 jupyterlab = "^4.0.7"
+
+[tool.poetry.group.docs]
+optional = true
 
 [tool.poetry.group.docs.dependencies]
 sphinx-rtd-theme = "^2.0.0"
