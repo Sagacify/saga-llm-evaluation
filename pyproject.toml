@@ -5,7 +5,7 @@ description = "Versatile Python library designed for evaluating the performance 
 readme = "README.md"
 authors = [
     "Leonardo Remondini <leonardo.remondini@sagacify.com>",
-    "Lucie Navez de Lamotte <lucie.navez@sagacify.com>",
+    "Lucie Navez <lucie.navez@sagacify.com>",
 ]
 
 [tool.poetry.dependencies]
