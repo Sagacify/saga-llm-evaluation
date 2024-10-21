@@ -60,6 +60,7 @@ jobs:
 
       - name: Push to private PyPI registry
         run: |
+          poetry version patch
           poetry publish --build
         env:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.POETRY_PYPI_TOKEN_PYPI }}
