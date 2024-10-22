@@ -67,7 +67,7 @@ jobs:
 
       - name: Install packages & build
         run: |
-          poetry install --with docs
+          poetry install --with docs --extras scorer
 
       - name: Build documentation
         working-directory: docs
