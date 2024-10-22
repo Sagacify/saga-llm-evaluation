@@ -57,3 +57,6 @@ jobs:
       - name: Run tests
         run: |
           poetry run pytest
+
+      - name: Push to private PyPI registry
+        run: poetry publish --repository sagacify
