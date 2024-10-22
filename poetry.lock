@@ -406,7 +406,7 @@ transformers = ">=3.0.0"
 name = "better-profanity"
 version = "0.7.0"
 description = "Blazingly fast cleaning swear words (and their leetspeak) in strings"
-optional = false
+optional = true
 python-versions = "==3.*"
 files = [
     {file = "better_profanity-0.7.0-py3-none-any.whl", hash = "sha256:bd4c529ea6aa2db1aaa50524be1ed14d0fe5c664f1fd88c8bc388c7e9f9f00e8"},
@@ -1006,7 +1006,7 @@ vision = ["Pillow (>=6.2.1)"]
 name = "datefinder"
 version = "0.7.3"
 description = "Extract datetime objects from strings"
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "datefinder-0.7.3-py2.py3-none-any.whl", hash = "sha256:c012e8cf60f8e80ee2df203f69338211ab2a68ec6e8a83c5c1e1f424d5743a9c"},
@@ -1157,7 +1157,7 @@ files = [
 name = "elemeta"
 version = "1.0.7"
 description = "Metafeature Extraction for Unstructured Data"
-optional = false
+optional = true
 python-versions = ">=3.8,<4.0.0"
 files = [
     {file = "elemeta-1.0.7-py3-none-any.whl", hash = "sha256:7287f648298c702ff4975575f8c5b0b0cd090ab7928e4cf8ae4086368cca4d6e"},
@@ -2562,7 +2562,7 @@ test = ["pytest", "pytest-cov"]
 name = "langdetect"
 version = "1.0.9"
 description = "Language detection library ported from Google's language-detection."
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "langdetect-1.0.9-py2-none-any.whl", hash = "sha256:7cbc0746252f19e76f77c0b1690aadf01963be835ef0cd4b56dddf2a8f1dfc2a"},
@@ -4222,7 +4222,7 @@ murmurhash = ">=0.28.0,<1.1.0"
 name = "profanity-check"
 version = "1.0.3"
 description = "A fast, robust library to check for offensive language in strings."
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "profanity-check-1.0.3.tar.gz", hash = "sha256:b32dd3444a1fccc8527aa29330970e447b9f67659454127a15e85078ce77eb21"},
@@ -4698,7 +4698,7 @@ image = ["Pillow (>=8.0.0)"]
 name = "pyphen"
 version = "0.16.0"
 description = "Pure Python module to hyphenate text"
-optional = false
+optional = true
 python-versions = ">=3.8"
 files = [
     {file = "pyphen-0.16.0-py3-none-any.whl", hash = "sha256:b4a4c6d7d5654b698b5fc68123148bb799b3debe0175d1d5dc3edfe93066fc4c"},
@@ -6253,7 +6253,7 @@ typing = ["mypy (>=1.6,<2.0)", "traitlets (>=5.11.1)"]
 name = "textblob"
 version = "0.17.1"
 description = "Simple, Pythonic text processing. Sentiment analysis, part-of-speech tagging, noun phrase parsing, and more."
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "textblob-0.17.1-py2.py3-none-any.whl", hash = "sha256:15546d7f309e96a3f542bee42751c8e5ce4d519d3d274ee79df2318141f0b788"},
@@ -6267,7 +6267,7 @@ nltk = {version = ">=3.1", markers = "python_version >= \"3\""}
 name = "textstat"
 version = "0.7.4"
 description = "Calculate statistical features from text"
-optional = false
+optional = true
 python-versions = ">=3.6"
 files = [
     {file = "textstat-0.7.4-py3-none-any.whl", hash = "sha256:53a36cbcf4d21312d28cdc5a316917031667a57303e375a184d83fd52b95a407"},
@@ -6852,7 +6852,7 @@ zstd = ["zstandard (>=0.18.0)"]
 name = "vadersentiment"
 version = "3.3.2"
 description = "VADER Sentiment Analysis. VADER (Valence Aware Dictionary and sEntiment Reasoner) is a lexicon and rule-based sentiment analysis tool that is specifically attuned to sentiments expressed in social media, and works well on texts from other domains."
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "vaderSentiment-3.3.2-py2.py3-none-any.whl", hash = "sha256:3bf1d243b98b1afad575b9f22bc2cb1e212b94ff89ca74f8a23a588d024ea311"},
@@ -7277,7 +7277,10 @@ enabler = ["pytest-enabler (>=2.2)"]
 test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-itertools", "pytest (>=6,!=8.1.*)", "pytest-ignore-flaky"]
 type = ["pytest-mypy"]
 
+[extras]
+scorer = ["elemeta"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.11"
-content-hash = "2095c574fd2ba032aaa0117e3148bbaa9f6e7a826fedad04aff08377b69c6596"
+content-hash = "32fd3fa01906af5895f352fb9b154a5bc40c2e9f8dc884ee89dd4bbb88601c99"

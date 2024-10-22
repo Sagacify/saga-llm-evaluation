@@ -44,7 +44,7 @@ jobs:
 
       - name: Install packages & build
         run: |
-          poetry install --without docs --with scorer
+          poetry install --without docs --extras scorer
 
       - name: Run formatter
         run: |
@@ -60,6 +60,3 @@ jobs:
 
       - name: Build package
         run: poetry build
-
-      - name: Push to private PyPI registry
-        run: poetry publish --repository sagacify
