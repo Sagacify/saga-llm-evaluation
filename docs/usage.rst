@@ -5,6 +5,12 @@ Usage
 Default use of the Scorer
 -------------------------
 The Scorer is a class that allows you to run multiple metrics at once. The metrics supported are BERTScore, MAUVE, BLEURTScore, Q-Squared, SelCheck-GPT, G-Eval, and GPT-Score, but of course this list is likely to grow in the future.
+If you want to use the Scorer class, you need to install the following dependencies:
+
+.. code-block:: bash
+    pip install saga-llm-evaluation[scorer]
+
+However, beware that this will downgrade the version of the `pandas` library to 1.5.3 if you have a higher version installed. This is due to a compatibility issue with the `pandas` library.
 
 .. code-block:: python
 
