@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.12.1 (2024-10-22)
+
+### Fix
+
+* Also install extras for documentation build ([`50e97aa`](https://github.com/Sagacify/saga-llm-evaluation/commit/50e97aa379085bc8e886d42fea7e6413a3598b1c))
+
 ## v0.12.0 (2024-10-22)
 
 ### Feature
