@@ -10,7 +10,7 @@ To install the Saga LLM Evaluation ML library, use the following command:
 If you want to use the Scorer class, you need to install the following dependencies:
 
 .. code-block:: bash
-    pip install saga-llm-evaluation[scorer]
+    pip install "saga-llm-evaluation[scorer]"
 
 However, beware that this will downgrade the version of the `pandas` library to 1.5.3 if you have a higher version installed. This is due to a compatibility issue with the `pandas` library.
 
