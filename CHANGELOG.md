@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v0.12.0 (2024-10-22)
+
+### Feature
+
+* Bump version ([`c90d7f1`](https://github.com/Sagacify/saga-llm-evaluation/commit/c90d7f18250f41e7d0907c4563e92cd52f2b8cb1))
+
+### Documentation
+
+* **sphinx:** How to use scorer module ([`1ae50cd`](https://github.com/Sagacify/saga-llm-evaluation/commit/1ae50cda32f1fad458338fd60468cb9bc6fbc6f1))
+
 ## v0.11.6 (2024-09-26)
 
 ### Fix
